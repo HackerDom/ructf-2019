@@ -38,8 +38,7 @@ func RunBfCode(code, input string, maxOperations uint) (string, error) {
 	if retCode != 0 {
 		return "", errors.New(fmt.Sprintf("Error at code (%v)", retCode))
 	}
-	writtenBytes = uint(len(boutput))
-	return string(boutput[:]), nil
+	return string(boutput[:writtenBytes]), nil
 }
 
 func _main() {

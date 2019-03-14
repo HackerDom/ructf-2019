@@ -41,7 +41,7 @@ def main():
     start = time()
     cnt = 1
     for _ in range(cnt):
-        source = "++++++++++[>++++++++++++++++++++<-]>[.-]>" * 47
+        source = "++++++++++[>++++++++++++++++++++<-]>[.-]>"
         stdin = gen_str(1000)
         token = "TOKEN"
         res = add_new_task(source, stdin, token).get('taskId')
