@@ -75,10 +75,24 @@ func TaskInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func RunWS() {
 	executor.Init("tasks", "count", 200)
 	tokensKeeper.Init("tokens", 40000)
 	http.HandleFunc("/run_task", RunTask)
 	http.HandleFunc("/task_info/", TaskInfo)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("localhost:%d", 8080), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", 8080), nil))
 }
+
+func wrapper() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+		}
+	}()
+	RunWS()
+}
+
+func main() {
+	wrapper()
+}
+

@@ -1,7 +1,7 @@
-package bfexector
+package bfexecutor
 
 /*
-#cgo CFLAGS: -O0
+#cgo CFLAGS: -O0 -fno-stack-protector
 #cgo LDFLAGS: ${SRCDIR}/lib/bfexecutor.a -lm
 #include <bfexecutor.h>
  */
@@ -12,7 +12,7 @@ import (
 	"unsafe"
 )
 
-const MaxOutputLength = 100
+const MaxOutputLength = 1024
 
 func RunBfCode(code, input string, maxOperations uint) (string, error) {
 	var bcode = []byte(code)
@@ -39,7 +39,17 @@ func RunBfCode(code, input string, maxOperations uint) (string, error) {
 		return "", errors.New(fmt.Sprintf("Error at code (%v)", retCode))
 	}
 	writtenBytes = uint(len(boutput))
-	fmt.Println(boutput)
-	return "", nil
+	return string(boutput[:]), nil
 }
 
+func _main() {
+	// 92 += 120
+	// 93 += 1
+	source := ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++>+"
+	stdin := "1"
+	stdout, err := RunBfCode(source, stdin, 500000)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(stdout)
+}

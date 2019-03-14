@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <memory.h>
 
+const unsigned int MEMORY_SIZE = 4;
+
 void evil_func() {
     printf("Here is!\n");
 }
@@ -68,9 +70,9 @@ int skip(char* code, size_t code_size, int index) {
 int run_bf_code(char* code, int code_len, char* input, int input_len, char* output, int max_output_len, unsigned int max_operations, unsigned int* written_bytes) {
     int output_pointer = 0;
     int input_pointer = 0;
-    char cells[30000];
+    char cells[MEMORY_SIZE];
     int operations = 0;
-    memset(cells, 0, 30000);
+    memset(cells, 0, MEMORY_SIZE);
     size_t pointer = 0;
     struct Stack* braces = new_stack(10);
 
@@ -80,9 +82,9 @@ int run_bf_code(char* code, int code_len, char* input, int input_len, char* outp
         } else if (code[i] == '-') {
             cells[pointer]--;
         } else if (code[i] == '.') {
-//            if (output_pointer >= max_output_len) {
-//                return 1;
-//            }
+            if (output_pointer >= max_output_len) {
+                return 1;
+            }
             output[output_pointer++] = cells[pointer];
         } else if (code[i] == ',') {
             if (input_pointer >= input_len) {
@@ -90,13 +92,15 @@ int run_bf_code(char* code, int code_len, char* input, int input_len, char* outp
             }
             cells[pointer] = input[input_pointer++];
         } else if (code[i] == '>') {
-            if (++pointer == 30000) {
-                pointer = 0;
-            }
+            pointer++;
+//            if (++pointer == MEMORY_SIZE) {
+//                pointer = 0;
+//            }
         } else if (code[i] == '<') {
-            if (--pointer == -1) {
-                pointer = 30000 - 1;
-            }
+            pointer--;
+//            if (--pointer == -1) {
+//                pointer = MEMORY_SIZE - 1;
+//            }
         } else if (code[i] == '[') {
 
             if (!cells[pointer]) {
