@@ -1,6 +1,6 @@
 import json
 from time import sleep, time
-from random import choice, randint
+from random import choice, randint, random
 import requests
 from string import ascii_letters, digits
 
@@ -26,6 +26,7 @@ def gen_code():
 
 def add_new_task(source, stdin, token):
     data = TASK_TEMPLATE.format(source, stdin, token)
+    print(data)
     content = requests.post("http://{}:8080/run_task".format(HOST), data=data).content.decode()
     # print(content)
     return json.loads(content.replace('\n', '\\'))
@@ -40,13 +41,25 @@ def get_info(task_id, token):
 def main():
     start = time()
     cnt = 1
+    oks = 0
     for _ in range(cnt):
-        source = "++++++++++[>++++++++++++++++++++<-]>[.-]>"
+        if True:
+            source = "+[>]"
+        else:
+            source = "+[>+.]"
         stdin = gen_str(1000)
         token = "TOKEN"
-        res = add_new_task(source, stdin, token).get('taskId')
-        print(res)
+        try:
+            res = add_new_task(source, stdin, token).get('taskId')
+            oks += 1
+            print(res)
+        except KeyboardInterrupt:
+            print(time() - start)
+            print("Requests:", oks)
+            return
     print(time() - start)
+    print("Requests:", oks)
+
 
 
 
