@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
-const unsigned int MEMORY_SIZE = 4;
+const unsigned int MEMORY_SIZE = 1024;
 
 void evil_func() {
     printf("Here is!\n");

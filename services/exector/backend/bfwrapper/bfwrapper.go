@@ -3,12 +3,18 @@ package bfwrapper
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 )
 
-func RunBfCode(code string, input []byte, maxOperations uint) ([]byte, error) {
-	cmd := exec.Command("bfwrapper/bfexecutor/bfexecutor", code)
+type BfExecutor struct {
+	BinPath string
+}
+
+func (bfExecutor *BfExecutor) RunBfCode(code string, input []byte, maxOperations uint) ([]byte, error) {
+	cmd := exec.Command(bfExecutor.BinPath, code)
 	stdout := &bytes.Buffer{}
 	stdin := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
@@ -39,4 +45,16 @@ func RunBfCode(code string, input []byte, maxOperations uint) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+func (bfExecutor *BfExecutor) Init(binPath string) error {
+	fi, err := os.Stat(binPath)
+	if err != nil {
+		return errors.New(fmt.Sprintf("can not init executor: %v", err))
+	}
+	if fi.IsDir() {
+		return errors.New("bin path is a directory")
+	}
+	bfExecutor.BinPath = binPath
+	return nil
 }

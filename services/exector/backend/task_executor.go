@@ -20,9 +20,10 @@ import (
 	"strconv"
 )
 
-type Executor struct {
+type TaskExecutor struct {
 	CounterFilename string
 	TasksStorage storage.Storage
+	BfExecutor bfwrapper.BfExecutor
 }
 
 const (
@@ -59,7 +60,7 @@ func jsonMarshalWithoutEscaping(t interface{}) ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-func (exec *Executor) SaveTask(result TaskResult, taskId uint) {
+func (exec *TaskExecutor) SaveTask(result TaskResult, taskId uint) {
 	rawTaskResult, err := jsonMarshalWithoutEscaping(result)
 	if err != nil {
 		log.Printf("Can not save task due to error: %v\n", err)
@@ -72,14 +73,14 @@ func (exec *Executor) SaveTask(result TaskResult, taskId uint) {
 	}
 }
 
-func ExecuteTask(source string, stdin []byte) ([]byte, error) {
-	result, err := bfwrapper.RunBfCode(source, stdin, 50000)
+func (exec *TaskExecutor) ExecuteTask(source string, stdin []byte) ([]byte, error) {
+	result, err := exec.BfExecutor.RunBfCode(source, stdin, 50000)
 	return result, err
 }
 
-func (exec *Executor) ProcessTask(taskId uint, source string, stdin []byte) {
+func (exec *TaskExecutor) ProcessTask(taskId uint, source string, stdin []byte) {
 	exec.SaveTask(TaskResult{2, "", "Unexpected error"}, taskId)
-	stdout, err := ExecuteTask(source, stdin)
+	stdout, err := exec.ExecuteTask(source, stdin)
 	var result TaskResult
 	if err != nil {
 		result = TaskResult{ERROR, "", fmt.Sprint(err)}
@@ -89,14 +90,14 @@ func (exec *Executor) ProcessTask(taskId uint, source string, stdin []byte) {
 	exec.SaveTask(result, taskId)
 }
 
-func (exec *Executor) AddTask(source string, stdin []byte) uint {
+func (exec *TaskExecutor) AddTask(source string, stdin []byte) uint {
 	taskId := exec.GetTaskCount()
 	go exec.ProcessTask(taskId, source, stdin)
 	exec.IncTaskCount()
 	return taskId
 }
 
-func (exec *Executor) TaskInfo(taskId uint) ([]byte, error) {
+func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
 	if taskId >= exec.GetTaskCount() {
 		return nil, errors.New("no such task")
 	}
@@ -108,7 +109,7 @@ func (exec *Executor) TaskInfo(taskId uint) ([]byte, error) {
 	}
 }
 
-func (exec *Executor) GetTaskCount() uint {
+func (exec *TaskExecutor) GetTaskCount() uint {
 	if exec.createCounterFileIfNotExists() {
 		return 0
 	} else {
@@ -124,7 +125,7 @@ func (exec *Executor) GetTaskCount() uint {
 	}
 }
 
-func (exec *Executor) IncTaskCount() {
+func (exec *TaskExecutor) IncTaskCount() {
 	taskCount := exec.GetTaskCount() + 1
 	err := ioutil.WriteFile(exec.CounterFilename, []byte(fmt.Sprint(taskCount)), 0777)
 	if err != nil {
@@ -132,7 +133,7 @@ func (exec *Executor) IncTaskCount() {
 	}
 }
 
-func (exec *Executor) createCounterFileIfNotExists() bool {
+func (exec *TaskExecutor) createCounterFileIfNotExists() bool {
 	if _, err := os.Stat(exec.CounterFilename); os.IsNotExist(err) {
 		file, err := os.Create(exec.CounterFilename)
 		defer file.Close()
@@ -149,13 +150,14 @@ func (exec *Executor) createCounterFileIfNotExists() bool {
 	}
 }
 
-//func (exec *Executor) createNewTaskDirIfNeed() {
-//	dirFilename := path.Join(exec.TaskDir, fmt.Sprint(exec.GetTaskCount() / exec.TaskBlockSize))
-//	storage.CreateDirIfNotExists(dirFilename)
-//}
-
-func (exec *Executor) Init(taskDir, counterFilename string, taskBlockSize uint) {
+func (exec *TaskExecutor) Init(taskDir, counterFilename string, taskBlockSize uint, bfExecutorBinPath string) error {
 	exec.CounterFilename = counterFilename
 	exec.TasksStorage.Init(taskDir, 40000)
 	exec.createCounterFileIfNotExists()
+	var bfExecutor bfwrapper.BfExecutor
+	if err := bfExecutor.Init(bfExecutorBinPath); err != nil {
+		return err
+	}
+	exec.BfExecutor = bfExecutor
+	return nil
 }

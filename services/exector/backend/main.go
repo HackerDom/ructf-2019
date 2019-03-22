@@ -7,11 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"runtime"
 	"strconv"
 )
 
-var executor Executor
+var executor TaskExecutor
 var tokensKeeper storage.Storage
 
 type NewTask struct {
@@ -77,8 +76,14 @@ func TaskInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	runtime.GOMAXPROCS(4)
-	executor.Init("tasks", "count", 200)
+	if err := executor.Init(
+		"tasks",
+		"count",
+		200,
+		"bfwrapper/bfexecutor/bfexecutor",
+		); err != nil {
+		panic(err)
+	}
 	tokensKeeper.Init("tokens", 40000)
 	http.HandleFunc("/run_task", RunTask)
 	http.HandleFunc("/task_info/", TaskInfo)
