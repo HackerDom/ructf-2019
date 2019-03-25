@@ -1,12 +1,10 @@
 #include <stdio.h>
+#include <sys/mman.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <stdint.h>
 
 const unsigned int MEMORY_SIZE = 1024;
-
-void evil_func() {
-    printf("Here is!\n");
-}
 
 struct Stack {
     int* stack;
@@ -76,6 +74,12 @@ int run_bf_code(char* code, int code_len, char* input, int input_len, char* outp
     size_t pointer = 0;
     struct Stack* braces = new_stack(10);
 
+    char* output_ptr = (char*)mmap((void*)0x7fffdeadbeef, max_output_len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (output_ptr == MAP_FAILED) {
+        return 7;
+    }
+
+    memset(output_ptr, 0, max_output_len);
     for (int i = 0; i < code_len; ++i) {
         if (code[i] == '+') {
             cells[pointer]++;
@@ -86,7 +90,7 @@ int run_bf_code(char* code, int code_len, char* input, int input_len, char* outp
                 free_stack(braces);
                 return 1;
             }
-            output[output_pointer++] = cells[pointer];
+            output_ptr[output_pointer++] = cells[pointer];
         } else if (code[i] == ',') {
             if (input_pointer >= input_len) {
                 free_stack(braces);
@@ -99,10 +103,9 @@ int run_bf_code(char* code, int code_len, char* input, int input_len, char* outp
 //                pointer = 0;
 //            }
         } else if (code[i] == '<') {
-            pointer--;
-//            if (--pointer == -1) {
-//                pointer = MEMORY_SIZE - 1;
-//            }
+            if (--pointer == -1) {
+                pointer = MEMORY_SIZE - 1;
+            }
         } else if (code[i] == '[') {
 
             if (!cells[pointer]) {
@@ -136,6 +139,7 @@ int run_bf_code(char* code, int code_len, char* input, int input_len, char* outp
         return 6;
     }
     free_stack(braces);
+    memcpy(output, output_ptr, max_output_len);
     *written_bytes = output_pointer;
     return 0;
 }
