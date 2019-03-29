@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <!--<div id="demo"></div>-->
+    <!--<button onclick="getLocation()"></button>-->
+    <div>Это типа страничка с созданием квеста</div>
+    <div>Hello {{ name }}!</div>
+</body>
+<script>
+    // Это пример, как на js доставать GPS координаты текущего устройства
+    var x = document.getElementById("demo");
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+        x.innerHTML = "Latitude: " + position.coords.latitude +
+          "<br>Longitude: " + position.coords.longitude;
+    }
+</script>
+</html>
