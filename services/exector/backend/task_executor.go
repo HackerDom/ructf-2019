@@ -79,7 +79,7 @@ func (exec *TaskExecutor) ExecuteTask(source string, stdin []byte) ([]byte, erro
 }
 
 func (exec *TaskExecutor) ProcessTask(taskId uint, source string, stdin []byte) {
-	exec.SaveTask(TaskResult{2, "", "Unexpected error"}, taskId)
+	exec.SaveTask(TaskResult{1, "", ""}, taskId)
 	stdout, err := exec.ExecuteTask(source, stdin)
 	var result TaskResult
 	if err != nil {
@@ -103,7 +103,7 @@ func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
 	}
 	value, err := exec.TasksStorage.Get(taskId)
 	if err != nil {
-		return []byte("{\"Status\": \"1\"}"), nil
+		return []byte("{\"Status\": \"2\"}"), nil
 	} else {
 		return value, nil
 	}
