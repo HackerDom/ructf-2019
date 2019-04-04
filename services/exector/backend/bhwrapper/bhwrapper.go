@@ -1,4 +1,4 @@
-package bfwrapper
+package bhwrapper
 
 import (
 	"bytes"
@@ -9,12 +9,12 @@ import (
 	"os/exec"
 )
 
-type BfExecutor struct {
+type BhExecutor struct {
 	BinPath string
 }
 
-func (bfExecutor *BfExecutor) RunBfCode(code string, input []byte, maxOperations uint) ([]byte, error) {
-	cmd := exec.Command(bfExecutor.BinPath, code)
+func (bhExecutor *BhExecutor) RunBhCode(code string, input []byte, maxOperations uint) ([]byte, error) {
+	cmd := exec.Command(bhExecutor.BinPath, code)
 	stdout := &bytes.Buffer{}
 	stdin := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
@@ -47,7 +47,7 @@ func (bfExecutor *BfExecutor) RunBfCode(code string, input []byte, maxOperations
 	return data, nil
 }
 
-func (bfExecutor *BfExecutor) Init(binPath string) error {
+func (bhExecutor *BhExecutor) Init(binPath string) error {
 	fi, err := os.Stat(binPath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("can not init executor: %v", err))
@@ -55,6 +55,6 @@ func (bfExecutor *BfExecutor) Init(binPath string) error {
 	if fi.IsDir() {
 		return errors.New("bin path is a directory")
 	}
-	bfExecutor.BinPath = binPath
+	bhExecutor.BinPath = binPath
 	return nil
 }

@@ -11,7 +11,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"exector/backend/bfwrapper"
+	"exector/backend/bhwrapper"
 	"exector/backend/storage"
 	"fmt"
 	"io/ioutil"
@@ -22,8 +22,8 @@ import (
 
 type TaskExecutor struct {
 	CounterFilename string
-	TasksStorage storage.Storage
-	BfExecutor bfwrapper.BfExecutor
+	TasksStorage    storage.Storage
+	BhExecutor      bhwrapper.BhExecutor
 }
 
 const (
@@ -74,7 +74,7 @@ func (exec *TaskExecutor) SaveTask(result TaskResult, taskId uint) {
 }
 
 func (exec *TaskExecutor) ExecuteTask(source string, stdin []byte) ([]byte, error) {
-	result, err := exec.BfExecutor.RunBfCode(source, stdin, 50000)
+	result, err := exec.BhExecutor.RunBhCode(source, stdin, 50000)
 	return result, err
 }
 
@@ -150,14 +150,14 @@ func (exec *TaskExecutor) createCounterFileIfNotExists() bool {
 	}
 }
 
-func (exec *TaskExecutor) Init(taskDir, counterFilename string, taskBlockSize uint, bfExecutorBinPath string) error {
+func (exec *TaskExecutor) Init(taskDir, counterFilename string, taskBlockSize uint, bhExecutorBinPath string) error {
 	exec.CounterFilename = counterFilename
 	exec.TasksStorage.Init(taskDir, 40000)
 	exec.createCounterFileIfNotExists()
-	var bfExecutor bfwrapper.BfExecutor
-	if err := bfExecutor.Init(bfExecutorBinPath); err != nil {
+	var bhExecutor bhwrapper.BhExecutor
+	if err := bhExecutor.Init(bhExecutorBinPath); err != nil {
 		return err
 	}
-	exec.BfExecutor = bfExecutor
+	exec.BhExecutor = bhExecutor
 	return nil
 }

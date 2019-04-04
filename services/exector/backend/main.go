@@ -80,7 +80,7 @@ func main() {
 		"tasks",
 		"count",
 		200,
-		"bfwrapper/bfexecutor/bfexecutor",
+		"bhwrapper/bhexecutor/bhexecutor",
 		); err != nil {
 		panic(err)
 	}

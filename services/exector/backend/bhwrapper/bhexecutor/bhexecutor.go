@@ -2,8 +2,8 @@ package main
 
 /*
 #cgo CFLAGS: -O0 -fno-stack-protector
-#cgo LDFLAGS: ${SRCDIR}/lib/bfexecutor.a -lm
-#include <bfexecutor.h>
+#cgo LDFLAGS: ${SRCDIR}/lib/bhexecutor.a -lm
+#include <bhexecutor.h>
  */
 import "C"
 import (
@@ -23,7 +23,7 @@ var returnCodeToError = map[int]string {
 	6: "Incorrect brackets",
 }
 
-func runBfCode(code string, input []byte, maxOperations uint) ([]byte, int) {
+func runBhCode(code string, input []byte, maxOperations uint) ([]byte, int) {
 	if len(input) == 0 {
 	    input = []byte{0}
 	}
@@ -45,7 +45,7 @@ func runBfCode(code string, input []byte, maxOperations uint) ([]byte, int) {
 	var writtenBytes uint
 	writtenBytesPtr := (*C.uint)(unsafe.Pointer(&writtenBytes))
 
-	retCode := C.run_bf_code(codePtr, codeLen, inputPtr, inputLen, outputPtr, maxOutLen, cmaxOperations, writtenBytesPtr)
+	retCode := C.run_bh_code(codePtr, codeLen, inputPtr, inputLen, outputPtr, maxOutLen, cmaxOperations, writtenBytesPtr)
 
 	if retCode != 0 {
 		return []byte{}, int(retCode)
@@ -61,7 +61,7 @@ func main() {
 	if len(os.Args) != 2 {
 		os.Exit(102)
 	}
-	result, retCode := runBfCode(os.Args[1], data, 50000)
+	result, retCode := runBhCode(os.Args[1], data, 50000)
 	if retCode != 0 {
 		_, err = os.Stderr.Write([]byte(returnCodeToError[int(retCode)]))
 		if err != nil {
