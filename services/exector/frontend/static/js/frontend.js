@@ -17,6 +17,7 @@ function runTask() {
         "stdin": $("#stdin-fld").val(),
         "token": token,
     });
+    $("#noTrespassingOuterBarG").css("display", "block");
     $.ajax({
         type: "POST",
         url: "/run_task",
@@ -27,6 +28,11 @@ function runTask() {
             $("#stdout-div").css("display", "none");
             $("#error-div").css("display", "none");
             timerId = setInterval(checkTask, 100, JSON.parse(data).taskId);
+        },
+        error: function(data, status, obj) {
+            $("#noTrespassingOuterBarG").css("display", "none");
+            $("#error-out-fld").text("Could not connect to server.");
+            $("#error-div").css("display", "block");
         },
         dataType: "text",
     });
@@ -41,11 +47,13 @@ function checkTask(taskId) {
             if (task.Status === 0) {
                 $("#stdout-div").css("display", "block");
                 $("#stdout-out-fld").text(task.Stdout);
+                $("#noTrespassingOuterBarG").css("display", "none");
+                clearInterval(timerId);
             } else if (task.Status === 2) {
-                $("#error-out-fld").text(task.Error);
+                $("#error-out-fld").text("Executing error: " + task.Error);
                 $("#error-div").css("display", "block");
+                clearInterval(timerId);
             }
-            clearInterval(timerId);
         },
         dataType: "text",
     });

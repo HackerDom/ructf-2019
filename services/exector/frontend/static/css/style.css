@@ -15,3 +15,105 @@ hr {
 .hr-primary{
     background-image: -webkit-linear-gradient(left, rgba(66,133,244,.8), rgba(66, 133, 244,.6), rgba(0,0,0,0));
 }
+
+#noTrespassingOuterBarG{
+    display: none;
+    height:30px;
+    width:156px;
+    border:1px solid rgb(66,133,244);
+    overflow:hidden;
+    background-color:rgb(255,255,255);
+    margin-top: 2px;
+    margin-left: 10px;
+}
+
+.noTrespassingBarLineG{
+    /*display: none;*/
+    background-color:rgb(66,133,244);
+    float:left;
+    width:14px;
+    height:117px;
+    margin-right:23px;
+    margin-top:-27px;
+    transform:rotate(45deg);
+    -o-transform:rotate(45deg);
+    -ms-transform:rotate(45deg);
+    -webkit-transform:rotate(45deg);
+    -moz-transform:rotate(45deg);
+}
+
+.noTrespassingAnimationG{
+    width:230px;
+    animation-name:noTrespassingAnimationG;
+    -o-animation-name:noTrespassingAnimationG;
+    -ms-animation-name:noTrespassingAnimationG;
+    -webkit-animation-name:noTrespassingAnimationG;
+    -moz-animation-name:noTrespassingAnimationG;
+    animation-duration:0.2s;
+    -o-animation-duration:0.2s;
+    -ms-animation-duration:0.2s;
+    -webkit-animation-duration:0.2s;
+    -moz-animation-duration:0.2s;
+    animation-iteration-count:infinite;
+    -o-animation-iteration-count:infinite;
+    -ms-animation-iteration-count:infinite;
+    -webkit-animation-iteration-count:infinite;
+    -moz-animation-iteration-count:infinite;
+    animation-timing-function:linear;
+    -o-animation-timing-function:linear;
+    -ms-animation-timing-function:linear;
+    -webkit-animation-timing-function:linear;
+    -moz-animation-timing-function:linear;
+}
+
+
+
+@keyframes noTrespassingAnimationG{
+    0%{
+        margin-left:-37px;
+    }
+
+    100%{
+        margin-left:0;
+    }
+}
+
+@-o-keyframes noTrespassingAnimationG{
+    0%{
+        margin-left:37px;
+    }
+
+    100%{
+        margin-left:0;
+    }
+}
+
+@-ms-keyframes noTrespassingAnimationG{
+    0%{
+        margin-left:37px;
+    }
+
+    100%{
+        margin-left:0;
+    }
+}
+
+@-webkit-keyframes noTrespassingAnimationG{
+    0%{
+        margin-left:37px;
+    }
+
+    100%{
+        margin-left:0;
+    }
+}
+
+@-moz-keyframes noTrespassingAnimationG{
+    0%{
+        margin-left:37px;
+    }
+
+    100%{
+        margin-left:0;
+    }
+}

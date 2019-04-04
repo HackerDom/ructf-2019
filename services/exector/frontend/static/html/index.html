@@ -33,7 +33,26 @@
             </div>
         </div>
 
-    <button type="button" class="btn btn-primary" id="run-btn">Execute</button>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-primary" id="run-btn">Execute</button>
+            </div>
+            <div class="col-sm-2">
+                <div id="noTrespassingOuterBarG">
+                    <div id="noTrespassingFrontBarG" class="noTrespassingAnimationG">
+                        <div class="noTrespassingBarLineG"></div>
+                        <div class="noTrespassingBarLineG"></div>
+                        <div class="noTrespassingBarLineG"></div>
+                        <div class="noTrespassingBarLineG"></div>
+                        <div class="noTrespassingBarLineG"></div>
+                        <div class="noTrespassingBarLineG"></div>
+                        <div class="noTrespassingBarLineG"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div style="display: none;" id="stdout-div">
         <hr class="hr-primary" />
@@ -46,7 +65,7 @@
     <div style="display: none;" id="error-div">
         <hr class="hr-danger" />
         <div class="container">
-            <h2>Errors</h2>
+            <h2>Fail</h2>
             <p id="error-out-fld"></p>
         </div>
     </div>
