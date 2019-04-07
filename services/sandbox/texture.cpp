@@ -11,6 +11,7 @@ struct TextureFormat
 } g_mapFormatToTextureFormat[] = {
     {GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE},
     {GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE},
+	{GL_RGBA32F, GL_RGBA, GL_FLOAT},
 };
 
 
@@ -37,14 +38,14 @@ void PngReadFn(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRe
 
 
 Texture2D::Texture2D(int width, int height, Format format, void* initData)
-    : m_width(0), m_height(0), m_format(FORMAT_COUNT), m_shadowCopy(nullptr)
+	: m_width(0), m_height(0), m_format(FORMAT_COUNT)
 {
 	Init(width, height, format, initData);
 }
 
 
 Texture2D::Texture2D(const void* pngData, uint32_t size)
-    : m_width(0), m_height(0), m_format(FORMAT_COUNT), m_shadowCopy(nullptr)
+	: m_width(0), m_height(0), m_format(FORMAT_COUNT)
 {
 	png_structp png = nullptr;
 	auto errorHandler = [&]() { png_destroy_read_struct(&png, NULL, NULL); };
@@ -104,14 +105,14 @@ Texture2D::Texture2D(const void* pngData, uint32_t size)
 
 	png_read_update_info(png, info);
 
-	if (!Init(width, height, FORMAT_RGBA, nullptr))
+	if (!Init(width, height, FORMAT_RGBA8, nullptr))
 	{
 		errorHandler();
 		return;
 	}
 
 	RGBA* rows[height];
-	RGBA* p = m_shadowCopy;
+	RGBA* p = (RGBA*)malloc(width * height * sizeof(RGBA));
 	for (uint32_t i = 0; i < height; i++)
 	{
 		rows[i] = p;
@@ -124,11 +125,12 @@ Texture2D::Texture2D(const void* pngData, uint32_t size)
 	png_destroy_read_struct(&png, &info, NULL);
 
 	TextureFormat fmt = g_mapFormatToTextureFormat[m_format];
-	glTexImage2D(GL_TEXTURE_2D, 0, fmt.internalFormat, m_width, m_height, 0, fmt.format, fmt.type, m_shadowCopy);
+	glTexImage2D(GL_TEXTURE_2D, 0, fmt.internalFormat, m_width, m_height, 0, fmt.format, fmt.type, p);
+	free(p);
 }
 
 
-Texture2D::Texture2D(const Image& image) : Texture2D(image.width, image.height, FORMAT_RGBA, (void*)image.rgba)
+Texture2D::Texture2D(const Image& image) : Texture2D(image.width, image.height, FORMAT_RGBA8, (void*)image.rgba)
 {
 }
 
@@ -136,35 +138,22 @@ Texture2D::Texture2D(const Image& image) : Texture2D(image.width, image.height, 
 Texture2D::~Texture2D()
 {
 	glDeleteTextures(1, &m_texture);
-	glDeleteFramebuffers(1, &m_framebuffer);
+	//glDeleteFramebuffers(1, &m_framebuffer);
 	m_texture = 0;
-	m_framebuffer = 0;
-	free(m_shadowCopy);
+	//m_framebuffer = 0;
 }
 
 
 bool Texture2D::Init(int width, int height, Format format, void* initData)
 {
-	m_shadowCopy = (RGBA*)malloc(width * height * sizeof(RGBA));
-	if (!m_shadowCopy)
-	{
-		glDeleteTextures(1, &m_texture);
-		m_texture = 0;
-		return false;
-	}
-
-	if (initData)
-		memcpy(m_shadowCopy, initData, width * height * sizeof(RGBA));
-
 	glGenTextures(1, &m_texture);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-
 	TextureFormat fmt = g_mapFormatToTextureFormat[format];
-	glTexImage2D(GL_TEXTURE_2D, 0, fmt.internalFormat, width, height, 0, fmt.format, fmt.type, m_shadowCopy);
+	glTexImage2D(GL_TEXTURE_2D, 0, fmt.internalFormat, width, height, 0, fmt.format, fmt.type, initData);
 
 	if (!CheckError("Failed to create texture"))
 	{
@@ -173,7 +162,7 @@ bool Texture2D::Init(int width, int height, Format format, void* initData)
 		return false;
 	}
 
-	glGenFramebuffers(1, &m_framebuffer);
+	/*glGenFramebuffers(1, &m_framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture, 0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -185,7 +174,7 @@ bool Texture2D::Init(int width, int height, Format format, void* initData)
 		m_texture = 0;
 		m_framebuffer = 0;
 		return false;
-	}
+	}*/
 
 	m_width = width;
 	m_height = height;
@@ -201,10 +190,10 @@ GLuint Texture2D::GetTexture() const
 }
 
 
-GLuint Texture2D::GetFramebuffer() const
+/*GLuint Texture2D::GetFramebuffer() const
 {
 	return m_framebuffer;
-}
+}*/
 
 
 int Texture2D::GetWidth() const
@@ -219,15 +208,13 @@ int Texture2D::GetHeight() const
 }
 
 
-const RGBA* Texture2D::GetRGBA() const
+Format Texture2D::GetFormat() const
 {
-	return m_shadowCopy;
+	return m_format;
 }
 
 
-void Texture2D::ReadBack()
+GLint Texture2D::GetGlFormat() const
 {
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(0, 0, m_width, m_height, GL_RGBA, GL_UNSIGNED_BYTE, (GLvoid*)m_shadowCopy);
-	CheckError("glReadPixels failed");
+	return g_mapFormatToTextureFormat[m_format].internalFormat;
 }

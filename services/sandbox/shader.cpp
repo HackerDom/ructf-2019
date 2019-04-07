@@ -83,7 +83,12 @@ FragmentShader::FragmentShader(const char* fileName) : Shader(GL_FRAGMENT_SHADER
 }
 
 
-Program::Program(const VertexShader& vs, const FragmentShader& fs) : m_vs(vs), m_fs(fs)
+ComputeShader::ComputeShader(const char* fileName) : Shader(GL_COMPUTE_SHADER, fileName)
+{
+}
+
+
+Program::Program(Shader** shaders, uint32_t shadersNum)
 {
 	m_program = glCreateProgram();
 	if (!m_program)
@@ -92,8 +97,8 @@ Program::Program(const VertexShader& vs, const FragmentShader& fs) : m_vs(vs), m
 		return;
 	}
 
-	glAttachShader(m_program, vs.GetShader());
-	glAttachShader(m_program, fs.GetShader());
+	for(uint32_t i = 0; i < shadersNum; i++)
+		glAttachShader(m_program, shaders[i]->GetShader());
 
 	glLinkProgram(m_program);
 
@@ -159,7 +164,7 @@ GLuint Program::GetProgram() const
 
 bool Program::SetTexture(const char* uniformName, const Texture2D& tex)
 {
-	const int texLocation = glGetUniformLocation(m_program, uniformName);
+	GLint texLocation = glGetUniformLocation(m_program, uniformName);
 	if (texLocation == -1)
 		return false;
 
@@ -168,9 +173,45 @@ bool Program::SetTexture(const char* uniformName, const Texture2D& tex)
 }
 
 
+bool Program::SetImage(const char* uniformName, const Texture2D& tex, GLenum access)
+{
+	GLint location = glGetUniformLocation(m_program, uniformName);
+	if (location == -1)
+		return false;
+
+	GLint bindPoint = -1;
+	glGetUniformiv(m_program, location, &bindPoint);
+	if(bindPoint == -1)
+		return false;
+
+	auto& bind = m_imageBinds[bindPoint];
+	bind.texture = tex.GetTexture();
+	bind.format = tex.GetGlFormat();
+	bind.access = access;
+	return true;
+}
+
+
+bool Program::SetSSBO(const char* uniformName, GLuint ssbo)
+{
+	GLuint blockIdx = glGetProgramResourceIndex(m_program, GL_SHADER_STORAGE_BLOCK, uniformName);
+	if(blockIdx == GL_INVALID_INDEX)
+		return false;
+
+	GLenum prop = GL_BUFFER_BINDING;
+	GLint propValue = 0;
+	GLsizei length = 0;
+	glGetProgramResourceiv(m_program, GL_SHADER_STORAGE_BLOCK, blockIdx, 1, &prop, 1, &length, &propValue);
+
+	m_ssboBinds[propValue] = ssbo;
+
+	return true;
+}
+
+
 bool Program::SetVec4(const char* uniformName, const Vec4& v)
 {
-	const int location = glGetUniformLocation(m_program, uniformName);
+	GLint location = glGetUniformLocation(m_program, uniformName);
 	if (location == -1)
 		return false;
 
@@ -181,7 +222,7 @@ bool Program::SetVec4(const char* uniformName, const Vec4& v)
 
 bool Program::SetIVec4(const char* uniformName, const IVec4& v)
 {
-	const int location = glGetUniformLocation(m_program, uniformName);
+	GLint location = glGetUniformLocation(m_program, uniformName);
 	if (location == -1)
 		return false;
 
@@ -228,7 +269,17 @@ void Program::BindUniforms() const
 		glActiveTexture(GL_TEXTURE0 + texUnit);
 		glBindTexture(GL_TEXTURE_2D, iter.second);
 		glUniform1i(iter.first, texUnit);
+		texUnit++;
 	}
+
+	for(auto& iter : m_imageBinds)
+	{
+		auto& bind = iter.second;
+		glBindImageTexture(iter.first, bind.texture, 0, GL_FALSE, 0, bind.access, bind.format);
+	}
+
+	for(auto& iter : m_ssboBinds)
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, iter.first, iter.second);
 
 	for (auto iter : m_vec4s)
 		glUniform4fv(iter.first, 1, (const GLfloat*)&iter.second);

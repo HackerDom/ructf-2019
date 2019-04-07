@@ -22,8 +22,14 @@ struct Vec4
 //
 struct IVec4
 {
-	int32_t x;
-	int32_t y;
-	int32_t z;
-	int32_t w;	
+	int32_t x = 0;
+	int32_t y = 0;
+	int32_t z = 0;
+	int32_t w = 0;
+
+	IVec4() = default;
+
+	IVec4( int32_t x_, int32_t y_, int32_t z_, int32_t w_ )
+		: x( x_ ), y( y_ ), z( z_ ), w( w_ )
+	{}
 };
