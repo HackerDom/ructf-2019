@@ -19,9 +19,16 @@ type NewTask struct {
 	Token string
 }
 
+type User struct {
+	Password string
+}
 
-func RunTask(w http.ResponseWriter, r *http.Request) {
+func handleRunTask(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
 	var newTask NewTask
 	err = json.Unmarshal(data, &newTask)
 	if err != nil {
@@ -39,14 +46,14 @@ func RunTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func TaskInfo(w http.ResponseWriter, r *http.Request) {
+func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 	rawTaskId := r.URL.Path[len("/task_info/"):]
 	taskId, err := strconv.ParseUint(rawTaskId, 10, 64)
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
-	if taskId >= uint64(executor.GetTaskCount()) {
+	if taskId >= uint64(executor.TasksStorage.GetTaskCount()) {
 		w.WriteHeader(404)
 		return
 	}
@@ -75,6 +82,7 @@ func TaskInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
 func main() {
 	if err := executor.Init(
 		"tasks",
@@ -84,8 +92,8 @@ func main() {
 		); err != nil {
 		panic(err)
 	}
-	tokensKeeper.Init("tokens", 40000)
-	http.HandleFunc("/run_task", RunTask)
-	http.HandleFunc("/task_info/", TaskInfo)
+	tokensKeeper.Init("tokens", "count", 40000)
+	http.HandleFunc("/run_task", handleRunTask)
+	http.HandleFunc("/task_info/", handleTaskInfo)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", 8080), nil))
 }

@@ -14,10 +14,7 @@ import (
 	"exector/backend/bhwrapper"
 	"exector/backend/storage"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os"
-	"strconv"
 )
 
 type TaskExecutor struct {
@@ -91,14 +88,14 @@ func (exec *TaskExecutor) ProcessTask(taskId uint, source string, stdin []byte) 
 }
 
 func (exec *TaskExecutor) AddTask(source string, stdin []byte) uint {
-	taskId := exec.GetTaskCount()
+	taskId := exec.TasksStorage.GetTaskCount()
 	go exec.ProcessTask(taskId, source, stdin)
-	exec.IncTaskCount()
+	exec.TasksStorage.IncTaskCount()
 	return taskId
 }
 
 func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
-	if taskId >= exec.GetTaskCount() {
+	if taskId >= exec.TasksStorage.GetTaskCount() {
 		return nil, errors.New("no such task")
 	}
 	value, err := exec.TasksStorage.Get(taskId)
@@ -109,51 +106,9 @@ func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
 	}
 }
 
-func (exec *TaskExecutor) GetTaskCount() uint {
-	if exec.createCounterFileIfNotExists() {
-		return 0
-	} else {
-		data, err := ioutil.ReadFile(exec.CounterFilename)
-		if err != nil {
-			panic(err)
-		}
-		taskCount, err := strconv.ParseUint(string(data), 10, 64)
-		if err != nil {
-			panic(err)
-		}
-		return uint(taskCount)
-	}
-}
-
-func (exec *TaskExecutor) IncTaskCount() {
-	taskCount := exec.GetTaskCount() + 1
-	err := ioutil.WriteFile(exec.CounterFilename, []byte(fmt.Sprint(taskCount)), 0777)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func (exec *TaskExecutor) createCounterFileIfNotExists() bool {
-	if _, err := os.Stat(exec.CounterFilename); os.IsNotExist(err) {
-		file, err := os.Create(exec.CounterFilename)
-		defer file.Close()
-		if err != nil {
-			panic(err)
-		}
-		if _, err = file.Write([]byte("0")); err != nil {
-			panic(err)
-		}
-
-		return true
-	} else {
-		return false
-	}
-}
-
 func (exec *TaskExecutor) Init(taskDir, counterFilename string, taskBlockSize uint, bhExecutorBinPath string) error {
 	exec.CounterFilename = counterFilename
-	exec.TasksStorage.Init(taskDir, 40000)
-	exec.createCounterFileIfNotExists()
+	exec.TasksStorage.Init(taskDir, counterFilename, 40000)
 	var bhExecutor bhwrapper.BhExecutor
 	if err := bhExecutor.Init(bhExecutorBinPath); err != nil {
 		return err
