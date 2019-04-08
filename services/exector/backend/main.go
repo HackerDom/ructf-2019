@@ -12,6 +12,8 @@ import (
 
 var executor TaskExecutor
 var tokensKeeper storage.Storage
+var usersManager UsersManager
+const configPath = "config"
 
 type NewTask struct {
 	Source string
@@ -19,7 +21,7 @@ type NewTask struct {
 	Token string
 }
 
-type User struct {
+type NewUser struct {
 	Password string
 }
 
@@ -53,7 +55,7 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	if taskId >= uint64(executor.TasksStorage.GetTaskCount()) {
+	if taskId >= uint64(executor.TasksStorage.GetItemsCount()) {
 		w.WriteHeader(404)
 		return
 	}
@@ -84,16 +86,16 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 
 
 func main() {
-	if err := executor.Init(
-		"tasks",
-		"count",
-		200,
-		"bhwrapper/bhexecutor/bhexecutor",
-		); err != nil {
+	config, err := ParseConfig(configPath)
+	if err != nil {
+		panic("can not parse config: " + err.Error())
+	}
+	if err := executor.Init(config.TasksDir, config.BrainHugExecutorPath); err != nil {
 		panic(err)
 	}
-	tokensKeeper.Init("tokens", "count", 40000)
+	tokensKeeper.Init(config.TokensDir, config.MaxItemsCount)
+	usersManager.Init(config.UsersDir, config.MaxItemsCount)
 	http.HandleFunc("/run_task", handleRunTask)
 	http.HandleFunc("/task_info/", handleTaskInfo)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", 8080), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort), nil))
 }

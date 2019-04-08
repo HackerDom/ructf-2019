@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+const CounterFilename = "count"
+
 type Storage struct {
 	DirName string
 	CounterFilename string
@@ -17,12 +19,12 @@ type Storage struct {
 	MaxItemsCount uint
 }
 
-func (storage *Storage) Init(dirName string, counterFilename string, maxItemsCount uint) {
+func (storage *Storage) Init(dirName string, maxItemsCount uint) {
 	storage.DirName = dirName
 	CreateDirIfNotExists(dirName)
 	storage.MaxItemsCount = maxItemsCount
 	storage.BlockSize = uint(math.Sqrt(float64(maxItemsCount)))
-	storage.CounterFilename = path.Join(dirName, counterFilename)
+	storage.CounterFilename = path.Join(dirName, CounterFilename)
 }
 
 func (storage *Storage) GetItemFilename(itemId uint) string {
@@ -64,7 +66,7 @@ func (storage *Storage) createCounterFileIfNotExists() bool {
 	}
 }
 
-func (storage *Storage) GetTaskCount() uint {
+func (storage *Storage) GetItemsCount() uint {
 	if storage.createCounterFileIfNotExists() {
 		return 0
 	} else {
@@ -72,17 +74,17 @@ func (storage *Storage) GetTaskCount() uint {
 		if err != nil {
 			panic(err)
 		}
-		taskCount, err := strconv.ParseUint(string(data), 10, 64)
+		itemsCount, err := strconv.ParseUint(string(data), 10, 64)
 		if err != nil {
 			panic(err)
 		}
-		return uint(taskCount)
+		return uint(itemsCount)
 	}
 }
 
-func (storage *Storage) IncTaskCount() {
-	taskCount := storage.GetTaskCount() + 1
-	err := ioutil.WriteFile(storage.CounterFilename, []byte(fmt.Sprint(taskCount)), 0777)
+func (storage *Storage) IncItemsCount() {
+	itemsCount := storage.GetItemsCount() + 1
+	err := ioutil.WriteFile(storage.CounterFilename, []byte(fmt.Sprint(itemsCount)), 0777)
 	if err != nil {
 		panic(err)
 	}

@@ -10,13 +10,15 @@ import (
 )
 
 var staticSubdirs map[string]bool
+const configPath = "config"
+var config *Config
 
 func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 	splitted := strings.Split(request.URL.Path, "/")
 	if len(splitted) > 1 {
 		if _, has := staticSubdirs[splitted[1]]; !has {
 			if request.Method == http.MethodGet {
-				url := fmt.Sprintf("http://%v:%v%v", "0.0.0.0", 8080, request.URL.String())
+				url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
 				resp, err := http.Get(url)
 				if err != nil {
 					panic(err)
@@ -25,7 +27,7 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 					panic(err)
 				}
 			} else if request.Method == http.MethodPost {
-				url := fmt.Sprintf("http://%v:%v%v", "0.0.0.0", 8080, request.URL.String())
+				url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
 				resp, err := http.Post(url, "text", request.Body)
 				if err != nil {
 					panic(err)
@@ -39,8 +41,13 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 }
 
 func main() {
+	newConfig, err := ParseConfig(configPath)
+	config = newConfig
+	if err != nil {
+		panic("can not parse config: " + err.Error())
+	}
 	staticSubdirs = make(map[string]bool)
-	data, err := ioutil.ReadDir("static")
+	data, err := ioutil.ReadDir(config.StaticDir)
 	if err != nil {
 		panic(err)
 	}
@@ -49,8 +56,8 @@ func main() {
 			staticSubdirs[subdir.Name()] = true
 		}
 	}
-
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static/"))))
+	staticTempl := fmt.Sprintf("/%s/", config.StaticDir)
+	http.Handle(staticTempl, http.StripPrefix(staticTempl, http.FileServer(http.Dir(staticTempl[1:]))))
 	http.HandleFunc("/", RunTaskWrapper)
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%v", config.ServerHost, config.ServerPort), nil))
 }

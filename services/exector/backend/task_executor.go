@@ -88,14 +88,14 @@ func (exec *TaskExecutor) ProcessTask(taskId uint, source string, stdin []byte) 
 }
 
 func (exec *TaskExecutor) AddTask(source string, stdin []byte) uint {
-	taskId := exec.TasksStorage.GetTaskCount()
+	taskId := exec.TasksStorage.GetItemsCount()
 	go exec.ProcessTask(taskId, source, stdin)
-	exec.TasksStorage.IncTaskCount()
+	exec.TasksStorage.IncItemsCount()
 	return taskId
 }
 
 func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
-	if taskId >= exec.TasksStorage.GetTaskCount() {
+	if taskId >= exec.TasksStorage.GetItemsCount() {
 		return nil, errors.New("no such task")
 	}
 	value, err := exec.TasksStorage.Get(taskId)
@@ -106,9 +106,8 @@ func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
 	}
 }
 
-func (exec *TaskExecutor) Init(taskDir, counterFilename string, taskBlockSize uint, bhExecutorBinPath string) error {
-	exec.CounterFilename = counterFilename
-	exec.TasksStorage.Init(taskDir, counterFilename, 40000)
+func (exec *TaskExecutor) Init(taskDir string, bhExecutorBinPath string) error {
+	exec.TasksStorage.Init(taskDir, 40000)
 	var bhExecutor bhwrapper.BhExecutor
 	if err := bhExecutor.Init(bhExecutorBinPath); err != nil {
 		return err
