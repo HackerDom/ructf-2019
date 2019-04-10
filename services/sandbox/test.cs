@@ -4,8 +4,8 @@ struct Unit
 {
 	uint mind[8];
 	uint id;
-	uint posX;
-	uint posY;
+	float posX;
+	float posY;
 	uint type;
 	float power;
 };
@@ -17,19 +17,27 @@ layout(std430, binding = 8) buffer Units
 
 uniform ivec4 unitsCount;
 
-layout(rgba32f, binding = 2) uniform image2D img_output;
+layout(rgba16f, binding = 2) uniform image2D img_output;
+layout(binding = 0) uniform sampler2D randomTex;
 
-uvec3 RandVector_v1(uvec3 p)
+
+uint hash(uint x, uint y)
 {
-	uvec3 v = uvec3(p);
-	v = v * 1664525u + 1013904223u;
-	v.x += v.y*v.z;
-	v.y += v.z*v.x;
-	v.z += v.x*v.y;
-	v.x += v.y*v.z;
-	v.y += v.z*v.x;
-	v.z += v.x*v.y;
-	return v >> uvec3(16u);
+	const uint M = 1664525u, C = 1013904223u;
+	uint seed = (x * M + y + C) * M;
+	seed ^= (seed >> 11u);
+	seed ^= (seed << 7u) & 0x9d2c5680u;
+	seed ^= (seed << 15u) & 0xefc60000u;
+	seed ^= (seed >> 18u);
+	return seed;
+}
+
+
+uvec2 RandVector_v2(uvec2 p)
+{
+	uint seed1 = hash(uint(p.x), uint(p.y));
+	uint seed2 = hash(seed1, 1000);
+	return uvec2( seed1, seed2 );
 }
 
 
@@ -42,29 +50,32 @@ void main()
 		return;
 
 	Unit unit = units[id];
-	vec3 rand = vec3(RandVector_v1(uvec3(unit.posX, unit.posY, unit.mind[2])));
 
-	vec2 dir = vec2(sin(rand.x), cos(rand.y));
-	vec2 pos = vec2(unit.posX, unit.posY);// + dir;
+	vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX), floatBitsToUint(unit.posY))));
+	vec2 rand01 = vec2(sin(rand.x), cos(rand.y));
+	vec2 dir = texture(randomTex, rand01).xy;
 
-	/*vec2 fieldSize = vec2(imageSize(img_output));
+	//vec2 dir = sign(dirf);
+
+	vec2 pos = vec2(unit.posX, unit.posY) + dir;
+
+	vec2 fieldSize = vec2(imageSize(img_output));
 	if(pos.x <= 0.0f || pos.x >= fieldSize.x - 1.0f ||
 		pos.y <= 0.0f || pos.y >= fieldSize.y - 1.0f)
 	{
 		pos = vec2(unit.posX, unit.posY) - dir;
-	}*/
+	}
 
-	//units[id].posX = uint(pos.x);
-	//units[id].posY = uint(pos.y);
+	units[id].posX = pos.x;
+	units[id].posY = pos.y;
 
 	ivec2 pixel_coords = ivec2(pos.x, pos.y);
-	vec4 pixel = vec4(id, unit.power, 0.0f, 1.0);
+	vec4 pixel = vec4(0.0f);
+	pixel.x = unit.mind[0] & 0xff;
+	pixel.y = unit.mind[1] & 0xff;
+	pixel.z = unit.mind[2] & 0xff;
+	pixel.w = 255.0f;
+	pixel /= vec4(255.0f);
 	imageStore(img_output, pixel_coords, pixel);
-
-	/*ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
-	vec4 pixel = vec4(gl_GlobalInvocationID.x, gl_GlobalInvocationID.y, 0.0, 1.0);
-	vec2 size = vec2(imageSize(img_output));
-	pixel.xy /= size;
-	imageStore(img_output, pixel_coords, pixel);*/
 }
 
