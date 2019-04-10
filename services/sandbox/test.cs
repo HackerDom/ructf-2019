@@ -8,18 +8,19 @@ struct Unit
 	float posY;
 	uint type;
 	float power;
+    vec2 prevDir;
 };
 
-layout(std430, binding = 8) buffer Units
+layout(std430, binding = 0) buffer Units
 {
 	Unit units[];
 };
 
+layout(rgba16f, binding = 1) uniform image2D img_output;
+layout(binding = 2) uniform sampler2D randomTex;
+layout(rgba16f, binding = 3) uniform image2D mapImage;
+
 uniform ivec4 unitsCount;
-
-layout(rgba16f, binding = 2) uniform image2D img_output;
-layout(binding = 0) uniform sampler2D randomTex;
-
 
 uint hash(uint x, uint y)
 {
@@ -51,9 +52,45 @@ void main()
 
 	Unit unit = units[id];
 
-	vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX), floatBitsToUint(unit.posY))));
-	vec2 rand01 = vec2(sin(rand.x), cos(rand.y));
-	vec2 dir = texture(randomTex, rand01).xy;
+    const vec2 kDirections[] = vec2[](vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f), vec2(0.0f, -1.0f));
+    vec2 fieldSize = vec2(imageSize(img_output));
+
+    vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posY) | unit.mind[1])));
+    vec2 rand01 = vec2(sin(rand.x), cos(rand.y));
+    vec2 randf = texture(randomTex, rand01).xy;
+
+    vec2 dir = vec2(0);
+    if (dot(unit.prevDir, unit.prevDir) < 0.001f)
+        dir = normalize(randf);// floatBitsToUint(rand01.x) % 4;
+    else
+        dir = unit.prevDir;
+
+    vec2 pos = vec2(0.0f);
+    while(true)
+    {
+        //vec2 dir = kDirections[dirIdx];
+        pos = vec2(unit.posX, unit.posY) + dir;
+
+        if (pos.x < 0.0f || pos.x >= fieldSize.x - 1.0f ||
+            pos.y < 0.0f || pos.y >= fieldSize.y - 1.0f)
+        {
+            //dirIdx = (dirIdx + 1) % 4;
+            dir = -dir;
+            continue;
+        }
+
+        uvec4 map = floatBitsToUint(imageLoad(mapImage, ivec2(pos)));
+        if((map.x | map.y | map.z) > 0)
+        {
+            //dirIdx = (dirIdx + 1) % 4;
+            dir = -dir;
+            continue;
+        }
+
+        break;
+    }
+
+    /*vec2 rand01 = vec2(sin(rand.x), cos(rand.y));
 
 	//vec2 dir = sign(dirf);
 
@@ -64,12 +101,14 @@ void main()
 		pos.y <= 0.0f || pos.y >= fieldSize.y - 1.0f)
 	{
 		pos = vec2(unit.posX, unit.posY) - dir;
-	}
+	}*/
 
-	units[id].posX = pos.x;
+    pos += randf * vec2(0.01f);
+    units[id].posX = pos.x;
 	units[id].posY = pos.y;
+    units[id].prevDir = dir;
 
-	ivec2 pixel_coords = ivec2(pos.x, pos.y);
+    ivec2 pixel_coords = ivec2(pos.x, pos.y);
 	vec4 pixel = vec4(0.0f);
 	pixel.x = unit.mind[0] & 0xff;
 	pixel.y = unit.mind[1] & 0xff;

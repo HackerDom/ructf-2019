@@ -30,14 +30,30 @@ struct Unit
 	float posY;
 	uint32_t type;
 	float power;
+	float prevDir[2];
 };
 
+
+struct Building
+{
+	float posX;
+	float posY;
+	float sizeX;
+	float sizeY;
+	float color[4];
+};
+
+
 std::vector<Unit> GUnits;
-uint32_t GFieldSizeX = 1024;
-uint32_t GFieldSizeY = 1024;
+std::vector<Building> GBuildings;
+uint32_t GFieldSizeX = 256;
+uint32_t GFieldSizeY = 256;
 
 void GenerateUnits()
 {
+	std::default_random_engine e;
+	std::uniform_real_distribution<> dis(0.1, 2.0);
+
 	uint32_t num = 256;
 	for(uint32_t i = 0; i < num; i++)
 	{
@@ -50,13 +66,57 @@ void GenerateUnits()
 
 		u.id = rand();
 
-		u.posX = (float)(rand() % GFieldSizeX);
-		u.posY = (float)(rand() % GFieldSizeY);
+		u.posX = 0.0f;//(float)(rand() % GFieldSizeX);
+		u.posY = 0.0f;//(float)(rand() % GFieldSizeY);
 
 		u.type = rand() % 2;
-		u.power = 1.0f;
+		u.power = dis(e);
+		u.prevDir[0] = 0.0f;
+		u.prevDir[1] = 0.0f;
 
 		GUnits.push_back(u);
+	}
+}
+
+
+void GenerateBuildings()
+{
+	std::default_random_engine e;
+	std::uniform_real_distribution<> dis16_32(16.0, 32.0);
+	std::uniform_real_distribution<> dis14_18(14.0, 18.0);
+	std::uniform_real_distribution<> disOffset(-2.0, 2.0);
+	std::uniform_real_distribution<> disColor(0.0, 0.8);
+
+	const float floatStreetLength = 12.0f;
+
+	float newBuildingLeft = (float)dis16_32(e);
+	float newBuildingTop = (float)dis16_32(e);
+
+	while (1)
+	{
+		Building b;
+
+		b.sizeX = (float)dis16_32(e);
+		b.sizeY = (float)dis14_18(e);// (float)dis(e);
+		b.color[0] = (float)disColor(e);
+		b.color[1] = (float)disColor(e);
+		b.color[2] = (float)disColor(e);
+		b.color[3] = 1.0f;
+
+		if (newBuildingLeft + b.sizeX > (float)GFieldSizeX)
+		{
+			newBuildingLeft = (float)dis16_32(e);
+			newBuildingTop += 16.0f + floatStreetLength;
+			if (newBuildingTop > (float)GFieldSizeY)
+				break;
+		}
+		
+		b.posX = newBuildingLeft + b.sizeX * 0.5f;
+		b.posY = newBuildingTop + b.sizeY * 0.5f + (float)disOffset(e);
+
+		newBuildingLeft += b.sizeX + floatStreetLength;
+
+		GBuildings.push_back(b);
 	}
 }
 
@@ -83,6 +143,7 @@ int main()
 	srand(time(NULL));
 
 	GenerateUnits();
+	GenerateBuildings();
 
 	glfwSetErrorCallback(error_callback);
 	glfwInit();
@@ -129,17 +190,47 @@ int main()
 	if(!clearCsProg.IsValid())
 		return 1;
 
+	ComputeShader buildingCs("buildings.cs");
+	csArray[0] = {&buildingCs};
+	Program buildingCsProg(csArray, 1);
+	if (!buildingCsProg.IsValid())
+		return 1;
+
 	GLuint dummyVao;
 	glGenVertexArrays(1, &dummyVao);
 
 	Texture2D tex(GFieldSizeX, GFieldSizeY, FORMAT_RGBA16F);
+	Texture2D map(GFieldSizeX, GFieldSizeY, FORMAT_RGBA16F);
 	Texture2D randomTex(32, 32, FORMAT_RGBA32F);
 
-	GLuint ssbo;
-	glGenBuffers(1, &ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+	GLuint unitsSsbo;
+	glGenBuffers(1, &unitsSsbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, unitsSsbo);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, GUnits.size() * sizeof(Unit), GUnits.data(), GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+	GLuint buildingsSsbo;
+	glGenBuffers(1, &buildingsSsbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, buildingsSsbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, GBuildings.size() * sizeof(Building), GBuildings.data(), GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+	// fill map
+	{
+		glUseProgram(clearCsProg.GetProgram());
+		clearCsProg.SetImage("img_output", map, GL_WRITE_ONLY);
+		clearCsProg.BindUniforms();
+		glDispatchCompute(GFieldSizeX / 8, GFieldSizeY / 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+		glUseProgram(buildingCsProg.GetProgram());
+		buildingCsProg.SetImage("img_output", map, GL_WRITE_ONLY);
+		buildingCsProg.SetSSBO("Buildings", buildingsSsbo);
+		buildingCsProg.SetIVec4("buildingsCount", IVec4(GBuildings.size(), 0, 0, 0));
+		buildingCsProg.BindUniforms();
+		glDispatchCompute((GBuildings.size() + 31) / 32, 1, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -162,7 +253,8 @@ int main()
 		csProg.SetImage("img_output", tex, GL_WRITE_ONLY);
 		csProg.SetIVec4("unitsCount", IVec4(GUnits.size(), 0, 0, 0));
 		csProg.SetTexture("randomTex", randomTex);
-		csProg.SetSSBO("Units", ssbo);
+		csProg.SetImage("mapImage", map, GL_READ_ONLY);
+		csProg.SetSSBO("Units", unitsSsbo);
 		csProg.BindUniforms();
 		glDispatchCompute((GUnits.size() + 31) / 32, 1, 1);
 
@@ -170,7 +262,8 @@ int main()
 
 		glUseProgram(program.GetProgram());
 		program.SetVec4("targetSize", Vec4(width, height, 0, 0));
-		program.SetTexture("img_input", tex);
+		program.SetTexture("units", tex);
+		program.SetTexture("map", map);
 		program.BindUniforms();
 		glBindVertexArray(dummyVao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
