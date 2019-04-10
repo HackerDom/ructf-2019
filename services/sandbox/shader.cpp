@@ -131,7 +131,9 @@ Program::Program(Shader** shaders, uint32_t shadersNum)
 		const int attrNameSize = 256;
 		char attrName[attrNameSize];
 		memset(attrName, 0, attrNameSize);
-		glGetActiveAttrib(m_program, i, attrNameSize, nullptr, nullptr, nullptr, attrName);
+		GLint size = 0;
+		GLenum type = 0;
+		glGetActiveAttrib(m_program, i, attrNameSize, nullptr, &size, &type, attrName);
 		GLint attrLocation = glGetAttribLocation(m_program, attrName);
 
 		VertexAttribute attr;
@@ -258,6 +260,8 @@ bool Program::SetAttribute(const char* attrName,
 	attr.normalized = normalized;
 	attr.stride = stride;
 	attr.valid = true;
+
+	return true;
 }
 
 

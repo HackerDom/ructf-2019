@@ -1,8 +1,8 @@
-#include "glwrap.h"
 #include <vector>
 #include <math.h>
+#include <time.h>
 #include <random>
-#include <unistd.h>
+#include "glwrap.h"
 
 static void error_callback(int error, const char* description)
 {
@@ -50,8 +50,8 @@ void GenerateUnits()
 
 		u.id = rand();
 
-		u.posX = rand() % GFieldSizeX;
-		u.posY = rand() % GFieldSizeY;
+		u.posX = (float)(rand() % GFieldSizeX);
+		u.posY = (float)(rand() % GFieldSizeY);
 
 		u.type = rand() % 2;
 		u.power = 1.0f;
