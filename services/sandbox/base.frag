@@ -10,5 +10,6 @@ layout(location = 0) out vec4 outColor;
 void main()
 {
 	vec2 uv = gl_FragCoord.xy / targetSize.xy;
+	uv.y = 1.0f - uv.y;
 	outColor = texture(units, uv) + texture(map, uv);
 }

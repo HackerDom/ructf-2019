@@ -8,10 +8,12 @@ struct Unit
 	float posY;
 	uint type;
 	float power;
-    vec2 prevDir;
+	float prevDirX;
+	float prevDirY;
+	float padding;
 };
 
-layout(std430, binding = 0) buffer Units
+layout(std430, binding = 8) buffer Units
 {
 	Unit units[];
 };
@@ -52,61 +54,54 @@ void main()
 
 	Unit unit = units[id];
 
-    const vec2 kDirections[] = vec2[](vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f), vec2(0.0f, -1.0f));
+	const vec2 kDirections[] = vec2[](vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f), vec2(0.0f, -1.0f));
+	const vec2 kNormals[] = vec2[](vec2(0.0f, -1.0f), vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f));
     vec2 fieldSize = vec2(imageSize(img_output));
+	vec2 invFieldSize = vec2(0.5f) / fieldSize;
 
     vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posY) | unit.mind[1])));
-    vec2 rand01 = vec2(sin(rand.x), cos(rand.y));
+	vec2 rand01 = vec2(cos(rand.x * 3.14f), sin(rand.y * 3.14f));
     vec2 randf = texture(randomTex, rand01).xy;
 
     vec2 dir = vec2(0);
-    if (dot(unit.prevDir, unit.prevDir) < 0.001f)
-        dir = normalize(randf);// floatBitsToUint(rand01.x) % 4;
-    else
-        dir = unit.prevDir;
+	vec2 prevDir = vec2(unit.prevDirX, unit.prevDirY);
+	if (dot(prevDir, prevDir) < 0.001f)
+		dir = normalize(randf);// floatBitsToUint(rand01.x) % 4;
+	else
+		dir = prevDir;
 
     vec2 pos = vec2(0.0f);
-    while(true)
+	int iterations = 0;
+	while(iterations++ < 10)
     {
         //vec2 dir = kDirections[dirIdx];
-        pos = vec2(unit.posX, unit.posY) + dir;
+		pos = vec2(unit.posX, unit.posY) + dir * vec2(unit.power);
 
-        if (pos.x < 0.0f || pos.x >= fieldSize.x - 1.0f ||
-            pos.y < 0.0f || pos.y >= fieldSize.y - 1.0f)
+		vec4 map = imageLoad(mapImage, ivec2(pos));
+		uvec4 umap = floatBitsToUint(map);
+		if((umap.x | umap.y | umap.z) > 0)
         {
-            //dirIdx = (dirIdx + 1) % 4;
-            dir = -dir;
-            continue;
-        }
-
-        uvec4 map = floatBitsToUint(imageLoad(mapImage, ivec2(pos)));
-        if((map.x | map.y | map.z) > 0)
-        {
-            //dirIdx = (dirIdx + 1) % 4;
-            dir = -dir;
+			int normalIdx = int(map.w) - 1;
+			if(normalIdx < 0)
+				dir = -dir;
+			else
+			{
+				vec2 normal = kNormals[normalIdx];
+				//dirIdx = (dirIdx + 1) % 4;
+				dir = reflect(dir, normal) + randf * vec2(0.01f);
+				dir = normalize(dir);
+			}
             continue;
         }
 
         break;
     }
 
-    /*vec2 rand01 = vec2(sin(rand.x), cos(rand.y));
-
-	//vec2 dir = sign(dirf);
-
-	vec2 pos = vec2(unit.posX, unit.posY) + dir;
-
-	vec2 fieldSize = vec2(imageSize(img_output));
-	if(pos.x <= 0.0f || pos.x >= fieldSize.x - 1.0f ||
-		pos.y <= 0.0f || pos.y >= fieldSize.y - 1.0f)
-	{
-		pos = vec2(unit.posX, unit.posY) - dir;
-	}*/
-
-    pos += randf * vec2(0.01f);
     units[id].posX = pos.x;
 	units[id].posY = pos.y;
-    units[id].prevDir = dir;
+	//dir = normalize(dir);
+	units[id].prevDirX = dir.x;
+	units[id].prevDirY = dir.y;
 
     ivec2 pixel_coords = ivec2(pos.x, pos.y);
 	vec4 pixel = vec4(0.0f);
