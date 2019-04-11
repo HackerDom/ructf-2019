@@ -8,9 +8,9 @@ struct Unit
 	float posY;
 	uint type;
 	float power;
-	float prevDirX;
-	float prevDirY;
-	float padding;
+	uint prevDirIdx;
+	uint prevCrossIdx;
+	float padding1;
 };
 
 layout(std430, binding = 8) buffer Units
@@ -55,53 +55,65 @@ void main()
 	Unit unit = units[id];
 
 	const vec2 kDirections[] = vec2[](vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f), vec2(0.0f, -1.0f));
-	const vec2 kNormals[] = vec2[](vec2(0.0f, -1.0f), vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f));
     vec2 fieldSize = vec2(imageSize(img_output));
 	vec2 invFieldSize = vec2(0.5f) / fieldSize;
 
     vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posY) | unit.mind[1])));
 	vec2 rand01 = vec2(cos(rand.x * 3.14f), sin(rand.y * 3.14f));
     vec2 randf = texture(randomTex, rand01).xy;
+	uvec2 randu = floatBitsToUint(randf);
 
-    vec2 dir = vec2(0);
-	vec2 prevDir = vec2(unit.prevDirX, unit.prevDirY);
-	if (dot(prevDir, prevDir) < 0.001f)
-		dir = normalize(randf);// floatBitsToUint(rand01.x) % 4;
-	else
-		dir = prevDir;
+	vec2 prevPos = vec2(unit.posX, unit.posY);
+	ivec2 prevUPos = ivec2(prevPos);
+	vec2 prevDir = kDirections[unit.prevDirIdx];
 
-    vec2 pos = vec2(0.0f);
-	int iterations = 0;
-	while(iterations++ < 10)
-    {
-        //vec2 dir = kDirections[dirIdx];
-		pos = vec2(unit.posX, unit.posY) + dir * vec2(unit.power);
+	int maskedDirections0 = 15;
 
-		vec4 map = imageLoad(mapImage, ivec2(pos));
-		uvec4 umap = floatBitsToUint(map);
-		if((umap.x | umap.y | umap.z) > 0)
-        {
-			int normalIdx = int(map.w) - 1;
-			if(normalIdx < 0)
-				dir = -dir;
-			else
-			{
-				vec2 normal = kNormals[normalIdx];
-				//dirIdx = (dirIdx + 1) % 4;
-				dir = reflect(dir, normal) + randf * vec2(0.01f);
-				dir = normalize(dir);
-			}
-            continue;
-        }
+	int maskedDirections1 = 0;
+	if((prevUPos.x % 32) < 8 && (prevUPos.y % 32) < 8 && randf.y > 0.0f)
+		maskedDirections1 = 15;
 
-        break;
-    }
+	int maskedDirections2 = 1 << ((unit.prevDirIdx + 2) % 4);
+	maskedDirections2 = (~maskedDirections2) & 15;
 
-    units[id].posX = pos.x;
+	uint crossIdx = (prevUPos.x / 32) & 0xffff;
+	crossIdx |= ((prevUPos.y / 32) & 0xffff) << 16;
+	int maskedDirections3 = 0;
+	if(crossIdx != unit.prevCrossIdx && maskedDirections1 > 0)
+	{
+		maskedDirections3 = 15;
+		units[id].prevCrossIdx = crossIdx;
+	}
+
+	int maskedDirections = maskedDirections0 & maskedDirections1 & maskedDirections2 & maskedDirections3;
+	maskedDirections |= 1 << 4;
+
+	uint dirIdx = unit.prevDirIdx;
+	for(uint i = 0; i < 5; i++)
+	{
+		uint bit = (randu.x + i) % 5;
+		if((maskedDirections & (1 << bit)) > 0)
+		{
+			dirIdx = bit;
+			break;
+		}
+	}
+	if(dirIdx == 4)
+		dirIdx = unit.prevDirIdx;
+	vec2 pos = prevPos + kDirections[dirIdx] * units[id].power;
+
+	if(pos.x < 1.0f)
+		dirIdx = 0;
+	if(pos.x > fieldSize.x - 1.0f)
+		dirIdx = 2;
+	if(pos.y < 1.0f)
+		dirIdx = 1;
+	if(pos.y > fieldSize.y - 1.0f)
+		dirIdx = 3;
+
+	units[id].posX = pos.x;
 	units[id].posY = pos.y;
-	//dir = normalize(dir);
-	units[id].prevDirX = dir.x;
-	units[id].prevDirY = dir.y;
+	units[id].prevDirIdx = dirIdx;
 
     ivec2 pixel_coords = ivec2(pos.x, pos.y);
 	vec4 pixel = vec4(0.0f);

@@ -30,8 +30,10 @@ struct Unit
 	float posY;
 	uint32_t type;
 	float power;
-	float prevDir[2];
-	float padding;
+	uint prevDirIdx;
+	uint prevCrossIdx;
+	//float prevDir[2];
+	float padding1;
 };
 static_assert (sizeof(Unit) == 16 * 4, "hey!");
 
@@ -48,15 +50,15 @@ struct Building
 
 std::vector<Unit> GUnits;
 std::vector<Building> GBuildings;
-uint32_t GFieldSizeX = 2048;
-uint32_t GFieldSizeY = 2048;
+uint32_t GFieldSizeX = 512 + 8;
+uint32_t GFieldSizeY = 512 + 8;
 
 void GenerateUnits()
 {
 	std::default_random_engine e;
 	std::uniform_real_distribution<> dis(0.1, 1.0);
 
-	uint32_t num = 16*4096;
+	uint32_t num = 32 * 1024;
 	for(uint32_t i = 0; i < num; i++)
 	{
 		Unit u;
@@ -68,13 +70,13 @@ void GenerateUnits()
 
 		u.id = rand();
 
-		u.posX = 12.0f + dis(e);//(float)(rand() % GFieldSizeX);
-		u.posY = 12.0f + dis(e);//(float)(rand() % GFieldSizeY);
+		u.posX = 256.0f + 4.0f + (float)dis(e);
+		u.posY = 256.0f + 4.0f + (float)dis(e);
 
 		u.type = rand() % 2;
-		u.power = dis(e);
-		u.prevDir[0] = 0.0f;
-		u.prevDir[1] = 0.0f;
+		u.power = (float)dis(e);
+		u.prevDirIdx = 0;
+		u.prevCrossIdx = 0;
 
 		GUnits.push_back(u);
 	}
@@ -89,17 +91,17 @@ void GenerateBuildings()
 	std::uniform_real_distribution<> disOffset(-2.0, 2.0);
 	std::uniform_real_distribution<> disColor(0.0, 0.8);
 
-	const float floatStreetLength = 12.0f;
+	const float floatStreetLength = 8.0f;
 
-	float newBuildingLeft = (float)dis16_32(e);
-	float newBuildingTop = (float)dis16_32(e);
+	float newBuildingLeft = 8.0f;
+	float newBuildingTop = 8.0f;
 
 	while (1)
 	{
 		Building b;
 
-		b.sizeX = 16.0f;//(float)dis16_32(e);
-		b.sizeY = 16.0f;//(float)dis14_18(e);// (float)dis(e);
+		b.sizeX = 24.0f;
+		b.sizeY = 24.0f;
 		b.color[0] = (float)disColor(e);
 		b.color[1] = (float)disColor(e);
 		b.color[2] = (float)disColor(e);
@@ -107,49 +109,19 @@ void GenerateBuildings()
 
 		if (newBuildingLeft + b.sizeX > (float)GFieldSizeX)
 		{
-			newBuildingLeft = 16.0f;//(float)dis16_32(e);
-			newBuildingTop += 16.0f + floatStreetLength;
+			newBuildingLeft = 8.0f;
+			newBuildingTop += b.sizeY + floatStreetLength;
 			if (newBuildingTop > (float)GFieldSizeY)
 				break;
 		}
 		
 		b.posX = newBuildingLeft + b.sizeX * 0.5f;
-		b.posY = newBuildingTop + b.sizeY * 0.5f;// + (float)disOffset(e);
+		b.posY = newBuildingTop + b.sizeY * 0.5f;
 
 		newBuildingLeft += b.sizeX + floatStreetLength;
 
 		GBuildings.push_back(b);
 	}
-
-	Building b;
-	b.color[0] = (float)disColor(e);
-	b.color[1] = (float)disColor(e);
-	b.color[2] = (float)disColor(e);
-	b.color[3] = 0.0f;
-
-	b.sizeX = GFieldSizeX;
-	b.sizeY = 4;
-	b.posX = (float)GFieldSizeX * 0.5f;
-	b.posY = -1.0f;
-	GBuildings.push_back(b);
-
-	b.sizeX = 4;
-	b.sizeY = GFieldSizeY;
-	b.posX = (float)GFieldSizeX + 1;
-	b.posY = (float)GFieldSizeY * 0.5f;
-	GBuildings.push_back(b);
-
-	b.sizeX = GFieldSizeX;
-	b.sizeY = 4;
-	b.posX = (float)GFieldSizeX * 0.5f;
-	b.posY = (float)GFieldSizeY + 1.0f;
-	GBuildings.push_back(b);
-
-	b.sizeX = 4;
-	b.sizeY = GFieldSizeY;
-	b.posX = -1.0f;
-	b.posY = (float)GFieldSizeY * 0.5f;
-	GBuildings.push_back(b);
 }
 
 
@@ -161,8 +133,7 @@ void UpdateRandomTexture(Texture2D& tex)
 	const int kSize = 32 * 32 * 4;
 	static float data[kSize];
 	for(int i = 0; i < kSize; i++)
-		data[i] = (rand() % 16) - 8.0f;
-		//data[i] = (float)dis(e);
+		data[i] = (float)dis(e);
 
 	glBindTexture(GL_TEXTURE_2D, tex.GetTexture());
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex.GetWidth(), tex.GetHeight(), GL_RGBA, GL_FLOAT, data);
