@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "glwrap.h"
+#include <glm/gtc/type_ptr.hpp>
 
 
 Shader::Shader(GLuint type, const char* fileName)
@@ -211,7 +212,7 @@ bool Program::SetSSBO(const char* uniformName, GLuint ssbo)
 }
 
 
-bool Program::SetVec4(const char* uniformName, const Vec4& v)
+bool Program::SetVec4(const char* uniformName, const glm::vec4& v)
 {
 	GLint location = glGetUniformLocation(m_program, uniformName);
 	if (location == -1)
@@ -222,13 +223,24 @@ bool Program::SetVec4(const char* uniformName, const Vec4& v)
 }
 
 
-bool Program::SetIVec4(const char* uniformName, const IVec4& v)
+bool Program::SetIVec4(const char* uniformName, const glm::ivec4& v)
 {
 	GLint location = glGetUniformLocation(m_program, uniformName);
 	if (location == -1)
 		return false;
 
 	m_ivec4s[location] = v;
+	return true;
+}
+
+
+bool Program::SetMat4(const char* uniformName, const glm::mat4& mat)
+{
+	GLint location = glGetUniformLocation(m_program, uniformName);
+	if (location == -1)
+		return false;
+
+	m_mat4s[location] = mat;
 	return true;
 }
 
@@ -286,10 +298,13 @@ void Program::BindUniforms() const
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, iter.first, iter.second);
 
 	for (auto iter : m_vec4s)
-		glUniform4fv(iter.first, 1, (const GLfloat*)&iter.second);
+		glUniform4fv(iter.first, 1, glm::value_ptr(iter.second));
 
 	for (auto iter : m_ivec4s)
-		glUniform4iv(iter.first, 1, (const GLint*)&iter.second);
+		glUniform4iv(iter.first, 1, glm::value_ptr(iter.second));
+
+	for (auto iter : m_mat4s)
+		glUniformMatrix4fv(iter.first, 1, GL_FALSE, glm::value_ptr(iter.second));
 
 	for (auto iter : m_attributes)
 	{

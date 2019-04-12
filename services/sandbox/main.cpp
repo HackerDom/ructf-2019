@@ -3,6 +3,7 @@
 #include <time.h>
 #include <random>
 #include "glwrap.h"
+#include "buildings.h"
 
 static void error_callback(int error, const char* description)
 {
@@ -30,8 +31,8 @@ struct Unit
 	float posY;
 	uint32_t type;
 	float power;
-	uint prevDirIdx;
-	uint prevCrossIdx;
+	uint32_t prevDirIdx;
+	uint32_t prevCrossIdx;
 	//float prevDir[2];
 	float padding1;
 };
@@ -50,15 +51,61 @@ struct Building
 
 std::vector<Unit> GUnits;
 std::vector<Building> GBuildings;
-uint32_t GFieldSizeX = 512 + 8;
-uint32_t GFieldSizeY = 512 + 8;
+Buildings GBuildings_;
+Camera GCamera;
+double GDeltaTime;
+uint32_t GFieldSizeX = 4096 + 8;
+uint32_t GFieldSizeY = 4096 + 8;
+
+
+void ProcessInput(GLFWwindow *window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		GCamera.ProcessKeyboard(kCameraDirectionForward, (float)GDeltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		GCamera.ProcessKeyboard(kCameraDirectionBackward, (float)GDeltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		GCamera.ProcessKeyboard(kCameraDirectionLeft, (float)GDeltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		GCamera.ProcessKeyboard(kCameraDirectionRight, (float)GDeltaTime);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		GCamera.ProcessKeyboard(kCameraDirectionUp, (float)GDeltaTime);
+	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+		GCamera.ProcessKeyboard(kCameraDirectionDown, (float)GDeltaTime);
+}
+
+
+void ProcessMouse(GLFWwindow* window, double xpos, double ypos)
+{
+	static float lastX = 0.0f;
+	static float lastY = 0.0f;
+	static bool firstMouse = true;
+	if (firstMouse)
+	{
+		lastX = (float)xpos;
+		lastY = (float)ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = (float)xpos - lastX;
+	float yoffset = lastY - (float)ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = (float)xpos;
+	lastY = (float)ypos;
+
+	GCamera.ProcessMouseMovement(xoffset, yoffset);
+}
+
 
 void GenerateUnits()
 {
 	std::default_random_engine e;
 	std::uniform_real_distribution<> dis(0.1, 1.0);
 
-	uint32_t num = 32 * 1024;
+	uint32_t num = 256 * 1024;
 	for(uint32_t i = 0; i < num; i++)
 	{
 		Unit u;
@@ -86,22 +133,19 @@ void GenerateUnits()
 void GenerateBuildings()
 {
 	std::default_random_engine e;
-	std::uniform_real_distribution<> dis16_32(16.0, 32.0);
-	std::uniform_real_distribution<> dis14_18(14.0, 18.0);
-	std::uniform_real_distribution<> disOffset(-2.0, 2.0);
 	std::uniform_real_distribution<> disColor(0.0, 0.8);
 
-	const float floatStreetLength = 8.0f;
+	const float floatStreetLength = kStreetWidth;
 
-	float newBuildingLeft = 8.0f;
-	float newBuildingTop = 8.0f;
+	float newBuildingLeft = floatStreetLength;
+	float newBuildingTop = floatStreetLength;
 
 	while (1)
 	{
 		Building b;
 
-		b.sizeX = 24.0f;
-		b.sizeY = 24.0f;
+		b.sizeX = kBuildingSize;
+		b.sizeY = kBuildingSize;
 		b.color[0] = (float)disColor(e);
 		b.color[1] = (float)disColor(e);
 		b.color[2] = (float)disColor(e);
@@ -109,7 +153,7 @@ void GenerateBuildings()
 
 		if (newBuildingLeft + b.sizeX > (float)GFieldSizeX)
 		{
-			newBuildingLeft = 8.0f;
+			newBuildingLeft = floatStreetLength;
 			newBuildingTop += b.sizeY + floatStreetLength;
 			if (newBuildingTop > (float)GFieldSizeY)
 				break;
@@ -158,6 +202,9 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 	GLFWwindow* window = glfwCreateWindow(1024, 1024, "Sandbox", nullptr, nullptr);
 
+	glfwSetCursorPosCallback(window, ProcessMouse);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 
@@ -175,29 +222,32 @@ int main()
 
 	printf("max global (total) work group size x:%i y:%i z:%i\n", work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]);
 
-	VertexShader vs("base.vert");
-	FragmentShader fs("base.frag");
+	VertexShader vs("shaders/base.vert");
+	FragmentShader fs("shaders/base.frag");
 	Shader* shaders[] = {&vs, &fs};
 	Program program(shaders, 2);
 	if(!program.IsValid())
 		return 1;
 
-	ComputeShader cs("test.cs");
+	ComputeShader cs("shaders/test.cs");
 	Shader* csArray[] = {&cs};
 	Program csProg(csArray, 1);
 	if(!csProg.IsValid())
 		return 1;
 
-	ComputeShader clearCs("clear.cs");
+	ComputeShader clearCs("shaders/clear.cs");
 	csArray[0] = {&clearCs};
 	Program clearCsProg(csArray, 1);
 	if(!clearCsProg.IsValid())
 		return 1;
 
-	ComputeShader buildingCs("buildings.cs");
+	ComputeShader buildingCs("shaders/buildings.cs");
 	csArray[0] = {&buildingCs};
 	Program buildingCsProg(csArray, 1);
 	if (!buildingCsProg.IsValid())
+		return 1;
+
+	if (!GBuildings_.Init(GFieldSizeX, GFieldSizeY))
 		return 1;
 
 	GLuint dummyVao;
@@ -230,14 +280,22 @@ int main()
 		glUseProgram(buildingCsProg.GetProgram());
 		buildingCsProg.SetImage("img_output", map, GL_WRITE_ONLY);
 		buildingCsProg.SetSSBO("Buildings", buildingsSsbo);
-		buildingCsProg.SetIVec4("buildingsCount", IVec4(GBuildings.size(), 0, 0, 0));
+		buildingCsProg.SetIVec4("buildingsCount", glm::ivec4(GBuildings.size(), 0, 0, 0));
 		buildingCsProg.BindUniforms();
 		glDispatchCompute((GBuildings.size() + 31) / 32, 1, 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 	}
 
+	static double lastFrame = glfwGetTime();
+
 	while (!glfwWindowShouldClose(window))
 	{
+		double currentFrame = glfwGetTime();
+		GDeltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		ProcessInput(window);
+
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
 
@@ -255,7 +313,7 @@ int main()
 
 		glUseProgram(csProg.GetProgram());
 		csProg.SetImage("img_output", tex, GL_WRITE_ONLY);
-		csProg.SetIVec4("unitsCount", IVec4(GUnits.size(), 0, 0, 0));
+		csProg.SetIVec4("unitsCount", glm::ivec4(GUnits.size(), 0, 0, 0));
 		csProg.SetTexture("randomTex", randomTex);
 		csProg.SetImage("mapImage", map, GL_READ_ONLY);
 		csProg.SetSSBO("Units", unitsSsbo);
@@ -264,13 +322,18 @@ int main()
 
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
-		glUseProgram(program.GetProgram());
-		program.SetVec4("targetSize", Vec4(width, height, 0, 0));
+		/*glUseProgram(program.GetProgram());
+		program.SetVec4("targetSize", glm::vec4(width, height, 0, 0));
 		program.SetTexture("units", tex);
 		program.SetTexture("map", map);
 		program.BindUniforms();
 		glBindVertexArray(dummyVao);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);*/
+
+		glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+		glm::mat4 view = GCamera.GetViewMatrix();
+		glm::mat4 viewProj = proj * view;
+		GBuildings_.Draw(viewProj);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

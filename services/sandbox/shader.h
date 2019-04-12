@@ -64,8 +64,9 @@ public:
 	bool SetTexture(const char* uniformName, const Texture2D& tex);
 	bool SetImage(const char* uniformName, const Texture2D& tex, GLenum access);
 	bool SetSSBO(const char* uniformName, GLuint ssbo);
-	bool SetVec4(const char* uniformName, const Vec4& v);
-	bool SetIVec4(const char* uniformName, const IVec4& v);
+	bool SetVec4(const char* uniformName, const glm::vec4& v);
+	bool SetIVec4(const char* uniformName, const glm::ivec4& v);
+	bool SetMat4(const char* uniformName, const glm::mat4& mat);
 	bool SetAttribute(const char* attrName,
 	                  GLint size,
 	                  GLenum type,
@@ -99,6 +100,7 @@ private:
 	std::map<GLint, GLuint> m_texBinds;
 	std::map<GLint, ImageBind> m_imageBinds;
 	std::map<GLint, GLuint> m_ssboBinds;
-	std::map<GLint, Vec4> m_vec4s;
-	std::map<GLint, IVec4> m_ivec4s;
+	std::map<GLint, glm::vec4> m_vec4s;
+	std::map<GLint, glm::ivec4> m_ivec4s;
+	std::map<GLint, glm::mat4> m_mat4s;
 };
