@@ -2,7 +2,9 @@
 #include <math.h>
 #include <time.h>
 #include <random>
+#include <glm/gtc/matrix_transform.hpp>
 #include "glwrap.h"
+#include "camera.h"
 #include "buildings.h"
 #include "units.h"
 

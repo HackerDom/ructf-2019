@@ -1,12 +1,11 @@
 #pragma once
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 #include <stdint.h>
 #include <string.h>
 #include "gl.h"
 #include "texture.h"
 #include "shader.h"
 #include "png.h"
-#include "camera.h"
