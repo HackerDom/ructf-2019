@@ -79,6 +79,11 @@ VertexShader::VertexShader(const char* fileName) : Shader(GL_VERTEX_SHADER, file
 }
 
 
+GeometryShader::GeometryShader(const char* fileName) : Shader(GL_GEOMETRY_SHADER, fileName)
+{
+}
+
+
 FragmentShader::FragmentShader(const char* fileName) : Shader(GL_FRAGMENT_SHADER, fileName)
 {
 }

@@ -35,6 +35,14 @@ public:
 };
 
 
+class GeometryShader : public Shader
+{
+public:
+	GeometryShader() = delete;
+	GeometryShader(const char* fileName);
+};
+
+
 class FragmentShader : public Shader
 {
 public:

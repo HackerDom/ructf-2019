@@ -1,11 +1,23 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-uniform vec4 targetSize;
+in vec3 barycentricCoords;
+in vec3 normal;
 
 layout(location = 0) out vec4 outColor;
 
+uniform vec4 viewDir;
+
 void main()
 {
-	outColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	float dotNV = dot(normal, -viewDir.xyz);
+	dotNV = clamp(dotNV, 0.0f, 1.0f);
+	outColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	const float edgeThikness = 1.2f;
+	vec3 fw = abs(dFdx(barycentricCoords)) + abs(dFdy(barycentricCoords));
+	vec3 val = smoothstep(vec3(0.0f, 0.0f, 0.0f), fw * edgeThikness, barycentricCoords);
+	float edge = min(min(val.x, val.y), val.z);
+	if(edge <= 0.5f)
+		outColor.g = 1.0f;
 }

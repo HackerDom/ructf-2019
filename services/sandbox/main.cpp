@@ -63,18 +63,22 @@ void ProcessInput(GLFWwindow *window)
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 
+	float deltaTime = (float)GDeltaTime;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		deltaTime *= 2.0f;
+
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		GCamera.ProcessKeyboard(kCameraDirectionForward, (float)GDeltaTime);
+		GCamera.ProcessKeyboard(kCameraDirectionForward, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		GCamera.ProcessKeyboard(kCameraDirectionBackward, (float)GDeltaTime);
+		GCamera.ProcessKeyboard(kCameraDirectionBackward, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		GCamera.ProcessKeyboard(kCameraDirectionLeft, (float)GDeltaTime);
+		GCamera.ProcessKeyboard(kCameraDirectionLeft, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		GCamera.ProcessKeyboard(kCameraDirectionRight, (float)GDeltaTime);
+		GCamera.ProcessKeyboard(kCameraDirectionRight, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		GCamera.ProcessKeyboard(kCameraDirectionUp, (float)GDeltaTime);
+		GCamera.ProcessKeyboard(kCameraDirectionUp, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-		GCamera.ProcessKeyboard(kCameraDirectionDown, (float)GDeltaTime);
+		GCamera.ProcessKeyboard(kCameraDirectionDown, deltaTime);
 }
 
 
@@ -250,6 +254,8 @@ int main()
 	if (!GBuildings_.Init(GFieldSizeX, GFieldSizeY))
 		return 1;
 
+	GCamera.m_pos = glm::vec3(GFieldSizeX * 0.5f, 32.0f, GFieldSizeY * 0.5f);
+
 	GLuint dummyVao;
 	glGenVertexArrays(1, &dummyVao);
 
@@ -300,8 +306,8 @@ int main()
 		glfwGetFramebufferSize(window, &width, &height);
 
 		glViewport(0, 0, width, height);
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(clearCsProg.GetProgram());
 		clearCsProg.SetImage("img_output", tex, GL_WRITE_ONLY);
@@ -330,10 +336,10 @@ int main()
 		glBindVertexArray(dummyVao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);*/
 
-		glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+		glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 4000.0f);
 		glm::mat4 view = GCamera.GetViewMatrix();
 		glm::mat4 viewProj = proj * view;
-		GBuildings_.Draw(viewProj);
+		GBuildings_.Draw(viewProj, GCamera.m_dir);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

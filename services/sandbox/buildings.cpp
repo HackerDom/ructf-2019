@@ -8,9 +8,6 @@ const uint32_t kVertexSize = 3 * sizeof(float);
 
 bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 {
-	uint32_t numBuildingsX = fieldSizeX / (kBuildingSize + kStreetWidth);
-	uint32_t numBuildingsY = fieldSizeY / (kBuildingSize + kStreetWidth);
-
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
@@ -47,13 +44,20 @@ bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_vs = new VertexShader("shaders/building.vert");
 	if (!m_vs->IsValid())
 		return false;
+	m_gs = new GeometryShader("shaders/building.geom");
+	if (!m_gs->IsValid())
+		return false;
 	m_fs = new FragmentShader("shaders/building.frag");
 	if (!m_fs->IsValid())
 		return false;
-	Shader* shaders[] = {m_vs, m_fs};
-	m_program = new Program(shaders, 2);
+
+	Shader* colorShaders[] = {m_vs, m_gs, m_fs};
+	m_program = new Program(colorShaders, 3);
 	if (!m_program->IsValid())
 		return false;
+
+	m_numBuildingsX = fieldSizeX / (kBuildingSize + kStreetWidth);
+	m_numBuildingsY = fieldSizeY / (kBuildingSize + kStreetWidth);
 
 	return true;
 }
@@ -87,6 +91,11 @@ void Buildings::Shutdown()
 		delete m_fs;
 		m_fs = nullptr;
 	}
+	if (m_gs)
+	{
+		delete m_gs;
+		m_gs = nullptr;
+	}
 	if (m_vs)
 	{
 		delete m_vs;
@@ -97,18 +106,27 @@ void Buildings::Shutdown()
 }
 
 
-void Buildings::Draw(const glm::mat4& viewProjMatrix)
+void Buildings::Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir)
 {
 	if (!m_program)
 		return;
 
+	glBindVertexArray(m_vao);
+
 	glUseProgram(m_program->GetProgram());
 	m_program->SetMat4("viewProjMatrix", viewProjMatrix);
+	m_program->SetVec4("viewDir", glm::vec4(viewDir.x, viewDir.y, viewDir.z, 0.0f));
+	m_program->SetIVec4("numBuildings", glm::ivec4(m_numBuildingsX, m_numBuildingsY, 0, 0));
+	m_program->SetVec4("buildingSize", glm::vec4(kBuildingSize, kStreetWidth, 0.0f, 0.0f));
 	m_program->BindUniforms();
 
-	glBindVertexArray(m_vao);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glDrawElements(GL_TRIANGLES, m_indicesNum, GL_UNSIGNED_SHORT, 0);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CW);
+
+	glDrawElementsInstanced(GL_TRIANGLES, m_indicesNum, GL_UNSIGNED_SHORT, 0, m_numBuildingsX * m_numBuildingsY);
+
 	glBindVertexArray(0);
 }
