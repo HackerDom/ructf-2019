@@ -130,14 +130,16 @@ int main()
 	Program program(shaders, 2);
 	if(!program.IsValid())
 		return 1;
-		
-	ComputeShader clearCs("shaders/clear.cs");
-	Shader* csArray[] = {&clearCs};
-	Program clearCsProg(csArray, 1);
-	if(!clearCsProg.IsValid())
+
+	Texture2D simulationTex(GFieldSizeX, GFieldSizeY, FORMAT_R32U);
+	GLuint simulationFramebuffer;
+	glGenFramebuffers(1, &simulationFramebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, simulationFramebuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, simulationTex.GetTexture(), 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	if (!CheckError("Failed to create framebuffer"))
 		return 1;
 
-	Texture2D tex(GFieldSizeX, GFieldSizeY, FORMAT_R32U);
 	Texture2D randomTex(32, 32, FORMAT_RGBA32F);
 
 	if (!GBuildings.Init(GFieldSizeX, GFieldSizeY))
@@ -168,6 +170,12 @@ int main()
 
 		ProcessInput(window);
 
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, simulationFramebuffer);
+		glViewport(0, 0, GFieldSizeX, GFieldSizeY);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
 
@@ -175,15 +183,9 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(clearCsProg.GetProgram());
-		clearCsProg.SetImage("img_output", tex, GL_WRITE_ONLY);
-		clearCsProg.BindUniforms();
-		glDispatchCompute(GFieldSizeX / 8, GFieldSizeY / 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
 		UpdateRandomTexture(randomTex);
 
-		GUnits.Simulate(tex, randomTex);
+		GUnits.Simulate(simulationTex, randomTex);
 
 		/*glUseProgram(program.GetProgram());
 		program.SetVec4("targetSize", glm::vec4(width, height, 0, 0));
