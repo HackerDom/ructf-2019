@@ -18,7 +18,7 @@ layout(std430, binding = 8) buffer Units
 	Unit units[];
 };
 
-layout(rgba16f, binding = 1) uniform image2D img_output;
+layout(r32ui, binding = 1) uniform uimage2D img_output;
 layout(binding = 2) uniform sampler2D randomTex;
 
 uniform ivec4 unitsCount;
@@ -115,12 +115,6 @@ void main()
 	units[id].prevDirIdx = dirIdx;
 
     ivec2 pixel_coords = ivec2(pos.x, pos.y);
-	vec4 pixel = vec4(0.0f);
-	pixel.x = unit.mind[0] & 0xff;
-	pixel.y = unit.mind[1] & 0xff;
-	pixel.z = unit.mind[2] & 0xff;
-	pixel.w = 255.0f;
-	pixel /= vec4(255.0f);
-	imageStore(img_output, pixel_coords, pixel);
+	imageStore(img_output, pixel_coords, uvec4(id));
 }
 

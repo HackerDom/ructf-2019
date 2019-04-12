@@ -3,9 +3,12 @@
 
 layout(location = 0) out vec4 outColor;
 
-in vec4 color;
+in vec2 pos2d;
 
 void main()
 {
-	outColor = color;
+	float dist = 0.5f - length(pos2d);
+	if(dist < 0.1f)
+		discard;
+	outColor = vec4(0.5f, 1.0f, 0.5f, 1.0f);
 }

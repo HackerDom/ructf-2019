@@ -31,7 +31,7 @@ layout(std430, binding = 8) buffer Units
 uniform mat4 viewProjMatrix;
 uniform mat4 viewMatrix;
 
-out vec4 color;
+out vec2 pos2d;
 
 void main()
 {
@@ -42,11 +42,5 @@ void main()
 	vertexPos.xyz += vec3(unit.posX, unit.posY, unit.posZ);
 
 	gl_Position = viewProjMatrix * vertexPos;
-
-	color = vec4(0.0f);
-	color.x = unit.mind[0] & 0xff;
-	color.y = unit.mind[1] & 0xff;
-	color.z = unit.mind[2] & 0xff;
-	color.w = 255.0f;
-	color /= vec4(255.0f);
+	pos2d = positions[gl_VertexID];
 }

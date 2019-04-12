@@ -135,7 +135,7 @@ int main()
 	if(!clearCsProg.IsValid())
 		return 1;
 
-	Texture2D tex(GFieldSizeX, GFieldSizeY, FORMAT_RGBA16F);
+	Texture2D tex(GFieldSizeX, GFieldSizeY, FORMAT_R32U);
 	Texture2D randomTex(32, 32, FORMAT_RGBA32F);
 
 	if (!GBuildings.Init(GFieldSizeX, GFieldSizeY))
@@ -150,12 +150,19 @@ int main()
 	glGenVertexArrays(1, &dummyVao);
 
 	static double lastFrame = glfwGetTime();
+	double counter = 0.0f;
 
 	while (!glfwWindowShouldClose(window))
 	{
 		double currentFrame = glfwGetTime();
 		GDeltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+		counter += GDeltaTime;
+		if (counter > 1.0)
+		{
+			printf("Frame time: %fms\n", GDeltaTime * 1000.0);
+			counter = 0.0;
+		}
 
 		ProcessInput(window);
 
