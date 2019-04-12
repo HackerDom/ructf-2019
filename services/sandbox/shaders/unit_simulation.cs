@@ -5,12 +5,12 @@ struct Unit
 	uint mind[8];
 	uint id;
 	float posX;
-	float posY;
+    float posY;
+	float posZ;
 	uint type;
 	float power;
 	uint prevDirIdx;
 	uint prevCrossIdx;
-	float padding1;
 };
 
 layout(std430, binding = 8) buffer Units
@@ -58,12 +58,12 @@ void main()
     vec2 fieldSize = vec2(imageSize(img_output));
 	vec2 invFieldSize = vec2(0.5f) / fieldSize;
 
-    vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posY) | unit.mind[1])));
+    vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posZ) | unit.mind[1])));
 	vec2 rand01 = vec2(cos(rand.x * 3.14f), sin(rand.y * 3.14f));
     vec2 randf = texture(randomTex, rand01).xy;
 	uvec2 randu = floatBitsToUint(randf);
 
-	vec2 prevPos = vec2(unit.posX, unit.posY);
+	vec2 prevPos = vec2(unit.posX, unit.posZ);
 	ivec2 prevUPos = ivec2(prevPos);
 	vec2 prevDir = kDirections[unit.prevDirIdx];
 
@@ -112,7 +112,7 @@ void main()
 		dirIdx = 3;
 
 	units[id].posX = pos.x;
-	units[id].posY = pos.y;
+	units[id].posZ = pos.y;
 	units[id].prevDirIdx = dirIdx;
 
     ivec2 pixel_coords = ivec2(pos.x, pos.y);

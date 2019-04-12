@@ -1,6 +1,8 @@
 #include "buildings.h"
 #include "tiny_obj_loader.h"
 #include <vector>
+#include <random>
+
 
 const char* kModelName = "models/building.obj";
 const uint32_t kVertexSize = 3 * sizeof(float);
@@ -8,6 +10,9 @@ const uint32_t kVertexSize = 3 * sizeof(float);
 
 bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 {
+	m_fieldSizeX = fieldSizeX;
+	m_fieldSizeY = fieldSizeY;
+
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
@@ -59,6 +64,47 @@ bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_numBuildingsX = fieldSizeX / (kBuildingSize + kStreetWidth);
 	m_numBuildingsY = fieldSizeY / (kBuildingSize + kStreetWidth);
 
+	GenerateBuildings();
+
+	m_map = new Texture2D(m_fieldSizeX, m_fieldSizeY, FORMAT_RGBA16F);
+
+	// fill map
+	{
+		GLuint buildingsSsbo;
+		glGenBuffers(1, &buildingsSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buildingsSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, m_buildings.size() * sizeof(Building), m_buildings.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+		ComputeShader clearCs("shaders/clear.cs");
+		Shader* csArray[] = {&clearCs};
+		Program clearCsProg(csArray, 1);
+		if (!clearCsProg.IsValid())
+			return 1;
+
+		ComputeShader buildingCs("shaders/buildings.cs");
+		csArray[0] = {&buildingCs};
+		Program buildingCsProg(csArray, 1);
+		if (!buildingCsProg.IsValid())
+			return 1;
+
+		glUseProgram(clearCsProg.GetProgram());
+		clearCsProg.SetImage("img_output", *m_map, GL_WRITE_ONLY);
+		clearCsProg.BindUniforms();
+		glDispatchCompute(m_fieldSizeX / 8, m_fieldSizeY / 8, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+		glUseProgram(buildingCsProg.GetProgram());
+		buildingCsProg.SetImage("img_output", *m_map, GL_WRITE_ONLY);
+		buildingCsProg.SetSSBO("Buildings", buildingsSsbo);
+		buildingCsProg.SetIVec4("buildingsCount", glm::ivec4(m_buildings.size(), 0, 0, 0));
+		buildingCsProg.BindUniforms();
+		glDispatchCompute((m_buildings.size() + 31) / 32, 1, 1);
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+		glDeleteBuffers(1, &buildingsSsbo);
+	}
+
 	return true;
 }
 
@@ -80,6 +126,7 @@ void Buildings::Shutdown()
 		glDeleteVertexArrays(1, &m_vao);
 		m_vao = 0;
 	}
+	m_indicesNum = 0;
 
 	if (m_program)
 	{
@@ -102,7 +149,13 @@ void Buildings::Shutdown()
 		m_vs = nullptr;
 	}
 
-	m_indicesNum = 0;
+	if (!m_map)
+	{
+		delete m_map;
+		m_map = nullptr;
+	}
+
+	m_buildings.clear();
 }
 
 
@@ -129,4 +182,43 @@ void Buildings::Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir)
 	glDrawElementsInstanced(GL_TRIANGLES, m_indicesNum, GL_UNSIGNED_SHORT, 0, m_numBuildingsX * m_numBuildingsY);
 
 	glBindVertexArray(0);
+}
+
+
+void Buildings::GenerateBuildings()
+{
+	std::default_random_engine e;
+	std::uniform_real_distribution<> disColor(0.0, 0.8);
+
+	const float floatStreetLength = kStreetWidth;
+
+	float newBuildingLeft = floatStreetLength;
+	float newBuildingTop = floatStreetLength;
+
+	while (1)
+	{
+		Building b;
+
+		b.sizeX = kBuildingSize;
+		b.sizeY = kBuildingSize;
+		b.color[0] = (float)disColor(e);
+		b.color[1] = (float)disColor(e);
+		b.color[2] = (float)disColor(e);
+		b.color[3] = 0.0f;
+
+		if (newBuildingLeft + b.sizeX > (float)m_fieldSizeX)
+		{
+			newBuildingLeft = floatStreetLength;
+			newBuildingTop += b.sizeY + floatStreetLength;
+			if (newBuildingTop > (float)m_fieldSizeY)
+				break;
+		}
+
+		b.posX = newBuildingLeft + b.sizeX * 0.5f;
+		b.posY = newBuildingTop + b.sizeY * 0.5f;
+
+		newBuildingLeft += b.sizeX + floatStreetLength;
+
+		m_buildings.push_back(b);
+	}
 }
