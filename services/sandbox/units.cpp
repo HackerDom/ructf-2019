@@ -62,7 +62,7 @@ void Units::Shutdown()
 }
 
 
-void Units::Simulate(const Texture2D& target, const Texture2D& buildingsMap, const Texture2D& randomTex)
+void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 {
 	if (!m_simulationProgram)
 		return;
@@ -71,7 +71,6 @@ void Units::Simulate(const Texture2D& target, const Texture2D& buildingsMap, con
 	m_simulationProgram->SetImage("img_output", target, GL_WRITE_ONLY);
 	m_simulationProgram->SetIVec4("unitsCount", glm::ivec4(m_units.size(), 0, 0, 0));
 	m_simulationProgram->SetTexture("randomTex", randomTex);
-	m_simulationProgram->SetImage("mapImage", buildingsMap, GL_READ_ONLY);
 	m_simulationProgram->SetSSBO("Units", m_ssbo);
 	m_simulationProgram->BindUniforms();
 	glDispatchCompute((m_units.size() + 31) / 32, 1, 1);

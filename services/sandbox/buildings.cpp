@@ -66,45 +66,6 @@ bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 	GenerateBuildings();
 
-	m_map = new Texture2D(m_fieldSizeX, m_fieldSizeY, FORMAT_RGBA16F);
-
-	// fill map
-	{
-		GLuint buildingsSsbo;
-		glGenBuffers(1, &buildingsSsbo);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, buildingsSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, m_buildings.size() * sizeof(Building), m_buildings.data(), GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-
-		ComputeShader clearCs("shaders/clear.cs");
-		Shader* csArray[] = {&clearCs};
-		Program clearCsProg(csArray, 1);
-		if (!clearCsProg.IsValid())
-			return 1;
-
-		ComputeShader buildingCs("shaders/buildings.cs");
-		csArray[0] = {&buildingCs};
-		Program buildingCsProg(csArray, 1);
-		if (!buildingCsProg.IsValid())
-			return 1;
-
-		glUseProgram(clearCsProg.GetProgram());
-		clearCsProg.SetImage("img_output", *m_map, GL_WRITE_ONLY);
-		clearCsProg.BindUniforms();
-		glDispatchCompute(m_fieldSizeX / 8, m_fieldSizeY / 8, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-		glUseProgram(buildingCsProg.GetProgram());
-		buildingCsProg.SetImage("img_output", *m_map, GL_WRITE_ONLY);
-		buildingCsProg.SetSSBO("Buildings", buildingsSsbo);
-		buildingCsProg.SetIVec4("buildingsCount", glm::ivec4(m_buildings.size(), 0, 0, 0));
-		buildingCsProg.BindUniforms();
-		glDispatchCompute((m_buildings.size() + 31) / 32, 1, 1);
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-
-		glDeleteBuffers(1, &buildingsSsbo);
-	}
-
 	return true;
 }
 
@@ -147,12 +108,6 @@ void Buildings::Shutdown()
 	{
 		delete m_vs;
 		m_vs = nullptr;
-	}
-
-	if (!m_map)
-	{
-		delete m_map;
-		m_map = nullptr;
 	}
 
 	m_buildings.clear();

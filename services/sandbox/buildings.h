@@ -26,8 +26,6 @@ public:
 
 	void Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir);
 
-	const Texture2D& GetMap() const;
-
 private:
 	VertexShader* m_vs = nullptr;
 	GeometryShader* m_gs = nullptr;
@@ -44,13 +42,6 @@ private:
 	uint32_t m_numBuildingsY;
 
 	std::vector<Building> m_buildings;
-	Texture2D* m_map = nullptr;
 
 	void GenerateBuildings();
 };
-
-
-inline const Texture2D& Buildings::GetMap() const
-{
-	return *m_map;
-}

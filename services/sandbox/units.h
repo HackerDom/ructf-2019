@@ -33,7 +33,7 @@ public:
 	bool Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY);
 	void Shutdown();
 
-	void Simulate(const Texture2D& target, const Texture2D& buildingsMap, const Texture2D& randomTex);
+	void Simulate(const Texture2D& target, const Texture2D& randomTex);
 	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix);
 
 private:

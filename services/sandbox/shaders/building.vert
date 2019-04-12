@@ -10,13 +10,13 @@ uniform vec4 buildingSize;
 void main()
 {
 	int xiOffset = gl_InstanceID % numBuildings.x;
-	int yiOffset = gl_InstanceID / numBuildings.x;
+	int ziOffset = gl_InstanceID / numBuildings.x;
 
 	float xOffset = float(xiOffset) * (buildingSize.x + buildingSize.y) + buildingSize.x * 0.5f + buildingSize.y;
-	float yOffset = float(yiOffset) * (buildingSize.x + buildingSize.y) + buildingSize.x * 0.5f + buildingSize.y;
+	float zOffset = float(ziOffset) * (buildingSize.x + buildingSize.y) + buildingSize.x * 0.5f + buildingSize.y;
 
 	vec4 worldPos = vec4(vertexPos * buildingSize.x, 1.0f);
-	worldPos.xz += vec2(xOffset, yOffset);
+	worldPos.xz += vec2(xOffset, zOffset);
 
 	gl_Position = worldPos;
 }

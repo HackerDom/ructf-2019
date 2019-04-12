@@ -174,12 +174,12 @@ int main()
 
 		UpdateRandomTexture(randomTex);
 
-		GUnits.Simulate(tex, GBuildings.GetMap(), randomTex);
+		GUnits.Simulate(tex, randomTex);
 
 		/*glUseProgram(program.GetProgram());
 		program.SetVec4("targetSize", glm::vec4(width, height, 0, 0));
 		program.SetTexture("units", tex);
-		program.SetTexture("map", GBuildings_.GetMap());
+		//program.SetTexture("map", GBuildings_.GetMap());
 		program.BindUniforms();
 		glBindVertexArray(dummyVao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);*/

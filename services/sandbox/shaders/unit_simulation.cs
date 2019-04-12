@@ -20,7 +20,6 @@ layout(std430, binding = 8) buffer Units
 
 layout(rgba16f, binding = 1) uniform image2D img_output;
 layout(binding = 2) uniform sampler2D randomTex;
-layout(rgba16f, binding = 3) uniform image2D mapImage;
 
 uniform ivec4 unitsCount;
 
