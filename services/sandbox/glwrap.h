@@ -19,3 +19,22 @@ struct DrawElementsIndirectCommand
 	uint32_t baseVertex;
 	uint32_t baseInstance;
 };
+
+
+struct DrawArraysIndirectCommand
+{
+	uint32_t count;
+	uint32_t primCount;
+	uint32_t first;
+	uint32_t baseInstance;
+};
+
+
+inline void DeleteBuffer(GLuint& b)
+{
+	if (b)
+	{
+		glDeleteBuffers(1, &b);
+		b = 0;
+	}
+}

@@ -104,16 +104,6 @@ bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 }
 
 
-static void DeleteBuffer(GLuint& b)
-{
-	if (b)
-	{
-		glDeleteBuffers(1, &b);
-		b = 0;
-	}
-}
-
-
 void Buildings::Shutdown()
 {
 	for (uint32_t l = 0; l < kLodsCount; l++)

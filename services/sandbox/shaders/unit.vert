@@ -1,6 +1,8 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+layout (location = 0) in uint instanceId;
+
 vec2 positions[6] = vec2[](
     vec2(-0.5f, -0.5f),
     vec2( 0.5f, -0.5f),
@@ -35,7 +37,7 @@ out vec2 pos2d;
 
 void main()
 {
-	Unit unit = units[gl_InstanceID];
+	Unit unit = units[instanceId];
 
 	vec4 vertexPos = vec4(0.0f, 0.0f, 0.0, 1.0);
 	vertexPos.xyz = vec3(positions[gl_VertexID].x) * viewMatrix[0].xyz + vec3(positions[gl_VertexID].y) * viewMatrix[1].xyz;

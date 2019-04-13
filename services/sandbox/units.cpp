@@ -17,20 +17,55 @@ bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
 	if (!m_visualizationProgram->IsValid())
 		return false;
 
+	m_visibilityCs = new ComputeShader("shaders/unit_visibility.cs");
+	if (!m_visibilityCs->IsValid())
+		return false;
+	Shader* visShaders[] = { m_visibilityCs };
+	m_visibilityProgram = new Program(visShaders, 1);
+	if (!m_visibilityProgram->IsValid())
+		return false;
+
 	m_simulationCs = new ComputeShader("shaders/unit_simulation.cs");
 	Shader* csArray[] = {m_simulationCs};
 	m_simulationProgram = new Program(csArray, 1);
 	if (!m_simulationProgram->IsValid())
 		return 1;
 
-	glGenVertexArrays(1, &m_dummyVao);
-
 	GenerateUnits(numUnits, fieldSizeX, fieldSizeY);
+
+	glGenVertexArrays(1, &m_vao);
+	glGenBuffers(1, &m_instancesVbo);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_instancesVbo);
+	glBufferData(GL_ARRAY_BUFFER, numUnits * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(uint32_t), (void*)0);
+	glVertexAttribDivisor(0, 1);
+
+	glBindVertexArray(0);
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_instancesVbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
 	glGenBuffers(1, &m_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, m_units.size() * sizeof(Unit), m_units.data(), GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+	glGenBuffers(1, &m_indirectBuffer);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_indirectBuffer);
+	DrawArraysIndirectCommand initialCmd;
+	initialCmd.count = 6;
+	initialCmd.primCount = 0;
+	initialCmd.first = 0;
+	initialCmd.baseInstance = 0;
+	glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(DrawArraysIndirectCommand), &initialCmd, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 
 	return true;
 }
@@ -38,11 +73,13 @@ bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 void Units::Shutdown()
 {
-	if (m_dummyVao)
+	if (m_vao)
 	{
-		glDeleteVertexArrays(1, &m_dummyVao);
-		m_dummyVao = 0;
+		glDeleteVertexArrays(1, &m_vao);
+		m_vao = 0;
 	}
+	DeleteBuffer(m_instancesVbo);
+	DeleteBuffer(m_indirectBuffer);
 
 	if (m_visualizationProgram)
 	{
@@ -58,6 +95,28 @@ void Units::Shutdown()
 	{
 		delete m_visualizationVs;
 		m_visualizationVs = nullptr;
+	}
+
+	if (m_visibilityProgram)
+	{
+		delete m_visibilityProgram;
+		m_visibilityProgram = 0;
+	}
+	if (m_visibilityCs)
+	{
+		delete m_visibilityCs;
+		m_visibilityCs = nullptr;
+	}
+
+	if (m_simulationProgram)
+	{
+		delete m_simulationProgram;
+		m_simulationProgram = 0;
+	}
+	if (m_simulationCs)
+	{
+		delete m_simulationCs;
+		m_simulationCs = nullptr;
 	}
 }
 
@@ -79,12 +138,32 @@ void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 }
 
 
-void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix)
+void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[])
 {
 	if (!m_visualizationProgram)
 		return;
 
-	glBindVertexArray(m_dummyVao);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_indirectBuffer);
+	DrawArraysIndirectCommand initialCmd;
+	initialCmd.count = 6;
+	initialCmd.primCount = 0;
+	initialCmd.first = 0;
+	initialCmd.baseInstance = 0;
+	glBufferSubData(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(DrawArraysIndirectCommand), &initialCmd);
+	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
+
+	glUseProgram(m_visibilityProgram->GetProgram());
+	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_indirectBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesVbo);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_ssbo);
+	GLint location = glGetUniformLocation(m_visibilityProgram->GetProgram(), "frustumPlanes");
+	glUniform4fv(location, 6, (GLfloat*)frustumPlanes);
+	m_visibilityProgram->SetIVec4("unitsCount", glm::ivec4(m_units.size(), 0, 0, 0));
+	m_visibilityProgram->BindUniforms();
+	glDispatchCompute((m_units.size() + 31) / 32, 1, 1);
+	glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+	glBindVertexArray(m_vao);
 
 	glUseProgram(m_visualizationProgram->GetProgram());
 	m_visualizationProgram->SetMat4("viewProjMatrix", viewProjMatrix);
@@ -98,7 +177,8 @@ void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix)
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CW);
 
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 6, m_units.size());
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectBuffer);
+	glDrawArraysIndirect(GL_TRIANGLES, (void*)0);
 
 	glBindVertexArray(0);
 }

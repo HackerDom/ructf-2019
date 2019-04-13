@@ -208,7 +208,7 @@ int main()
 		BuildFrustumPlanes(GCamera.m_pos, view, fovY, aspect, near, far, frustumPlanes);
 		GBuildings.Draw(viewProj, GCamera.m_dir, GCamera.m_pos, frustumPlanes);
 
-		GUnits.Draw(viewProj, glm::transpose(view));
+		GUnits.Draw(viewProj, glm::transpose(view), frustumPlanes);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

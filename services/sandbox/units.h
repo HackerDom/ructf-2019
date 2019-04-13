@@ -34,7 +34,7 @@ public:
 	void Shutdown();
 
 	void Simulate(const Texture2D& target, const Texture2D& randomTex);
-	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix);
+	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[]);
 
 private:
 	GLuint m_ssbo = 0;
@@ -42,7 +42,12 @@ private:
 	VertexShader* m_visualizationVs = nullptr;
 	FragmentShader* m_visualizationFs = nullptr;
 	Program* m_visualizationProgram = nullptr;
-	GLuint m_dummyVao = 0;
+	GLuint m_vao = 0;
+	GLuint m_instancesVbo = 0;
+
+	ComputeShader* m_visibilityCs = nullptr;
+	Program* m_visibilityProgram = nullptr;
+	GLuint m_indirectBuffer = 0;
 
 	ComputeShader* m_simulationCs = nullptr;
 	Program* m_simulationProgram = nullptr;
