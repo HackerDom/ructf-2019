@@ -91,8 +91,6 @@ int run_bh_code(char* code, int code_len, char* input, int input_len, char* outp
     struct Stack* braces = new_stack(10);
 
     char* output_ptr = (char*)mmap((void*)0x7fffdeadbeef, max_output_len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    printf("%p\n", output_ptr);
-
 
     if (output_ptr == MAP_FAILED) {
         return 7;
@@ -164,17 +162,18 @@ int run_bh_code(char* code, int code_len, char* input, int input_len, char* outp
 }
 
 int main(int argc, char* argv[]) {
-    if (strcmp(argv[0], "hhfg")) {
+    if (strcmp(argv[1], "hhfg")) {
         disable_aslr();
-        char* new_argv[argc + 1];
-        for (int i = 0; i < argc; ++i) {
-            new_argv[i + 1] = argv[i];
-        }
-        new_argv[0] = "hhfg";
-        execvp(argv[0], new_argv);
+        char* new_argv[] = {
+            argv[0],
+            "hhfg",
+            argv[1],
+            NULL
+        };
+        int code = execvp(new_argv[0], new_argv);
         return 0;
     }
-    char* code = argv[1];
+    char* code = argv[2];
     int code_len = strlen(code);
     char input[MAX_INPUT_LEN];
     char output[MAX_OUTPUT_LEN];
