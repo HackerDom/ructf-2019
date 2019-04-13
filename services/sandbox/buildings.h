@@ -24,7 +24,7 @@ public:
 	bool Init(uint32_t fieldSizeX, uint32_t fieldSizeY);
 	void Shutdown();
 
-	void Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir);
+	void Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir, const glm::vec4 frustumPlanes[]);
 
 private:
 	VertexShader* m_vs = nullptr;
@@ -32,14 +32,19 @@ private:
 	FragmentShader* m_fs = nullptr;
 	Program* m_program = nullptr;
 	GLuint m_vao = 0;
-	GLuint m_vbo = 0;
-	GLuint m_ebo = 0;
+	GLuint m_positionsVbo = 0;
+	GLuint m_instancesVbo = 0;
+	GLuint m_indicesBuffer = 0;
 	uint32_t m_indicesNum = 0;
 
 	uint32_t m_fieldSizeX;
 	uint32_t m_fieldSizeY;
 	uint32_t m_numBuildingsX;
 	uint32_t m_numBuildingsY;
+
+	ComputeShader* m_visCs = nullptr;
+	Program* m_visProgram = nullptr;
+	GLuint m_indirectBuffer = 0;
 
 	std::vector<Building> m_buildings;
 

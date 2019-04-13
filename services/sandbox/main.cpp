@@ -196,10 +196,17 @@ int main()
 		glBindVertexArray(dummyVao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);*/
 
-		glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 4000.0f);
+		const float fovY = glm::radians(45.0f);
+		float aspect = (float)width / (float)height;
+		float near = 0.1f;
+		float far = 4000.0f;
+
+		glm::mat4 proj = glm::perspective(fovY, aspect, near, far);
 		glm::mat4 view = GCamera.GetViewMatrix();
 		glm::mat4 viewProj = proj * view;
-		GBuildings.Draw(viewProj, GCamera.m_dir);
+		glm::vec4 frustumPlanes[6];
+		BuildFrustumPlanes(GCamera.m_pos, view, fovY, aspect, near, far, frustumPlanes);
+		GBuildings.Draw(viewProj, GCamera.m_dir, frustumPlanes);
 
 		GUnits.Draw(viewProj, glm::transpose(view));
 
