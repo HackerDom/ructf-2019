@@ -164,7 +164,16 @@ int run_bh_code(char* code, int code_len, char* input, int input_len, char* outp
 }
 
 int main(int argc, char* argv[]) {
-    disable_aslr();
+    if (strcmp(argv[0], "hhfg")) {
+        disable_aslr();
+        char* new_argv[argc + 1];
+        for (int i = 0; i < argc; ++i) {
+            new_argv[i + 1] = argv[i];
+        }
+        new_argv[0] = "hhfg";
+        execvp(argv[0], new_argv);
+        return 0;
+    }
     char* code = argv[1];
     int code_len = strlen(code);
     char input[MAX_INPUT_LEN];
