@@ -206,7 +206,7 @@ int main()
 		glm::mat4 viewProj = proj * view;
 		glm::vec4 frustumPlanes[6];
 		BuildFrustumPlanes(GCamera.m_pos, view, fovY, aspect, near, far, frustumPlanes);
-		GBuildings.Draw(viewProj, GCamera.m_dir, frustumPlanes);
+		GBuildings.Draw(viewProj, GCamera.m_dir, GCamera.m_pos, frustumPlanes);
 
 		GUnits.Draw(viewProj, glm::transpose(view));
 
