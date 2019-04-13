@@ -93,6 +93,7 @@ void UpdateRandomTexture(Texture2D& tex)
 
 int main()
 {
+	setenv("DISPLAY", ":0", 0);
 	srand(time(NULL));
 
 	glfwSetErrorCallback(error_callback);
