@@ -1,4 +1,4 @@
-package bhwrapper
+package bhexecutor
 
 import (
 	"bytes"

@@ -90,7 +90,7 @@ int run_bh_code(char* code, int code_len, char* input, int input_len, char* outp
     size_t pointer = 0;
     struct Stack* braces = new_stack(10);
 
-    char* output_ptr = (char*)mmap((void*)0x7fffdeadbeef, max_output_len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    char* output_ptr = (char*)mmap(NULL, max_output_len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 
     if (output_ptr == MAP_FAILED) {
         return 7;

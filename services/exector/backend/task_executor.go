@@ -11,7 +11,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"exector/backend/bhwrapper"
+	"exector/backend/bhexecutor"
 	"exector/backend/storage"
 	"fmt"
 	"log"
@@ -20,7 +20,7 @@ import (
 type TaskExecutor struct {
 	CounterFilename string
 	TasksStorage    storage.Storage
-	BhExecutor      bhwrapper.BhExecutor
+	BhExecutor      bhexecutor.BhExecutor
 }
 
 const (
@@ -108,7 +108,7 @@ func (exec *TaskExecutor) TaskInfo(taskId uint) ([]byte, error) {
 
 func (exec *TaskExecutor) Init(taskDir string, bhExecutorBinPath string) error {
 	exec.TasksStorage.Init(taskDir, 40000)
-	var bhExecutor bhwrapper.BhExecutor
+	var bhExecutor bhexecutor.BhExecutor
 	if err := bhExecutor.Init(bhExecutorBinPath); err != nil {
 		return err
 	}
