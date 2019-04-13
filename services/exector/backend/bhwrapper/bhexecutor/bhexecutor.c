@@ -1,10 +1,26 @@
 #include <stdio.h>
-#include <sys/mman.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <stdint.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/personality.h>
 
 const unsigned int MEMORY_SIZE = 1024;
+const unsigned int MAX_INPUT_LEN = 1024;
+const unsigned int MAX_OUTPUT_LEN = 1024;
+const unsigned int MAX_OPERATION = 50000;
+
+static inline int disable_aslr() {
+  unsigned long pers_value = PER_LINUX | ADDR_NO_RANDOMIZE;
+  if (personality(pers_value) < 0) {
+    if (personality(pers_value) < 0)
+      return 1;
+  }
+  return 0;
+}
 
 struct Stack {
     int* stack;
@@ -75,6 +91,9 @@ int run_bh_code(char* code, int code_len, char* input, int input_len, char* outp
     struct Stack* braces = new_stack(10);
 
     char* output_ptr = (char*)mmap((void*)0x7fffdeadbeef, max_output_len, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    printf("%p\n", output_ptr);
+
+
     if (output_ptr == MAP_FAILED) {
         return 7;
     }
@@ -141,5 +160,27 @@ int run_bh_code(char* code, int code_len, char* input, int input_len, char* outp
     free_stack(braces);
     memcpy(output, output_ptr, max_output_len);
     *written_bytes = output_pointer;
+    return 0;
+}
+
+int main(int argc, char* argv[]) {
+    disable_aslr();
+    char* code = argv[1];
+    int code_len = strlen(code);
+    char input[MAX_INPUT_LEN];
+    char output[MAX_OUTPUT_LEN];
+    int input_len = 0;
+    char c;
+    while ((c = getc(stdin)) != EOF && input_len < MAX_INPUT_LEN) {
+        input[input_len++] = c;
+    }
+    unsigned int written_bytes;
+    int ret_code = run_bh_code(code, code_len, input, input_len, output, MAX_OUTPUT_LEN, MAX_OPERATION, &written_bytes);
+    if (ret_code) {
+        return ret_code;
+    }
+    for (unsigned int i = 0; i < written_bytes; ++i) {
+        putc(output[i], stdout);
+    }
     return 0;
 }
