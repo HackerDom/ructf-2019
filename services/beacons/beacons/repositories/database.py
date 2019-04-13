@@ -1,4 +1,5 @@
 from sanic_auth import User
+from sanic_motor import BaseModel
 
 users = {'a': {'user': User(id=1, name='a'), 'password': 'a'}}
 

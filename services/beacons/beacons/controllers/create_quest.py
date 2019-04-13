@@ -1,6 +1,6 @@
 from sanic.response import json
 from sanic import Blueprint
-from quest_points import jinja
+from beacons import jinja
 
 create_quest = Blueprint('create_quest_page', url_prefix='/CreateQuest')
 

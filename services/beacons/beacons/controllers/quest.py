@@ -1,8 +1,8 @@
 from sanic.response import json
 from sanic import Blueprint
-from quest_points import jinja
-from quest_points import auth
-from quest_points.database.database import users_quests_progress
+from beacons import jinja
+from beacons import auth
+from beacons.repositories.database import users_quests_progress
 
 quest_page = Blueprint("quest", url_prefix='/Quest')
 

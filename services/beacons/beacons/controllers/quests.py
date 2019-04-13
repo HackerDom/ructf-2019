@@ -1,6 +1,6 @@
 from sanic import Blueprint
-from quest_points import jinja
-from quest_points.database.database import quests_db
+from beacons import jinja
+from beacons.repositories.database import quests_db
 
 
 quests = Blueprint('quests_page', url_prefix='/')
