@@ -1,9 +1,10 @@
 #pragma once
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 #include <stdint.h>
 #include <string.h>
-#include "vec.h"
 #include "gl.h"
 #include "texture.h"
 #include "shader.h"

@@ -1,5 +1,7 @@
 #include <stdio.h>
+#if HAS_LIBPNG
 #include <png.h>
+#endif
 #include "glwrap.h"
 
 
@@ -12,9 +14,12 @@ struct TextureFormat
     {GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE},
     {GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE},
 	{GL_RGBA32F, GL_RGBA, GL_FLOAT},
+	{GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT},
+	{GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT},
 };
 
 
+#if HAS_LIBPNG
 void PNGAPI error_function(png_structp png, png_const_charp dummy);
 
 
@@ -35,6 +40,7 @@ void PngReadFn(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRe
 	memcpy(outBytes, rs->pngData + rs->offset, byteCountToRead);
 	rs->offset += byteCountToRead;
 }
+#endif
 
 
 Texture2D::Texture2D(int width, int height, Format format, void* initData)
@@ -44,6 +50,7 @@ Texture2D::Texture2D(int width, int height, Format format, void* initData)
 }
 
 
+#if HAS_LIBPNG
 Texture2D::Texture2D(const void* pngData, uint32_t size)
 	: m_width(0), m_height(0), m_format(FORMAT_COUNT)
 {
@@ -128,6 +135,7 @@ Texture2D::Texture2D(const void* pngData, uint32_t size)
 	glTexImage2D(GL_TEXTURE_2D, 0, fmt.internalFormat, m_width, m_height, 0, fmt.format, fmt.type, p);
 	free(p);
 }
+#endif
 
 
 Texture2D::Texture2D(const Image& image) : Texture2D(image.width, image.height, FORMAT_RGBA8, (void*)image.rgba)

@@ -5,7 +5,9 @@ enum Format
 {
 	FORMAT_A8,
 	FORMAT_RGBA8,
-	FORMAT_RGBA32,
+	FORMAT_RGBA32F,
+	FORMAT_RGBA16F,
+	FORMAT_R32U,
 	FORMAT_COUNT
 };
 
@@ -15,7 +17,9 @@ class Texture2D
 public:
 	Texture2D() = delete;
 	Texture2D(int width, int height, Format format, void* initData = nullptr);
+#if HAS_LIBPNG
 	Texture2D(const void* png, uint32_t size);
+#endif
 	Texture2D(const Image& image);
 	~Texture2D();
 

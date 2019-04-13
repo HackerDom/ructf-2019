@@ -1,8 +1,10 @@
-#include <png.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "png.h"
+
+#if HAS_LIBPNG
+#include <png.h>
 
 void PNGAPI error_function(png_structp png, png_const_charp dummy)
 {
@@ -145,3 +147,4 @@ bool save_png(const char* file_name, const RGBA* rgba, uint32_t width, uint32_t 
 	fclose(fp);
 	return true;
 }
+#endif
