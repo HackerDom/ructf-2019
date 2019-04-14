@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace indexReact
+namespace indexReact.Helpers
 {
     public static class SessionManager
     {
-        public static readonly Dictionary<string, byte[]> Store = new Dictionary<string, byte[]>();
+        private static readonly Dictionary<string, byte[]> Store = new Dictionary<string, byte[]>();
         private static readonly RNGCryptoServiceProvider Rng;
 
         static SessionManager()

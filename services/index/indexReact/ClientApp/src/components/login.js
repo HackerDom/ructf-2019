@@ -16,7 +16,7 @@ export default class Login extends React.Component {
 
     submitForm() {
         const form = new FormData(document.getElementById('loginForm'));
-        fetch('/users/register', {
+        fetch('api/users/register', {
             method: 'POST',
             body: form
         }).then(_ => <Redirect to='/'/>);
