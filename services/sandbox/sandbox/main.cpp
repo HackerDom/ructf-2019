@@ -92,7 +92,8 @@ void UpdateRandomTexture(Texture2D& tex)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t responseSize)
+
+void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& responseSize)
 {
 	static char responseBuffer[512];
 	response = responseBuffer;
@@ -103,9 +104,11 @@ void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t respo
 	case kCommandAddUnit:
 		{
 			CommandAddUnit* addUnit = (CommandAddUnit*)data;
-			uint32_t id = GUnits.AddUnit(addUnit->mind, addUnit->power);
-			memcpy(response, &id, sizeof(id));
-			responseSize = sizeof(id);
+			CommandAddUnitResponse addUnitResponse;
+			addUnitResponse.id = GUnits.AddUnit(addUnit->mind, addUnit->power);
+			memcpy(response, &addUnitResponse, sizeof(addUnitResponse));
+			responseSize = sizeof(addUnitResponse);
+			printf("Add unit\n");
 		}
 		break;
 

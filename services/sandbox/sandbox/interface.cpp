@@ -162,7 +162,7 @@ bool UpdateInterface()
 								char* response = nullptr;
 								uint32_t responseSize = 0;
 								GCallback(sock.header.cmd, sock.buffer, response, responseSize);
-								if(!responseSize)
+								if(responseSize)
 									send(i, response, responseSize, 0);
 							}
 						}

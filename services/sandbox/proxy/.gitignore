@@ -1,0 +1,6 @@
+*.o
+proxy-dbg
+proxy
+proxy.pro
+proxy.pro.user
+
