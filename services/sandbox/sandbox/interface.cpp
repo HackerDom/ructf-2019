@@ -33,7 +33,8 @@ static int GFDMax;
 static std::map<int, Socket> GSockets;
 static uint32_t kCommandsSize[] =
 {
-	sizeof(CommandAddUnit)
+	sizeof(CommandAddUnit),
+	sizeof(CommandGetUnit)
 };
 
 bool InitInterface(TInterfaceCallback callback)

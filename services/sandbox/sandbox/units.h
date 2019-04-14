@@ -38,6 +38,7 @@ public:
 	void Shutdown();
 
 	uint32_t AddUnit(uint32_t mind[8], float power);
+	const Unit* GetUnit(uint32_t id);
 
 	void Simulate(const Texture2D& target, const Texture2D& randomTex);
 	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[]);

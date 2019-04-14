@@ -108,7 +108,30 @@ void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& resp
 			addUnitResponse.id = GUnits.AddUnit(addUnit->mind, addUnit->power);
 			memcpy(response, &addUnitResponse, sizeof(addUnitResponse));
 			responseSize = sizeof(addUnitResponse);
-			printf("Add unit\n");
+			printf("Add unit %u\n", addUnitResponse.id);
+		}
+		break;
+	case kCommandGetUnit:
+		{
+			CommandGetUnit* getUnit = (CommandGetUnit*)data;
+			CommandGetUnitResponse getUnitResponse;
+			const Unit* unit = GUnits.GetUnit(getUnit->id);
+			if(unit)
+			{
+				getUnitResponse.ok = true;
+				memcpy(getUnitResponse.mind, unit->mind, 32);
+				getUnitResponse.posX = unit->posX;
+				getUnitResponse.posY = unit->posY;
+				getUnitResponse.posZ = unit->posZ;
+				getUnitResponse.power = unit->power;
+			}
+			else
+			{
+				getUnitResponse.ok = false;
+			}
+			memcpy(response, &getUnitResponse, sizeof(getUnitResponse));
+			responseSize = sizeof(getUnitResponse);
+			printf("Get unit %u\n", getUnit->id);
 		}
 		break;
 

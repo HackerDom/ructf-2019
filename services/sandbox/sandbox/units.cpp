@@ -160,6 +160,16 @@ uint32_t Units::AddUnit(uint32_t mind[8], float power)
 }
 
 
+const Unit* Units::GetUnit(uint32_t id)
+{
+	if(m_idToIdx.find(id) == m_idToIdx.end())
+		return nullptr;
+
+	uint32_t idx = m_idToIdx[id];
+	return &m_units[idx];
+}
+
+
 void Units::AddPendingUnits()
 {
 	for (auto& u : m_unitsToAdd)
