@@ -9,6 +9,7 @@ export default class Login extends React.Component {
         this.state = {
             login: '',
             pwd: '',
+            loggedIn: false,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -19,8 +20,10 @@ export default class Login extends React.Component {
         fetch('api/users/register', {
             method: 'POST',
             body: form
-        }).then(_ => <Redirect to='/'/>);
-        console.log(JSON.stringify(this.state))
+        }).then(_ => {
+            console.log("asd");
+            this.setState({ loggedIn: true });
+        });
     }
 
     handleChange = async (event) => {
@@ -32,21 +35,21 @@ export default class Login extends React.Component {
     };
 
     render() {
-        const { login, pwd } = this.state;
-        return (
+        const { login, pwd, loggedIn } = this.state;
+        return !loggedIn ? (
             <Container>
                 <Col sm={12} md={{ size: 4, offset: 4 }}>
                     <Form onSubmit={e => this.submitForm(e)} id="loginForm">
                         <FormGroup row>
                             <Label for="login" sm={3}>Login</Label>
                             <Col sm={9}>
-                                <Input type="text" name="login" id="login" value={login} onChange={this.handleChange}/>
+                                <Input type="text" name="login" id="login" value={login} onChange={this.handleChange} />
                             </Col>
                         </FormGroup>
                         <FormGroup row>
                             <Label for="pwd" sm={3}>Password</Label>
                             <Col sm={9}>
-                                <Input type="password" name="pwd" id="pwd" value={pwd} onChange={this.handleChange}/>
+                                <Input type="password" name="pwd" id="pwd" value={pwd} onChange={this.handleChange} />
                             </Col>
                         </FormGroup>
                         <FormGroup check row>
@@ -57,6 +60,6 @@ export default class Login extends React.Component {
                     </Form>
                 </Col>
             </Container>
-        );
+        ) : <Redirect to='/' />;
     }
 }

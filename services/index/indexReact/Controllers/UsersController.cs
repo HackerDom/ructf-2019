@@ -20,13 +20,12 @@ namespace indexReact.Controllers
         [HttpPost("register")]
         public void CreateUser()
         {
-            //create user
-
             var formCollection = Request.Form;
             formCollection.TryGetValue("login", out var login);
             formCollection.TryGetValue("pwd", out var password);
             userDb.Create(Create(login, password));
-            SessionManager.CreateSession(login);
+            var sid = SessionManager.CreateSession(login);
+            Response.Cookies.Append("sid", sid);
         }
 
 
