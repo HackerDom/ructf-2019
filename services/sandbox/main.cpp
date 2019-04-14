@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "buildings.h"
 #include "units.h"
+#include "interface.h"
 
 static void GlfwErrorCallback(int error, const char* description)
 {
@@ -21,12 +22,12 @@ void GlDebugCallback( GLenum source, GLenum type, GLuint id, GLenum severity, GL
 }
 
 
-Buildings GBuildings;
-Units GUnits;
-Camera GCamera;
-double GDeltaTime;
-uint32_t GFieldSizeX = 256 + kStreetWidth;
-uint32_t GFieldSizeY = 256 + kStreetWidth;
+static Buildings GBuildings;
+static Units GUnits;
+static Camera GCamera;
+static double GDeltaTime;
+static uint32_t GFieldSizeX = 256 + kStreetWidth;
+static uint32_t GFieldSizeY = 256 + kStreetWidth;
 
 
 void ProcessInput(GLFWwindow *window)
@@ -91,6 +92,29 @@ void UpdateRandomTexture(Texture2D& tex)
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t responseSize)
+{
+	static char responseBuffer[512];
+	response = responseBuffer;
+	responseSize = 0;
+
+	switch (cmd)
+	{
+	case kCommandAddUnit:
+		{
+			CommandAddUnit* addUnit = (CommandAddUnit*)data;
+			uint32_t id = GUnits.AddUnit(addUnit->mind, addUnit->power);
+			memcpy(response, &id, sizeof(id));
+			responseSize = sizeof(id);
+		}
+		break;
+
+	default:
+		printf("Unknown command\n");
+		break;
+	}
+}
+
 
 int main()
 {
@@ -99,13 +123,17 @@ int main()
 #endif
 	srand(time(NULL));
 
+	InitInterface(InterfaceCallback);
+
 	glfwSetErrorCallback(GlfwErrorCallback);
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#if DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+#endif
 	GLFWwindow* window = glfwCreateWindow(1024, 1024, "Sandbox", nullptr, nullptr);
 
 	glfwSetCursorPosCallback(window, ProcessMouse);
@@ -172,6 +200,8 @@ int main()
 			counter = 0.0;
 		}
 
+		UpdateInterface();
+
 		ProcessInput(window);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, simulationFramebuffer);
@@ -219,4 +249,5 @@ int main()
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
+	ShutdownInterface();
 }
