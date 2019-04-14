@@ -1,0 +1,45 @@
+- hostname:
+    name: example-service
+
+- name: create user
+  user: name=example shell=/bin/false
+
+- name: copy motd
+  copy: src=motd dest=/etc/motd
+
+- name: copy service
+  copy: src="example.py" dest=/home/example/
+  notify: enable and restart services
+
+# example of reusing the files from services folder
+#- name: copy service
+#  copy: src="{{ playbook_dir }}/../services/example_service/example.py" dest=/home/example/
+#  notify: enable and restart services
+
+# example of copying dirs with many files
+#- name: copy service files
+#  synchronize: 
+#    src: "{{ playbook_dir }}/../services/example_service/"
+#    dest: /home/example/
+#    rsync_opts:
+#      - "--chmod=D0770"
+#      - "--chmod=F0660"
+#      - "--chown=example:example"
+#  notify: enable and restart services
+#
+
+- name: fix permissions
+  file: name=/home/example owner=example group=example recurse=yes state=directory
+
+- name: make service executable
+  file: path={{item}} mode=0755
+  with_items:
+    - /home/example/example.py
+  notify: enable and restart services
+
+- name: add service files
+  copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
+  notify: enable and restart services
+  with_items:
+    - example
+
