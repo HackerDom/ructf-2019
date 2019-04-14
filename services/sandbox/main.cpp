@@ -8,13 +8,15 @@
 #include "buildings.h"
 #include "units.h"
 
-static void error_callback(int error, const char* description)
+static void GlfwErrorCallback(int error, const char* description)
 {
-	fprintf(stderr, "Error: %s\n", description);
+	fprintf(stderr, "GLFW Error: %s\n", description);
 }
 
-void myCallback( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data )
+void GlDebugCallback( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data )
 {
+	if (id == 131185 || id == 131186)
+		return;
 	printf("GL Error: %s\n", msg);
 }
 
@@ -23,9 +25,8 @@ Buildings GBuildings;
 Units GUnits;
 Camera GCamera;
 double GDeltaTime;
-uint32_t GUnitsNum = 32 * 1024;
-uint32_t GFieldSizeX = 4096 + kStreetWidth;
-uint32_t GFieldSizeY = 4096 + kStreetWidth;
+uint32_t GFieldSizeX = 256 + kStreetWidth;
+uint32_t GFieldSizeY = 256 + kStreetWidth;
 
 
 void ProcessInput(GLFWwindow *window)
@@ -98,7 +99,7 @@ int main()
 #endif
 	srand(time(NULL));
 
-	glfwSetErrorCallback(error_callback);
+	glfwSetErrorCallback(GlfwErrorCallback);
 	glfwInit();
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -117,7 +118,7 @@ int main()
 	glewExperimental = GL_TRUE;
 	glewInit();
 
-	glDebugMessageCallback( myCallback, nullptr );
+	glDebugMessageCallback(GlDebugCallback, nullptr);
 
 	int work_grp_cnt[3];
 
@@ -148,7 +149,7 @@ int main()
 	if (!GBuildings.Init(GFieldSizeX, GFieldSizeY))
 		return 1;
 
-	if (!GUnits.Init(GUnitsNum, GFieldSizeX, GFieldSizeY))
+	if (!GUnits.Init(GFieldSizeX, GFieldSizeY))
 		return false;
 
 	GCamera.m_pos = glm::vec3(GFieldSizeX * 0.5f, 32.0f, GFieldSizeY * 0.5f);

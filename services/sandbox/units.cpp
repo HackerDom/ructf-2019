@@ -3,7 +3,7 @@
 #include <random>
 
 
-bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
+bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 {
 	m_visualizationVs = new VertexShader("shaders/unit.vert");
 	if (!m_visualizationVs->IsValid())
@@ -29,9 +29,7 @@ bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
 	Shader* csArray[] = {m_simulationCs};
 	m_simulationProgram = new Program(csArray, 1);
 	if (!m_simulationProgram->IsValid())
-		return 1;
-
-	GenerateUnits(numUnits, fieldSizeX, fieldSizeY);
+		return false;
 
 	glGenVertexArrays(1, &m_vao);
 	glGenBuffers(1, &m_instancesVbo);
@@ -39,7 +37,7 @@ bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
 	glBindVertexArray(m_vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_instancesVbo);
-	glBufferData(GL_ARRAY_BUFFER, numUnits * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, kMaxUnitsCount * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribIPointer(0, 1, GL_UNSIGNED_INT, sizeof(uint32_t), (void*)0);
 	glVertexAttribDivisor(0, 1);
@@ -51,7 +49,7 @@ bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 	glGenBuffers(1, &m_ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, m_units.size() * sizeof(Unit), m_units.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, kMaxUnitsCount * sizeof(Unit), nullptr, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
 	glGenBuffers(1, &m_indirectBuffer);
@@ -66,6 +64,10 @@ bool Units::Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
+	m_fieldSizeX = fieldSizeX;
+	m_fieldSizeY = fieldSizeY;
+	m_units.reserve(kMaxUnitsCount);
 
 	return true;
 }
@@ -121,26 +123,90 @@ void Units::Shutdown()
 }
 
 
+uint32_t Units::AddUnit(uint32_t mind[8], float power)
+{
+	if (m_units.size() >= kMaxUnitsCount)
+	{
+		printf("Too much units in simulation\n");
+		return ~0u;
+	}
+
+	std::default_random_engine e;
+	std::uniform_real_distribution<> dis(0.1, 1.0);
+	std::uniform_real_distribution<> disPos(-16.0, 16.0);
+
+	Unit u;
+	memcpy(u.mind, mind, 32);
+
+	while (1)
+	{
+		u.id = rand();
+		if (m_idToIdx.find(u.id) == m_idToIdx.end())
+			break;
+	}
+
+	u.posX = (float)(m_fieldSizeX - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
+	u.posY = (float)disPos(e);
+	u.posZ = (float)(m_fieldSizeY - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
+
+	u.type = kUnitHuman;
+	u.power = power;
+	u.prevDirIdx = 0;
+	u.prevCrossIdx = 0;
+
+	m_unitsToAdd.push_back(u);
+
+	return u.id;
+}
+
+
+void Units::AddPendingUnits()
+{
+	for (auto& u : m_unitsToAdd)
+	{
+		uint32_t idx = m_units.size();
+		m_idToIdx[u.id] = idx;
+		m_units.push_back(u);
+	}
+	m_unitsToAdd.clear();
+}
+
+
 void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 {
 	if (!m_simulationProgram)
 		return;
 
-	glUseProgram(m_simulationProgram->GetProgram());
-	m_simulationProgram->SetImage("img_output", target, GL_WRITE_ONLY);
-	m_simulationProgram->SetIVec4("unitsCount", glm::ivec4(m_units.size(), 0, 0, 0));
-	m_simulationProgram->SetTexture("randomTex", randomTex);
-	m_simulationProgram->SetSSBO("Units", m_ssbo);
-	m_simulationProgram->BindUniforms();
-	glDispatchCompute((m_units.size() + 31) / 32, 1, 1);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+	if(m_units.size())
+		glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
 
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+	AddPendingUnits();
+	if (m_units.size())
+		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+	if (m_units.size())
+	{
+		glUseProgram(m_simulationProgram->GetProgram());
+		m_simulationProgram->SetImage("simulationTex", target, GL_WRITE_ONLY);
+		m_simulationProgram->SetIVec4("unitsCount", glm::ivec4(m_units.size(), 0, 0, 0));
+		m_simulationProgram->SetTexture("randomTex", randomTex);
+		m_simulationProgram->SetSSBO("Units", m_ssbo);
+		m_simulationProgram->BindUniforms();
+		glDispatchCompute((m_units.size() + 31) / 32, 1, 1);
+
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+	}
 }
 
 
 void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[])
 {
 	if (!m_visualizationProgram)
+		return;
+
+	if (m_units.empty())
 		return;
 
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_indirectBuffer);
@@ -181,37 +247,4 @@ void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, c
 	glDrawArraysIndirect(GL_TRIANGLES, (void*)0);
 
 	glBindVertexArray(0);
-}
-
-
-void Units::GenerateUnits(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY)
-{
-	std::default_random_engine e;
-	std::uniform_real_distribution<> dis(0.1, 1.0);
-	std::uniform_real_distribution<> disPos(-16.0, 16.0);
-
-	m_units.reserve(numUnits);
-
-	for (uint32_t i = 0; i < numUnits; i++)
-	{
-		Unit u;
-
-		char mind[32];
-		for (uint32_t j = 0; j < 32; j++)
-			mind[j] = rand() % 256;
-		memcpy(u.mind, mind, 32);
-
-		u.id = rand();
-
-		u.posX = (float)(fieldSizeX - kStreetWidth) * 0.5f + 4.0f + (float)dis(e);
-		u.posY = (float)disPos(e);
-		u.posZ = (float)(fieldSizeY - kStreetWidth) * 0.5f + 4.0f + (float)dis(e);
-
-		u.type = rand() % 2;
-		u.power = (float)dis(e);
-		u.prevDirIdx = 0;
-		u.prevCrossIdx = 0;
-
-		m_units.push_back(u);
-	}
 }

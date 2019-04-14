@@ -1,11 +1,12 @@
 #pragma once
 #include "glwrap.h"
 #include <vector>
+#include <map>
 
-enum kUnitType
+enum EUnitType
 {
-	EUnitHuman = 0,
-	EUnitSmith
+	kUnitHuman = 0,
+	kUnitSmith
 };
 
 
@@ -24,14 +25,19 @@ struct Unit
 static_assert (sizeof(Unit) == 16 * 4, "hey!");
 
 
+static const uint32_t kMaxUnitsCount = 512 * 1024;
+
+
 class Units
 {
 public:
 
 	Units() = default;
 	~Units() = default;
-	bool Init(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY);
+	bool Init(uint32_t fieldSizeX, uint32_t fieldSizeY);
 	void Shutdown();
+
+	uint32_t AddUnit(uint32_t mind[8], float power);
 
 	void Simulate(const Texture2D& target, const Texture2D& randomTex);
 	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[]);
@@ -52,7 +58,11 @@ private:
 	ComputeShader* m_simulationCs = nullptr;
 	Program* m_simulationProgram = nullptr;
 
+	uint32_t m_fieldSizeX;
+	uint32_t m_fieldSizeY;
 	std::vector<Unit> m_units;
+	std::vector<Unit> m_unitsToAdd;
+	std::map<uint32_t, uint32_t> m_idToIdx;
 
-	void GenerateUnits(uint32_t numUnits, uint32_t fieldSizeX, uint32_t fieldSizeY);
+	void AddPendingUnits();
 };

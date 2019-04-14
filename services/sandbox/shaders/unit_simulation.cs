@@ -18,7 +18,7 @@ layout(std430, binding = 8) buffer Units
 	Unit units[];
 };
 
-layout(r32ui, binding = 1) uniform uimage2D img_output;
+layout(r32ui, binding = 1) uniform uimage2D simulationTex;
 layout(binding = 2) uniform sampler2D randomTex;
 
 uniform ivec4 unitsCount;
@@ -54,7 +54,7 @@ void main()
 	Unit unit = units[id];
 
 	const vec2 kDirections[] = vec2[](vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f), vec2(0.0f, -1.0f));
-    vec2 fieldSize = vec2(imageSize(img_output));
+    vec2 fieldSize = vec2(imageSize(simulationTex));
 	vec2 invFieldSize = vec2(0.5f) / fieldSize;
 
     vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posZ) | unit.mind[1])));
@@ -115,6 +115,6 @@ void main()
 	units[id].prevDirIdx = dirIdx;
 
     ivec2 pixel_coords = ivec2(pos.x, pos.y);
-	imageStore(img_output, pixel_coords, uvec4(id));
+	imageStore(simulationTex, pixel_coords, uvec4(id));
 }
 
