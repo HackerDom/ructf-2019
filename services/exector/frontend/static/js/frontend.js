@@ -10,6 +10,7 @@ function genRandString(length) {
 }
 
 let token = genRandString(20);
+let interval = 100;
 
 function runTask() {
     let data = JSON.stringify({
@@ -27,7 +28,8 @@ function runTask() {
             $("#stdout-out-fld").text("");
             $("#stdout-div").css("display", "none");
             $("#error-div").css("display", "none");
-            timerId = setInterval(checkTask, 100, JSON.parse(data).taskId);
+            interval = 100;
+            timerId = setInterval(checkTask, interval, JSON.parse(data).taskId);
         },
         error: function(data, status, obj) {
             $("#noTrespassingOuterBarG").css("display", "none");
@@ -43,7 +45,9 @@ function checkTask(taskId) {
         type: "GET",
         url: "/task_info/" + taskId.toString() + "?token=" + token,
         success: function (data, status, obj) {
+            console.log(":" + data);
             let task = JSON.parse(data);
+            console.log(task);
             if (task.Status === 0) {
                 $("#stdout-div").css("display", "block");
                 $("#stdout-out-fld").text(task.Stdout);
@@ -57,6 +61,9 @@ function checkTask(taskId) {
         },
         dataType: "text",
     });
+    clearInterval(timerId);
+    interval = interval * 2;
+    timerId = setInterval(checkTask, interval, taskId);
 }
 
 $("#run-btn").click(function() {

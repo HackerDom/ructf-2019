@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"exector/backend/storage"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -10,8 +9,7 @@ import (
 	"strconv"
 )
 
-var executor TaskExecutor
-var tokensKeeper storage.Storage
+var taskManager TasksManager
 var usersManager UsersManager
 const configPath = "config"
 
@@ -23,6 +21,12 @@ type NewTask struct {
 
 type NewUser struct {
 	Password string
+}
+
+type TaskResponse struct {
+	Stdout string
+	Status int
+	Error string
 }
 
 func handleRunTask(w http.ResponseWriter, r *http.Request) {
@@ -37,12 +41,7 @@ func handleRunTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	taskId := executor.AddTask(newTask.Source, []byte(newTask.Stdin))
-	if err := tokensKeeper.Set(taskId, []byte(newTask.Token)); err != nil {
-		log.Printf("Can not save token while runnig a task, %v\n", err)
-		w.WriteHeader(500)
-		return
-	}
+	taskId := taskManager.AddTask(newTask.Source, newTask.Token, []byte(newTask.Stdin), 0)
 	if _, err := w.Write([]byte(fmt.Sprintf("{\"taskId\": %v}", taskId))); err != nil {
 		panic(err)
 	}
@@ -55,7 +54,12 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	if taskId >= uint64(executor.TasksStorage.GetItemsCount()) {
+	if taskId >= uint64(taskManager.TaskStorage.GetItemsCount()) {
+		w.WriteHeader(404)
+		return
+	}
+	task, err := taskManager.TaskInfo(uint(taskId))
+	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
@@ -64,38 +68,61 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	expectedToken, err := tokensKeeper.Get(uint(taskId))
-	if err != nil {
-		log.Printf("Can not get token for task %v, due to %v\n", rawTaskId, err)
+	if task.Token != token {
 		w.WriteHeader(403)
 		return
 	}
-	if string(expectedToken) != token {
-		w.WriteHeader(403)
-		return
+	taskResponse := TaskResponse{
+		Stdout: task.Result.Stdout,
+		Error: task.Result.Error,
+		Status: task.Status,
 	}
-	rawTaskResult, err := executor.TaskInfo(uint(taskId))
+	rawTaskResponse, err := JsonMarshalWithoutEscaping(taskResponse)
 	if err != nil {
-		w.WriteHeader(404)
+		log.Printf("Can not marshal task response: %v\n", taskResponse)
+		w.WriteHeader(500)
 		return
 	}
-	if _, err := w.Write(rawTaskResult); err != nil {
-		panic(err)
+	if _, err := w.Write(rawTaskResponse); err != nil {
+		w.WriteHeader(400)
+		log.Println("Can not write task response: " + err.Error())
 	}
 }
 
+
+func handleRegUser(w http.ResponseWriter, r *http.Request) {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	var newUser NewUser
+	err = json.Unmarshal(data, &newUser)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	userId, err := usersManager.AddUser(newUser.Password)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	if _, err := w.Write([]byte(fmt.Sprintf("{\"userId\": %v}", userId))); err != nil {
+		panic(err)
+	}
+}
 
 func main() {
 	config, err := ParseConfig(configPath)
 	if err != nil {
 		panic("can not parse config: " + err.Error())
 	}
-	if err := executor.Init(config.TasksDir, config.BrainHugExecutorPath); err != nil {
+	if err := taskManager.Init(config.TasksDir, config.BrainHugExecutorPath); err != nil {
 		panic(err)
 	}
-	tokensKeeper.Init(config.TokensDir, config.MaxItemsCount)
 	usersManager.Init(config.UsersDir, config.MaxItemsCount)
 	http.HandleFunc("/run_task", handleRunTask)
 	http.HandleFunc("/task_info/", handleTaskInfo)
+	http.HandleFunc("/register", handleRegUser)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort), nil))
 }

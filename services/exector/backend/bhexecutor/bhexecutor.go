@@ -1,5 +1,6 @@
 package bhexecutor
 
+import "C"
 import (
 	"bytes"
 	"errors"
