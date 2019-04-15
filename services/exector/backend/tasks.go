@@ -7,7 +7,6 @@ import (
 	"exector/backend/bhexecutor"
 	"exector/backend/storage"
 	"log"
-	"time"
 )
 
 const (
