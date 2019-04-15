@@ -8,8 +8,8 @@
     <div>Это типа страничка с квестами</div>
     <div>
         {% for quest in quests: %}
-            <p>{{ quests[quest].name }}</p>
-            <form action="/Quest/{{quests[quest].quest_id}}">
+            <p>{{ quest }}</p>
+            <form action="/Quest/{quest}">
                 <input type="submit" value="Let it!">
             </form>
         {% endfor %}
