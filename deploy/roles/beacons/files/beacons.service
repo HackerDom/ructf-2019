@@ -1,0 +1,14 @@
+[Unit]
+    Description=Beacons service
+
+[Service]
+    ExecStart=/home/beacons/beacons.py
+    WorkingDirectory=/home/beacons/
+    User=beacons
+    Group=beacons
+    Restart=on-failure
+    RestartSec=2s
+    # CPUQuota=400%
+
+[Install]
+    WantedBy=multi-user.target

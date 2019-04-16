@@ -1,3 +1,0 @@
-- hosts: example_service
-  roles:
-    - example_service
