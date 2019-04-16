@@ -26,8 +26,15 @@ namespace indexReact.Controllers
             userDb.Create(Create(login, password));
             var sid = SessionManager.CreateSession(login);
             Response.Cookies.Append("sid", sid);
+            Response.Cookies.Append("login", login);
         }
 
+        [HttpPost("logout")]
+        public void LogOut()
+        {
+            Response.Cookies.Delete("sid");
+            Response.Cookies.Delete("login");
+        }
 
         private static User Create(string login, string password)
         {

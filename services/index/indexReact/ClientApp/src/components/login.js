@@ -15,15 +15,19 @@ export default class Login extends React.Component {
         this.handleChange = this.handleChange.bind(this);
     }
 
-    submitForm() {
-        const form = new FormData(document.getElementById('loginForm'));
-        fetch('api/users/register', {
-            method: 'POST',
-            body: form
-        }).then(_ => {
-            console.log("asd");
-            this.setState({ loggedIn: true });
-        });
+    submitForm(props) {
+        return e => {
+            e.preventDefault();
+            const form = new FormData(document.getElementById('loginForm'));
+            fetch('api/users/register', {
+                method: 'POST',
+                body: form
+            }).then(_ => {
+                props.history.push('/');
+                console.log("asd");
+                this.setState({ loggedIn: true });
+            });
+        }
     }
 
     handleChange = async (event) => {
@@ -39,7 +43,7 @@ export default class Login extends React.Component {
         return !loggedIn ? (
             <Container>
                 <Col sm={12} md={{ size: 4, offset: 4 }}>
-                    <Form onSubmit={e => this.submitForm(e)} id="loginForm">
+                    <Form onSubmit={this.submitForm(this.props)} id="loginForm">
                         <FormGroup row>
                             <Label for="login" sm={3}>Login</Label>
                             <Col sm={9}>
