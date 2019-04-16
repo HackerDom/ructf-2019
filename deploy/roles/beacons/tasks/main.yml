@@ -1,6 +1,13 @@
 - hostname:
     name: beacons
 
+# put your authorized key here
+#- name: Set authorized key
+#  authorized_key:
+#    user: root
+#    key: "ssh-rsa xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx name@domain"
+#    state: present
+    
 - name: create user
   user: name=beacons shell=/bin/false
 

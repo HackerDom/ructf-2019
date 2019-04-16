@@ -1,6 +1,13 @@
 - hostname:
     name: weatherd
 
+# put your authorized key here
+#- name: Set authorized key
+#  authorized_key:
+#    user: root
+#    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQChwnWi6oZBqJqT11cXHSi/WWtC2pr68klcxhwMD/ZoRR50X7g1trZWronYwqNg2FcVirl35kbPZj+9a8CZmwg/DpJOnlorKFccII4qSLKqp9t+P8rDlNXoppz8hq3juVtA0JDRCiAOF+04tSvMDf/vzA02WaWV6813o4+JL+Jee0oNvNCscj/qmdAZ7k1+XR/0ZazgQeB88YpkEmYm6F9+kWutCAvFU6zV6LzfiQ9DWFFcDac4OXirI61yyaIHKxnk0ltYQCD/1YDglp5BUupJaLHPw4Qz/2GUFWgWc/ZzbEDyUKdsL4NSyw+agAfNovn59SlUbTtrJAH/hr2f34KF werelaxe@Billy"
+#    state: present
+    
 - name: create user
   user: name=weatherd shell=/bin/false
 
