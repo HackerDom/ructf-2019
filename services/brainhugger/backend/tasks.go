@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"exector/backend/bhexecutor"
-	"exector/backend/storage"
+	"brainhugger/backend/bhexecutor"
+	"brainhugger/backend/storage"
 	"log"
 )
 

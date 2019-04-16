@@ -2,7 +2,7 @@ package main
 
 import (
 	"errors"
-	"exector/backend/storage"
+	"brainhugger/backend/storage"
 )
 
 type UsersManager struct {
