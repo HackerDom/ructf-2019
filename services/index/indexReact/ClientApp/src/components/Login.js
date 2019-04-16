@@ -1,8 +1,11 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Button, Col, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import './NavMenu.css';
+import { bindActionCreators } from 'redux';
+import { actionCreators } from '../store/User';
 
-export default class Login extends React.Component {
+class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -22,6 +25,7 @@ export default class Login extends React.Component {
                 body: form
             }).then(_ => {
                 props.history.push('/');
+                props.fetchUser();
             });
         };
     }
@@ -57,7 +61,12 @@ export default class Login extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-            </Col>
+            </Col>                                    
         </Container>;
     }
 }
+
+export default connect(
+    state => state.user,
+    dispatch => bindActionCreators(actionCreators, dispatch)
+)(Login);

@@ -1,9 +1,12 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import './NavMenu.css';
+import { bindActionCreators } from 'redux';
+import { actionCreators } from '../store/User';
 
-export default class NavMenu extends React.Component {
+class NavMenu extends React.Component {
     constructor(props) {
         super(props);
 
@@ -25,13 +28,14 @@ export default class NavMenu extends React.Component {
             await fetch('api/users/logout', {
                 method: 'POST',
             }).then(_ => {
-                document.location = '/';
+                props.history.push('/');
+                props.removeUser();
             });
         };
     }
 
     render() {
-        const isLoggedIn = !!document.cookie.split(';').filter((item) => item.trim().startsWith('sid=')).length;
+        const isLoggedIn = !!this.props.user;
 
         return (
             <header>
@@ -67,3 +71,8 @@ export default class NavMenu extends React.Component {
         );
     }
 }
+
+export default connect(
+    state => state.user,
+    dispatch => bindActionCreators(actionCreators, dispatch)
+)(NavMenu);

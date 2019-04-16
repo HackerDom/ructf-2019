@@ -17,6 +17,17 @@ namespace indexReact.Controllers
             this.userDb = userDb;
         }
 
+        [HttpGet("validate")]
+        public JsonResult ValidateSession()
+        {
+            if (!Request.Cookies.TryGetValue("sid", out var sid) ||
+                !Request.Cookies.TryGetValue("login", out var login) ||
+                !SessionManager.ValidateSession(login, sid))
+                return Json(null);
+
+            return Json(login);
+        }
+
         [HttpPost("register")]
         public void CreateUser()
         {

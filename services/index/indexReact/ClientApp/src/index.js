@@ -21,7 +21,7 @@ const rootElement = document.getElementById('root');
 ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
-      <App />
+      <App history={history}/>
     </ConnectedRouter>
   </Provider>,
   rootElement);

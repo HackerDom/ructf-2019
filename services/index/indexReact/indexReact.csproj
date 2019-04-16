@@ -23,9 +23,10 @@
 	<ItemGroup>
 		<!-- Don't publish the SPA source files, but do show them in the project files list -->
 		<Content Remove="$(SpaRoot)**" />
-		<Content Include="ClientApp\src\components\login.js" />
+		<Content Include="ClientApp\src\components\Login.js" />
 		<None Remove="$(SpaRoot)**" />
 		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+		<None Include="ClientApp\src\store\User.js" />
 	</ItemGroup>
 
 	<Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
