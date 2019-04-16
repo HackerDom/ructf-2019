@@ -30,17 +30,8 @@ class NavMenu extends React.Component {
             <header>
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3" light>
                     <Container>
-                        <NavbarBrand tag={Link} to="/">indexReact</NavbarBrand>
+                        <NavbarBrand tag={Link} to="/">index</NavbarBrand>
                         <Nav className="ml-auto" navbar>
-                            <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
-                            </NavItem>
                             <NavItem>
                                 {!isLoggedIn
                                     ? <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>
