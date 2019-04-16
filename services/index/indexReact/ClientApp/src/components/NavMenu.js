@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
+import { Container, Nav, Navbar, NavbarBrand, NavItem, NavLink } from 'reactstrap';
 import './NavMenu.css';
 import { bindActionCreators } from 'redux';
 import { actionCreators } from '../store/User';
@@ -9,17 +9,6 @@ import { actionCreators } from '../store/User';
 class NavMenu extends React.Component {
     constructor(props) {
         super(props);
-
-        this.toggle = this.toggle.bind(this);
-        this.state = {
-            isOpen: false
-        };
-    }
-
-    toggle() {
-        this.setState({
-            isOpen: !this.state.isOpen
-        });
     }
 
     logOut(props) {
@@ -42,29 +31,26 @@ class NavMenu extends React.Component {
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3" light>
                     <Container>
                         <NavbarBrand tag={Link} to="/">indexReact</NavbarBrand>
-                        <NavbarToggler onClick={this.toggle} className="mr-2" />
-                        <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={this.state.isOpen} navbar>
-                            <ul className="navbar-nav flex-grow">
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
-                                </NavItem>
-                                <NavItem>
-                                    {!isLoggedIn
-                                        ? <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>
-                                        : <NavLink tag={Link}
-                                                   className="text-dark"
-                                                   to="/logout"
-                                                   onClick={this.logOut(this.props)}>Logout</NavLink>
-                                    }
-                                </NavItem>
-                            </ul>
-                        </Collapse>
+                        <Nav className="ml-auto" navbar>
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
+                            </NavItem>
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/counter">Counter</NavLink>
+                            </NavItem>
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/fetch-data">Fetch data</NavLink>
+                            </NavItem>
+                            <NavItem>
+                                {!isLoggedIn
+                                    ? <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>
+                                    : <NavLink tag={Link}
+                                               className="text-dark"
+                                               to="/logout"
+                                               onClick={this.logOut(this.props)}>Logout</NavLink>
+                                }
+                            </NavItem>
+                        </Nav>
                     </Container>
                 </Navbar>
             </header>

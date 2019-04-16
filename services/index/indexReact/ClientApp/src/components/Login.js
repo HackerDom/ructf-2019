@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Col, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import { Alert, Button, Col, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import './NavMenu.css';
 import { bindActionCreators } from 'redux';
 import { actionCreators } from '../store/User';
@@ -11,6 +11,7 @@ class Login extends React.Component {
         this.state = {
             login: '',
             pwd: '',
+            error: null,
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -20,13 +21,18 @@ class Login extends React.Component {
         return e => {
             e.preventDefault();
             const form = new FormData(document.getElementById('loginForm'));
+            this.setState({ error: null });
             fetch('api/users/register', {
                 method: 'POST',
                 body: form
+            }).then(resp => {
+                if (!resp.ok)
+                    throw resp;
             }).then(_ => {
                 props.history.push('/');
                 props.fetchUser();
-            });
+            }).catch(_ => this.setState({ error: "User already exists" })
+            );
         };
     }
 
@@ -42,6 +48,7 @@ class Login extends React.Component {
         const { login, pwd } = this.state;
         return <Container>
             <Col sm={12} md={{ size: 4, offset: 4 }}>
+                <Alert>You also can register here, just use unique login:)</Alert>
                 <Form onSubmit={this.submitForm(this.props)} id="loginForm">
                     <FormGroup row>
                         <Label for="login" sm={3}>Login</Label>
@@ -61,7 +68,8 @@ class Login extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-            </Col>                                    
+                {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+            </Col>
         </Container>;
     }
 }

@@ -11,11 +11,6 @@ class Layout extends Component {
         this.ensureDataFetched();
     }
 
-    componentDidUpdate() {
-        // This method is called when the route parameters change
-        this.ensureDataFetched();
-    }
-
     ensureDataFetched() {
         this.props.fetchUser();
     }
