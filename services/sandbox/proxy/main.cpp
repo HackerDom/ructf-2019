@@ -169,7 +169,7 @@ HttpResponse RequestHandler::HandlePost(HttpRequest request, HttpPostProcessor**
 }
 
 
-bool CheckIntegrity()
+bool CheckInterfaceVersion()
 {
 	int f = open("libinterface.so", O_RDWR);
 	if (f < 0)
@@ -185,7 +185,7 @@ bool CheckIntegrity()
 	for(int i = 0; i < size; i += 4)
 	{
 		uint32_t bytes;
-		if(read(f, &bytes, 4) != 4)
+		if(pread(f, &bytes, 4, i) != 4)
 			return false;
 		
 		hash ^= bytes;
@@ -197,7 +197,7 @@ bool CheckIntegrity()
 
 int main()
 {
-	if(!CheckIntegrity())
+	if(!CheckInterfaceVersion())
 	{
 		printf("Something wrong\n");
 		return 1;
