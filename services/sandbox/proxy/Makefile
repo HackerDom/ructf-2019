@@ -1,28 +1,31 @@
 #.PHONY: debug release clean
-CXXFLAGS = -c -g -std=c++17 -DLINUX=1
+CXXFLAGS = -g -std=c++17 -DLINUX=1
 SOURCES = httpserver.cpp main.cpp
-LDFLAGS = -lmicrohttpd
-OBJS = $(SOURCES:.cpp=.o)
+LDFLAGS = -L $(shell pwd) -lmicrohttpd -linterface
 
 all: release
 
 debug: CXXFLAGS += -O0 -DDEBUG=1
 debug: OUTPUT = proxy-dbg
+debug: lib
 debug: proxy
 
 release: CXXFLAGS += -O2
 release: OUTPUT = proxy
+release: lib
 release: proxy
 
-proxy: $(OBJS)
-	g++ $(OBJS) $(LDFLAGS) -o $(OUTPUT)
+lib:
+	g++ -c interface.cpp -fpic
+	g++ -shared -o libinterface.so interface.o 
+	python3 gen_hash.py
 
-.cpp.o:
-	g++ $(CXXFLAGS) $< -o $@
+proxy: hash.h
+	g++ $(CXXFLAGS) $(SOURCES) $(LDFLAGS) -o $(OUTPUT)
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) proxy proxy-dbg
+	rm -f *.o proxy proxy-dbg libinterface.so
 
 start:
 	/home/sandbox/proxy

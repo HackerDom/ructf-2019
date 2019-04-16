@@ -1,5 +1,7 @@
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -7,7 +9,8 @@
 #include <string.h>
 #include <unistd.h>
 #include "httpserver.h"
-#include "../commands.h"
+#include "hash.h"
+#include "interface.h"
 
 
 class AddUnitProcessor : public HttpPostProcessor
@@ -72,49 +75,16 @@ void AddUnitProcessor::FinalizeRequest()
 		return;
 	}
 
-	int sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock < 0)
+	uint32_t id = 0;
+	if(!AddUnit(m_mind.data(), m_power, id))
 	{
-		perror("socket");
 		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR));
 		return;
 	}
-
-	sockaddr_in addr;
-	memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(3333);
-	inet_aton("127.0.0.1", &addr.sin_addr);
-	if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-	{
-		perror("connect");
-		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR));
-		return;
-	}
-
-	CommandHeader h;
-	h.cmd = kCommandAddUnit;
-	send(sock, &h, sizeof(h), 0);
-
-	CommandAddUnit cmd;
-	memcpy(cmd.mind, m_mind.data(), 32);
-	cmd.power = m_power;
-	send(sock, &cmd, sizeof(cmd), 0);
-
-	CommandAddUnitResponse response;
-	int bytes = recv(sock, &response, sizeof(response), 0);
-	if (bytes != sizeof(response))
-	{
-		perror("recv");
-		close(sock);
-		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR));
-		return;
-	}
-	close(sock);
 
 	char* buffer = (char*)malloc(16);
 	memset(buffer, 0, 16);
-	sprintf(buffer, "%u", response.id);
+	sprintf(buffer, "%u", id);
 	Complete(HttpResponse(MHD_HTTP_OK, buffer, strlen(buffer), Headers()));
 	printf("Unit added\n");
 }
@@ -155,55 +125,24 @@ HttpResponse RequestHandler::HandleGet(HttpRequest request)
 		uint32_t id;
 		FindInMap(request.queryString, idStr, id);
 
-		int sock = socket(AF_INET, SOCK_STREAM, 0);
-		if (sock < 0)
-		{
-			perror("socket");
+		bool found = false;
+		UnitDesc desc;
+		if(!GetUnit(id, desc, found))
 			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR);
-		}
 
-		sockaddr_in addr;
-		memset(&addr, 0, sizeof(addr));
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(3333);
-		inet_aton("127.0.0.1", &addr.sin_addr);
-		if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) < 0)
-		{
-			perror("connect");
-			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR);
-		}
-
-		CommandHeader h;
-		h.cmd = kCommandGetUnit;
-		send(sock, &h, sizeof(h), 0);
-
-		CommandGetUnit cmd;
-		cmd.id = id;
-		send(sock, &cmd, sizeof(cmd), 0);
-
-		CommandGetUnitResponse cmdResponse;
-		int bytes = recv(sock, &cmdResponse, sizeof(cmdResponse), 0);
-		if (bytes != sizeof(cmdResponse))
-		{
-			perror("recv");
-			close(sock);
-			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR);
-		}
-		close(sock);
-
-		if (cmdResponse.ok)
+		if (found)
 		{
 			HttpResponse response;
 			response.code = MHD_HTTP_OK;
 			response.headers.insert({"Content-Type", "application/json"});
 			char mindStr[256];
 			memset(mindStr, 0, 256);
-			memcpy(mindStr, cmdResponse.mind, 32);
+			memcpy(mindStr, desc.mind, 32);
 			response.content = (char*)malloc(512);
 			memset(response.content, 0, 512);
 			sprintf(response.content,
 					"{ \"id\": %u, \"mind\": \"%s\", \"posX\": %f, \"posY\": %f, \"posZ\": %f, \"power\": %f }", id,
-			        mindStr, cmdResponse.posX, cmdResponse.posY, cmdResponse.posZ, cmdResponse.power);
+			        mindStr, desc.posX, desc.posY, desc.posZ, desc.power);
 			response.contentLength = strlen(response.content);
 
 			return response;
@@ -230,8 +169,40 @@ HttpResponse RequestHandler::HandlePost(HttpRequest request, HttpPostProcessor**
 }
 
 
+bool CheckIntegrity()
+{
+	int f = open("libinterface.so", O_RDWR);
+	if (f < 0)
+	{
+		perror("open");
+		return false;
+	}
+
+	int size = lseek(f, 0, SEEK_END);
+	lseek(f, 0, SEEK_SET);
+	
+	uint32_t hash = 0;
+	for(int i = 0; i < size; i += 4)
+	{
+		uint32_t bytes;
+		if(read(f, &bytes, 4) != 4)
+			return false;
+		
+		hash ^= bytes;
+	}
+
+	return hash == kLibHash;
+}
+
+
 int main()
 {
+	if(!CheckIntegrity())
+	{
+		printf("Something wrong\n");
+		return 1;
+	}
+
 	RequestHandler handler;
 	HttpServer server(&handler);
 
