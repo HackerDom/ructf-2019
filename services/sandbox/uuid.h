@@ -35,7 +35,7 @@ inline bool uuid_parse(const char* str, UUID& uuid)
 }
 
 
-inline void uuid_unparse(uint8_t* uuid, char* str)
+inline void uuid_unparse(const uint8_t* uuid, char* str)
 {
     char* ptr = str;
     for(size_t i = 0; i < 16; i++)
@@ -47,7 +47,7 @@ inline void uuid_unparse(uint8_t* uuid, char* str)
 }
 
 
-inline void uuid_unparse(UUID& uuid, char* str)
+inline void uuid_unparse(const UUID& uuid, char* str)
 {
     char* ptr = str;
     for(size_t i = 0; i < uuid.size(); i++)
