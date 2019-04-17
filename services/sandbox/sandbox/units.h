@@ -2,7 +2,9 @@
 #include "glwrap.h"
 #include <vector>
 #include <map>
-#include <array>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 #include "../uuid.h"
 
 
@@ -82,5 +84,13 @@ private:
 	};
 	std::vector<PendingUnit> m_unitsToAdd;
 
+	FILE* m_storage = nullptr;
+	std::thread m_flushThread;
+	bool m_stopFlushThread = false;
+	std::mutex m_mutex;
+	std::condition_variable m_condVar;
+
 	void AddPendingUnits();
+
+	static void FlushThread(Units* units);
 };

@@ -3,6 +3,27 @@
 #include <random>
 
 
+void Units::FlushThread(Units* units)
+{
+	std::unique_lock<std::mutex> lock(units->m_mutex);
+
+	while(!units->m_stopFlushThread)
+	{
+		units->m_condVar.wait(lock);
+
+		fseek(units->m_storage, 0, SEEK_SET);
+		for(auto& iter : units->m_uuidToIdx)
+		{
+			fwrite(iter.first.data(), iter.first.size(), 1, units->m_storage);
+			Unit& unit = units->m_units[iter.second];
+			fwrite(&unit, sizeof(Unit), 1, units->m_storage);
+		}
+
+		printf("Units storage flushed\n");
+	}
+}
+
+
 bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 {
 	m_visualizationVs = new VertexShader("shaders/unit.vert");
@@ -69,12 +90,40 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_fieldSizeY = fieldSizeY;
 	m_units.reserve(kMaxUnitsCount);
 
+	m_storage = fopen("storage.dat", "a+");
+	while(!feof(m_storage))
+	{
+		UUID uuid;
+		if(fread(uuid.data(), uuid.size(), 1, m_storage) != 1)
+		{
+			printf("Failed to read storage\n");
+			break;
+		}
+
+		Unit unit;
+		if(fread(&unit, sizeof(Unit), 1, m_storage) != 1)
+		{
+		
+			printf("Failed to read storage\n");
+			break;
+		}
+
+		uint32_t idx = m_units.size();
+		m_units.push_back(unit);
+		m_uuidToIdx[uuid] = idx;
+	}
+
+	m_flushThread = std::thread(&Units::FlushThread, this);
+
 	return true;
 }
 
 
 void Units::Shutdown()
 {
+	m_stopFlushThread = true;
+	m_flushThread.join();
+
 	if (m_vao)
 	{
 		glDeleteVertexArrays(1, &m_vao);
@@ -177,6 +226,8 @@ const Unit* Units::GetUnit(const UUID& uuid)
 
 void Units::AddPendingUnits()
 {
+	m_mutex.lock();
+
 	for (auto& u : m_unitsToAdd)
 	{
 		u.unit.index = m_units.size();
@@ -184,6 +235,9 @@ void Units::AddPendingUnits()
 		m_units.push_back(u.unit);
 	}
 	m_unitsToAdd.clear();
+
+	m_mutex.unlock();
+	m_condVar.notify_one();
 }
 
 
