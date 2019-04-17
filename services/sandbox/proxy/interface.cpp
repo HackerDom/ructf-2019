@@ -8,7 +8,7 @@
 #include "interface.h"
 
 
-EAddUnitResult AddUnit(const char* mind, char* uuid)
+EAddUnitResult AddUnit(const char* mind, const char* uuid)
 {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)

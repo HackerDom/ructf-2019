@@ -13,5 +13,5 @@ struct UnitDesc
 	float power;
 };
 
-extern EAddUnitResult AddUnit(const char* mind, char* uuid);
+extern EAddUnitResult AddUnit(const char* mind, const char* uuid);
 extern bool GetUnit(const char* uuid, UnitDesc& desc, bool& found);

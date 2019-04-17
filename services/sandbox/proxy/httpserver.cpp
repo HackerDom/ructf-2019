@@ -152,10 +152,8 @@ int HttpServer::IterateHeadersBase(void* cls, enum MHD_ValueKind kind, const cha
 {
 	Headers* headers = (Headers*)cls;
 	std::string keyStr = key ? key : "";
-	std::string valueStr = value ? value : "";
 	std::transform(keyStr.begin(), keyStr.end(), keyStr.begin(), ::tolower);
-	std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(), ::tolower);
-	headers->insert({keyStr, valueStr});
+	headers->insert({keyStr, value});
 	return MHD_YES;
 }
 
@@ -163,10 +161,8 @@ int HttpServer::IterateQueryString(void* cls, enum MHD_ValueKind kind, const cha
 {
 	QueryString* args = (QueryString*)cls;
 	std::string keyStr = key ? key : "";
-	std::string valueStr = value ? value : "";
 	std::transform(keyStr.begin(), keyStr.end(), keyStr.begin(), ::tolower);
-	std::transform(valueStr.begin(), valueStr.end(), valueStr.begin(), ::tolower);
-	args->insert({keyStr, valueStr});
+	args->insert({keyStr, value});
 	return MHD_YES;
 }
 
@@ -183,7 +179,7 @@ int HttpServer::SendResponse(MHD_Connection* connection, HttpResponse response)
 		return MHD_NO;
 
 	for (const auto& iter : response.headers)
-		MHD_add_response_header(mhdResponse, iter.first.c_str(), iter.second.c_str());  //"Content-Type", MIMETYPE);
+		MHD_add_response_header(mhdResponse, iter.first.c_str(), iter.second);  //"Content-Type", MIMETYPE);
 
 	int result = MHD_queue_response(connection, response.code, mhdResponse);
 

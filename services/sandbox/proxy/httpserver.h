@@ -9,8 +9,8 @@
 class HttpRequestState;
 class HttpRequestHandler;
 
-using Headers = std::map<std::string, std::string>;
-using QueryString = std::map<std::string, std::string>;
+using Headers = std::map<std::string, const char*>;
+using QueryString = std::map<std::string, const char*>;
 
 struct HttpRequest
 {
@@ -126,7 +126,16 @@ public:
 };
 
 
-//
+template <class Map>
+const char* FindInMap(const Map& map, const std::string& key)
+{
+	auto iter = map.find(key);
+	if (iter != map.end())
+		return iter->second;
+	return nullptr;
+}
+
+
 template <class Map>
 bool FindInMap(const Map& map, const std::string& key, std::string& val)
 {
@@ -140,7 +149,6 @@ bool FindInMap(const Map& map, const std::string& key, std::string& val)
 }
 
 
-//
 template <class Map>
 bool FindInMap(const Map& map, const std::string& key, int& val)
 {
@@ -164,7 +172,6 @@ bool FindInMap(const Map& map, const std::string& key, uint32_t& val)
 }
 
 
-//
 template <class Map>
 bool FindInMap(const Map& map, const std::string& key, float& val)
 {

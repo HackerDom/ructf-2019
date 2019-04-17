@@ -13,106 +13,6 @@
 #include "interface.h"
 
 
-class AddUnitProcessor : public HttpPostProcessor
-{
-public:
-	AddUnitProcessor(const HttpRequest& request);
-	virtual ~AddUnitProcessor();
-
-	int IteratePostData(MHD_ValueKind kind,
-	                    const char* key,
-	                    const char* filename,
-	                    const char* contentType,
-	                    const char* transferEncoding,
-	                    const char* data,
-	                    uint64_t offset,
-	                    size_t size);
-
-	std::string m_mind;
-	float m_power;
-	bool m_isHeadersValid;
-
-protected:
-	virtual void FinalizeRequest();
-};
-
-
-AddUnitProcessor::AddUnitProcessor(const HttpRequest& request) : HttpPostProcessor(request)
-{
-	printf("Add unit request\n");
-
-	static std::string mindStr("mind");
-
-	m_isHeadersValid = true;
-
-	if (!FindInMap(request.queryString, mindStr, m_mind))
-		m_isHeadersValid = false;
-
-	if (m_mind.length() != 32)
-		m_isHeadersValid = false;
-}
-
-
-AddUnitProcessor::~AddUnitProcessor()
-{
-}
-
-
-void AddUnitProcessor::FinalizeRequest()
-{
-	if (!m_isHeadersValid)
-	{
-		Complete(HttpResponse(MHD_HTTP_BAD_REQUEST));
-		printf("Invalid query\n");
-		return;
-	}
-
-	char* buf = (char*)malloc(64);
-	memset(buf, 0, 64);
-	auto result = AddUnit(m_mind.data(), buf);
-	if(result == kAddUnitOk)
-	{
-		Complete(HttpResponse(MHD_HTTP_OK, buf, strlen(buf), Headers()));
-		printf("Unit added\n");
-	}
-	else if(result == kAddUnitTooMuchUnits)
-	{
-		const char* errorStr = "Too much units in simulation";
-		strcpy(buf, errorStr);
-		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers()));
-		printf("%s\n", errorStr);
-	}
-	else if(result == kAddUnitAlreadyExists)
-	{
-		const char* errorStr = "Unit already exists";
-		strcpy(buf, errorStr);
-		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers()));
-		printf("%s\n", errorStr);
-	}
-	else
-	{
-		const char* errorStr = "Unknown error";
-		strcpy(buf, errorStr);
-		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers()));
-		printf("%s\n", errorStr);
-	}
-}
-
-
-//
-int AddUnitProcessor::IteratePostData(MHD_ValueKind kind,
-                                      const char* key,
-                                      const char* filename,
-                                      const char* contentType,
-                                      const char* transferEncoding,
-                                      const char* data,
-                                      uint64_t offset,
-                                      size_t size)
-{
-	return MHD_YES;
-}
-
-
 class RequestHandler : public HttpRequestHandler
 {
 public:
@@ -176,8 +76,55 @@ HttpResponse RequestHandler::HandlePost(HttpRequest request, HttpPostProcessor**
 {
 	if (ParseUrl(request.url, 1, "add_unit"))
 	{
-		*postProcessor = new AddUnitProcessor(request);
-		return HttpResponse();
+		printf("Add unit request\n");
+
+		static std::string mindStr("mind");
+		static std::string uuidStr("uuid");
+
+		const char* mind = FindInMap(request.queryString, mindStr);
+		if(!mind)
+		{
+			printf("Missing 'mind' parameter\n");
+			return HttpResponse(MHD_HTTP_BAD_REQUEST);
+		}
+
+		const char* uuid = FindInMap(request.queryString, uuidStr);
+		if(!uuid)
+		{
+			printf("Missing 'uuid' parameter\n");
+			return HttpResponse(MHD_HTTP_BAD_REQUEST);
+		}
+
+		char* buf = (char*)malloc(64);
+		memset(buf, 0, 64);
+
+		auto result = AddUnit(mind, uuid);
+		if(result == kAddUnitOk)
+		{
+			return HttpResponse(MHD_HTTP_OK, buf, strlen(buf), Headers());
+			printf("Unit added\n");
+		}
+		else if(result == kAddUnitTooMuchUnits)
+		{
+			const char* errorStr = "Too much units in simulation";
+			strcpy(buf, errorStr);
+			printf("%s\n", errorStr);
+			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers());
+		}
+		else if(result == kAddUnitAlreadyExists)
+		{
+			const char* errorStr = "Unit already exists";
+			printf("%s\n", errorStr);
+			strcpy(buf, errorStr);
+			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers());
+		}
+		else
+		{
+			const char* errorStr = "Unknown error";
+			printf("%s\n", errorStr);
+			strcpy(buf, errorStr);
+			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers());
+		}
 	}
 
 	return HttpResponse(MHD_HTTP_NOT_FOUND);
