@@ -1,7 +1,7 @@
 #.PHONY: debug release clean
 CXXFLAGS = -c -g -std=c++17 -DLINUX=1
 SOURCES = buildings.cpp gl.cpp interface.cpp main.cpp png.cpp shader.cpp texture.cpp tiny_obj_loader.cpp units.cpp
-LDFLAGS = -lglfw -lGL -lGLEW -lpng16 -luuid
+LDFLAGS = -lglfw -lGL -lGLEW -lpng16 -luuid -pthread
 OBJS = $(SOURCES:.cpp=.o)
 
 all: release

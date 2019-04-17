@@ -9,16 +9,21 @@ void Units::FlushThread(Units* units)
 
 	while(!units->m_stopFlushThread)
 	{
-		units->m_condVar.wait(lock);
+		while(!units->m_flushStorage)
+			units->m_condVar.wait(lock);
 
-		fseek(units->m_storage, 0, SEEK_SET);
+		FILE* f = fopen("storage.dat", "w");
+		fseek(f, 0, SEEK_SET);
 		for(auto& iter : units->m_uuidToIdx)
 		{
-			fwrite(iter.first.data(), iter.first.size(), 1, units->m_storage);
+			fwrite(iter.first.data(), iter.first.size(), 1, f);
 			Unit& unit = units->m_units[iter.second];
-			fwrite(&unit, sizeof(Unit), 1, units->m_storage);
+			fwrite(&unit, sizeof(Unit), 1, f);
 		}
 
+		units->m_flushStorage = false;
+		fflush(f);
+		fclose(f);
 		printf("Units storage flushed\n");
 	}
 }
@@ -90,27 +95,52 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_fieldSizeY = fieldSizeY;
 	m_units.reserve(kMaxUnitsCount);
 
-	m_storage = fopen("storage.dat", "a+");
-	while(!feof(m_storage))
+	FILE* storage = fopen("storage.dat", "r");
+	if(storage)
 	{
+		fseek(storage, 0, SEEK_END);
+		size_t fileSize = ftell(storage);
+		fseek(storage, 0, SEEK_SET);
+
 		UUID uuid;
-		if(fread(uuid.data(), uuid.size(), 1, m_storage) != 1)
+		size_t recordSize = uuid.size() + sizeof(Unit);
+		if(fileSize % recordSize != 0)
 		{
-			printf("Failed to read storage\n");
-			break;
+			printf("Storage corrupted\n");
 		}
-
-		Unit unit;
-		if(fread(&unit, sizeof(Unit), 1, m_storage) != 1)
+		else
 		{
-		
-			printf("Failed to read storage\n");
-			break;
-		}
+			size_t recordsNum = fileSize / recordSize;
+			for(size_t i = 0; i < recordsNum; i++)
+			{
+				UUID uuid;
+				if(fread(uuid.data(), uuid.size(), 1, storage) != 1)
+				{
+					printf("Failed to read storage\n");
+					break;
+				}
 
-		uint32_t idx = m_units.size();
-		m_units.push_back(unit);
-		m_uuidToIdx[uuid] = idx;
+				Unit unit;
+				if(fread(&unit, sizeof(Unit), 1, storage) != 1)
+				{
+
+					printf("Failed to read storage\n");
+					break;
+				}
+
+				uint32_t idx = m_units.size();
+				m_units.push_back(unit);
+				m_uuidToIdx[uuid] = idx;
+			}
+		}
+		fclose(storage);
+
+		if(m_units.size())
+		{
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		}
 	}
 
 	m_flushThread = std::thread(&Units::FlushThread, this);
@@ -122,6 +152,7 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 void Units::Shutdown()
 {
 	m_stopFlushThread = true;
+	m_flushStorage = true;
 	m_flushThread.join();
 
 	if (m_vao)
@@ -227,6 +258,8 @@ const Unit* Units::GetUnit(const UUID& uuid)
 void Units::AddPendingUnits()
 {
 	m_mutex.lock();
+
+	m_flushStorage = !m_unitsToAdd.empty();
 
 	for (auto& u : m_unitsToAdd)
 	{

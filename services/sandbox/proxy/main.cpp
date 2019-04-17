@@ -56,7 +56,7 @@ HttpResponse RequestHandler::HandleGet(HttpRequest request)
 			response.content = (char*)malloc(512);
 			memset(response.content, 0, 512);
 			sprintf(response.content,
-					"{ \"uuid\": %s, \"mind\": \"%s\", \"posX\": %f, \"posY\": %f, \"posZ\": %f, \"power\": %f }", uuid.c_str(),
+					"{ \"uuid\": \"%s\", \"mind\": \"%s\", \"posX\": %f, \"posY\": %f, \"posZ\": %f, \"power\": %f }", uuid.c_str(),
 			        mindStr, desc.posX, desc.posY, desc.posZ, desc.power);
 			response.contentLength = strlen(response.content);
 

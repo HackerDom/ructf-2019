@@ -16,7 +16,7 @@ release: lib
 release: proxy
 
 lib:
-	g++ -c interface.cpp -fpic
+	g++ -c interface.cpp -fpic -g -O0
 	g++ -shared -o libinterface.so interface.o 
 	python3 gen_hash.py
 

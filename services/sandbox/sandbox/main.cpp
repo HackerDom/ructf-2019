@@ -114,8 +114,16 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 			memcpy(response, &addUnitResponse, sizeof(addUnitResponse));
 			responseSize = sizeof(addUnitResponse);
 
+			const char* resultStr = "Unknown";
+			if(result == Units::kAddOk)
+				resultStr = "Ok";
+			else if(result == Units::kAddTooMuchUnits)
+				resultStr = "Error, too much units";
+			if(result == Units::kAddAlreadyExists)
+				resultStr = "Error, unit already exists";
+
 			uuid_unparse(uuid, uuidStr);
-			printf("Add unit %s\n", uuidStr);
+			printf("Add unit %s result: %s\n", uuidStr, resultStr);
 		}
 		break;
 	case kCommandGetUnit:
@@ -123,6 +131,7 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 			CommandGetUnit* getUnit = (CommandGetUnit*)data;
 			CommandGetUnitResponse getUnitResponse;
 			const Unit* unit = GUnits.GetUnit(uuid);
+			const char* resultStr = "Ok";
 			if(unit)
 			{
 				getUnitResponse.ok = true;
@@ -135,12 +144,13 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 			else
 			{
 				getUnitResponse.ok = false;
+				resultStr = "Not found";
 			}
 			memcpy(response, &getUnitResponse, sizeof(getUnitResponse));
 			responseSize = sizeof(getUnitResponse);
 
 			uuid_unparse(uuid, uuidStr);
-			printf("Get unit %s\n", uuidStr);
+			printf("Get unit %s: %s\n", uuidStr, resultStr);
 		}
 		break;
 
@@ -231,7 +241,7 @@ int main()
 		counter += GDeltaTime;
 		if (counter > 1.0)
 		{
-			printf("Frame time: %fms\n", GDeltaTime * 1000.0);
+			//printf("Frame time: %fms\n", GDeltaTime * 1000.0);
 			counter = 0.0;
 		}
 

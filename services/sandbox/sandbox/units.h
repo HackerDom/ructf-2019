@@ -84,10 +84,10 @@ private:
 	};
 	std::vector<PendingUnit> m_unitsToAdd;
 
-	FILE* m_storage = nullptr;
 	std::thread m_flushThread;
 	bool m_stopFlushThread = false;
 	std::mutex m_mutex;
+	bool m_flushStorage = false;
 	std::condition_variable m_condVar;
 
 	void AddPendingUnits();
