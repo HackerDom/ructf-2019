@@ -6,16 +6,15 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "interface.h"
-#include "../commands.h"
 
 
-bool AddUnit(const char* mind, float power, char* uuid)
+EAddUnitResult AddUnit(const char* mind, char* uuid)
 {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
 	{
 		perror("socket");
-		return false;
+		return kAddUnitInternalError;
 	}
 
 	sockaddr_in addr;
@@ -27,16 +26,16 @@ bool AddUnit(const char* mind, float power, char* uuid)
 	{
 		perror("connect");
         close(sock);
-		return false;
+		return kAddUnitInternalError;
 	}
 
 	CommandHeader h;
 	h.cmd = kCommandAddUnit;
+    uuid_parse(uuid, h.uuid);
 	write(sock, &h, sizeof(h));
 
 	CommandAddUnit cmd;
 	memcpy(cmd.mind, mind, 32);
-	cmd.power = power;
 	write(sock, &cmd, sizeof(cmd));
 
 	CommandAddUnitResponse response;
@@ -45,12 +44,11 @@ bool AddUnit(const char* mind, float power, char* uuid)
 	{
 		perror("recv");
 		close(sock);
-		return false;
+		return kAddUnitInternalError;
 	}
 	close(sock);
 
-    uuid_unparse(response.uuid, uuid);
-    return true;
+    return response.result;
 }
 
 
@@ -77,10 +75,10 @@ bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
 
     CommandHeader h;
     h.cmd = kCommandGetUnit;
+    uuid_parse(uuid, h.uuid);
     write(sock, &h, sizeof(h));
 
     CommandGetUnit cmd;
-    uuid_parse(uuid, cmd.uuid);
     write(sock, &cmd, sizeof(cmd));
 
     CommandGetUnitResponse cmdResponse;

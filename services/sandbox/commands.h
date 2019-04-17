@@ -12,19 +12,28 @@ enum ECommand : uint32_t
 struct CommandHeader
 {
 	ECommand cmd;
+	uint8_t uuid[16];
 };
 
 
 struct CommandAddUnit
 {
 	uint32_t mind[8];
-	float power;
+};
+
+
+enum EAddUnitResult
+{
+	kAddUnitOk = 0,
+	kAddUnitTooMuchUnits,
+	kAddUnitAlreadyExists,
+	kAddUnitInternalError
 };
 
 
 struct CommandAddUnitResponse
 {
-	uint8_t uuid[16];
+	EAddUnitResult result;
 };
 
 

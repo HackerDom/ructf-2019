@@ -123,12 +123,20 @@ void Units::Shutdown()
 }
 
 
-bool Units::AddUnit(uint32_t mind[8], float power, UUID& uuid)
+Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 {
 	if (m_units.size() >= kMaxUnitsCount)
 	{
 		printf("Too much units in simulation\n");
-		return false;
+		return kAddTooMuchUnits;
+	}
+
+	if(m_uuidToIdx.find(uuid) != m_uuidToIdx.end())
+	{
+		char str[64] = {};
+		uuid_unparse(uuid, str);
+		printf("Unit %s already exists\n", str);
+		return kAddAlreadyExists;
 	}
 
 	std::default_random_engine e;
@@ -144,16 +152,16 @@ bool Units::AddUnit(uint32_t mind[8], float power, UUID& uuid)
 	u.posZ = (float)(m_fieldSizeY - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
 
 	u.type = kUnitHuman;
-	u.power = power;
+	u.power = (float)dis(e);
 	u.prevDirIdx = 0;
 	u.prevCrossIdx = 0;
 
 	PendingUnit pendingUnit;
+	pendingUnit.uuid = uuid;
 	pendingUnit.unit = u;
-	uuid_generate(pendingUnit.uuid);
 	m_unitsToAdd.push_back(pendingUnit);
 
-	return true;
+	return kAddOk;
 }
 
 

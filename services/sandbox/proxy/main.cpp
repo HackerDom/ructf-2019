@@ -42,9 +42,7 @@ AddUnitProcessor::AddUnitProcessor(const HttpRequest& request) : HttpPostProcess
 	printf("Add unit request\n");
 
 	static std::string mindStr("mind");
-	static std::string powerStr("power");
 
-	m_power = 1.0f;
 	m_isHeadersValid = true;
 
 	if (!FindInMap(request.queryString, mindStr, m_mind))
@@ -52,12 +50,6 @@ AddUnitProcessor::AddUnitProcessor(const HttpRequest& request) : HttpPostProcess
 
 	if (m_mind.length() != 32)
 		m_isHeadersValid = false;
-
-	if (FindInMap(request.queryString, powerStr, m_power))
-	{
-		if (m_power < 0.0f || m_power > 1.0f)
-			m_isHeadersValid = false;
-	}
 }
 
 
@@ -75,16 +67,35 @@ void AddUnitProcessor::FinalizeRequest()
 		return;
 	}
 
-	char* uuid = (char*)malloc(64);
-	memset(uuid, 0, 64);
-	if(!AddUnit(m_mind.data(), m_power, uuid))
+	char* buf = (char*)malloc(64);
+	memset(buf, 0, 64);
+	auto result = AddUnit(m_mind.data(), buf);
+	if(result == kAddUnitOk)
 	{
-		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR));
-		return;
+		Complete(HttpResponse(MHD_HTTP_OK, buf, strlen(buf), Headers()));
+		printf("Unit added\n");
 	}
-
-	Complete(HttpResponse(MHD_HTTP_OK, uuid, strlen(uuid), Headers()));
-	printf("Unit added\n");
+	else if(result == kAddUnitTooMuchUnits)
+	{
+		const char* errorStr = "Too much units in simulation";
+		strcpy(buf, errorStr);
+		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers()));
+		printf("%s\n", errorStr);
+	}
+	else if(result == kAddUnitAlreadyExists)
+	{
+		const char* errorStr = "Unit already exists";
+		strcpy(buf, errorStr);
+		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers()));
+		printf("%s\n", errorStr);
+	}
+	else
+	{
+		const char* errorStr = "Unknown error";
+		strcpy(buf, errorStr);
+		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers()));
+		printf("%s\n", errorStr);
+	}
 }
 
 

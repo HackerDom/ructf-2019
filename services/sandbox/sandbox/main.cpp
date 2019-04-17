@@ -93,22 +93,24 @@ void UpdateRandomTexture(Texture2D& tex)
 }
 
 
-void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& responseSize)
+void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, uint32_t& responseSize)
 {
 	static char uuidStr[64] = {};
 	static char responseBuffer[512];
 	response = responseBuffer;
 	responseSize = 0;
 
-	switch (cmd)
+	UUID uuid;
+	memcpy(uuid.data(), cmd.uuid, 16);
+
+	switch (cmd.cmd)
 	{
 	case kCommandAddUnit:
 		{
 			CommandAddUnit* addUnit = (CommandAddUnit*)data;
 			CommandAddUnitResponse addUnitResponse;
-			UUID uuid;
-			GUnits.AddUnit(addUnit->mind, addUnit->power, uuid);
-			memcpy(addUnitResponse.uuid, uuid.data(), uuid.size());
+			auto result = GUnits.AddUnit(uuid, addUnit->mind);
+			addUnitResponse.result = (EAddUnitResult)result;
 			memcpy(response, &addUnitResponse, sizeof(addUnitResponse));
 			responseSize = sizeof(addUnitResponse);
 
@@ -120,8 +122,6 @@ void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& resp
 		{
 			CommandGetUnit* getUnit = (CommandGetUnit*)data;
 			CommandGetUnitResponse getUnitResponse;
-			UUID uuid;
-			memcpy(uuid.data(), getUnit->uuid, 16);
 			const Unit* unit = GUnits.GetUnit(uuid);
 			if(unit)
 			{

@@ -35,12 +35,20 @@ class Units
 {
 public:
 
+	enum EAddResult
+	{
+		kAddOk = 0,
+		kAddTooMuchUnits,
+		kAddAlreadyExists
+	};
+
+
 	Units() = default;
 	~Units() = default;
 	bool Init(uint32_t fieldSizeX, uint32_t fieldSizeY);
 	void Shutdown();
 
-	bool AddUnit(uint32_t mind[8], float power, UUID& uuid);
+	EAddResult AddUnit(const UUID& uuid, uint32_t mind[8]);
 	const Unit* GetUnit(const UUID& uuid);
 
 	void Simulate(const Texture2D& target, const Texture2D& randomTex);

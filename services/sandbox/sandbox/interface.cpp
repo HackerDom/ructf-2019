@@ -119,7 +119,7 @@ bool UpdateInterface()
 				Socket& sock = GSockets[i];
 				uint32_t dataToRead = 0;
 				if(sock.state == kSocketStateWaitHeader)
-					dataToRead = sizeof(CommandHeader);
+					dataToRead = sizeof(CommandHeader) - sock.dataRead;
 				else
 					dataToRead = kCommandsSize[sock.header.cmd] - sock.dataRead;
 
@@ -137,24 +137,29 @@ bool UpdateInterface()
 				}
 				else
 				{
+					memcpy(&sock.buffer[sock.dataRead], buf, bytes);
+					sock.dataRead += bytes;
+
 					if(sock.state == kSocketStateWaitHeader)
 					{
-						memcpy(&sock.header, buf, sizeof(CommandHeader));
-						if(sock.header.cmd >= kCommandsCount)
+						if(sock.dataRead == sizeof(CommandHeader))
 						{
-							close(i);
-							FD_CLR(i, &GMasterSet);
-							GSockets.erase(i);
-						}
-						else
-						{
-							sock.state = kSocketStateWaitCommand;
+							memcpy(&sock.header, buf, sizeof(CommandHeader));
+							if(sock.header.cmd >= kCommandsCount)
+							{
+								close(i);
+								FD_CLR(i, &GMasterSet);
+								GSockets.erase(i);
+							}
+							else
+							{
+								sock.dataRead = 0;
+								sock.state = kSocketStateWaitCommand;
+							}
 						}
 					}
 					else
 					{
-						memcpy(&sock.buffer[sock.dataRead], buf, bytes);
-						sock.dataRead += bytes;
 						if(sock.dataRead == kCommandsSize[sock.header.cmd])
 						{
 							sock.state = kSocketStateReady;
@@ -162,7 +167,7 @@ bool UpdateInterface()
 							{
 								char* response = nullptr;
 								uint32_t responseSize = 0;
-								GCallback(sock.header.cmd, sock.buffer, response, responseSize);
+								GCallback(sock.header, sock.buffer, response, responseSize);
 								if(responseSize)
 									send(i, response, responseSize, 0);
 							}

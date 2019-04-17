@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "../commands.h"
 #include "../uuid.h"
 
 
@@ -12,5 +13,5 @@ struct UnitDesc
 	float power;
 };
 
-extern bool AddUnit(const char* mind, float power, char* uuid);
+extern EAddUnitResult AddUnit(const char* mind, char* uuid);
 extern bool GetUnit(const char* uuid, UnitDesc& desc, bool& found);
