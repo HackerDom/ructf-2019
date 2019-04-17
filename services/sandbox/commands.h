@@ -24,13 +24,13 @@ struct CommandAddUnit
 
 struct CommandAddUnitResponse
 {
-	uint32_t id;
+	uint8_t uuid[16];
 };
 
 
 struct CommandGetUnit
 {
-	uint32_t id;
+	uint8_t uuid[16];
 };
 
 

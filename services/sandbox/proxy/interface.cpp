@@ -9,7 +9,7 @@
 #include "../commands.h"
 
 
-bool AddUnit(const char* mind, float power, uint32_t& id)
+bool AddUnit(const char* mind, float power, char* uuid)
 {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
@@ -49,12 +49,12 @@ bool AddUnit(const char* mind, float power, uint32_t& id)
 	}
 	close(sock);
 
-    id = response.id;
+    uuid_unparse(response.uuid, uuid);
     return true;
 }
 
 
-bool GetUnit(uint32_t id, UnitDesc& desc, bool& found)
+bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
 {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
@@ -80,7 +80,7 @@ bool GetUnit(uint32_t id, UnitDesc& desc, bool& found)
     write(sock, &h, sizeof(h));
 
     CommandGetUnit cmd;
-    cmd.id = id;
+    uuid_parse(uuid, cmd.uuid);
     write(sock, &cmd, sizeof(cmd));
 
     CommandGetUnitResponse cmdResponse;

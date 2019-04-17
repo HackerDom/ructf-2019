@@ -2,6 +2,9 @@
 #include "glwrap.h"
 #include <vector>
 #include <map>
+#include <array>
+#include "../uuid.h"
+
 
 enum EUnitType
 {
@@ -13,7 +16,7 @@ enum EUnitType
 struct Unit
 {
 	uint32_t mind[8];
-	uint32_t id;
+	uint32_t index;
 	float posX;
 	float posY;
 	float posZ;
@@ -37,8 +40,8 @@ public:
 	bool Init(uint32_t fieldSizeX, uint32_t fieldSizeY);
 	void Shutdown();
 
-	uint32_t AddUnit(uint32_t mind[8], float power);
-	const Unit* GetUnit(uint32_t id);
+	bool AddUnit(uint32_t mind[8], float power, UUID& uuid);
+	const Unit* GetUnit(const UUID& uuid);
 
 	void Simulate(const Texture2D& target, const Texture2D& randomTex);
 	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[]);
@@ -62,8 +65,14 @@ private:
 	uint32_t m_fieldSizeX;
 	uint32_t m_fieldSizeY;
 	std::vector<Unit> m_units;
-	std::vector<Unit> m_unitsToAdd;
-	std::map<uint32_t, uint32_t> m_idToIdx;
+	std::map<UUID, uint32_t> m_uuidToIdx;
+
+	struct PendingUnit
+	{
+		UUID uuid;
+		Unit unit;
+	};
+	std::vector<PendingUnit> m_unitsToAdd;
 
 	void AddPendingUnits();
 };

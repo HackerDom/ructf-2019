@@ -123,12 +123,12 @@ void Units::Shutdown()
 }
 
 
-uint32_t Units::AddUnit(uint32_t mind[8], float power)
+bool Units::AddUnit(uint32_t mind[8], float power, UUID& uuid)
 {
 	if (m_units.size() >= kMaxUnitsCount)
 	{
 		printf("Too much units in simulation\n");
-		return ~0u;
+		return false;
 	}
 
 	std::default_random_engine e;
@@ -137,13 +137,7 @@ uint32_t Units::AddUnit(uint32_t mind[8], float power)
 
 	Unit u;
 	memcpy(u.mind, mind, 32);
-
-	while (1)
-	{
-		u.id = rand();
-		if (m_idToIdx.find(u.id) == m_idToIdx.end())
-			break;
-	}
+	u.index = ~0u;
 
 	u.posX = (float)(m_fieldSizeX - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
 	u.posY = (float)disPos(e);
@@ -154,18 +148,21 @@ uint32_t Units::AddUnit(uint32_t mind[8], float power)
 	u.prevDirIdx = 0;
 	u.prevCrossIdx = 0;
 
-	m_unitsToAdd.push_back(u);
+	PendingUnit pendingUnit;
+	pendingUnit.unit = u;
+	uuid_generate(pendingUnit.uuid);
+	m_unitsToAdd.push_back(pendingUnit);
 
-	return u.id;
+	return true;
 }
 
 
-const Unit* Units::GetUnit(uint32_t id)
+const Unit* Units::GetUnit(const UUID& uuid)
 {
-	if(m_idToIdx.find(id) == m_idToIdx.end())
+	if(m_uuidToIdx.find(uuid) == m_uuidToIdx.end())
 		return nullptr;
 
-	uint32_t idx = m_idToIdx[id];
+	uint32_t idx = m_uuidToIdx[uuid];
 	return &m_units[idx];
 }
 
@@ -174,9 +171,9 @@ void Units::AddPendingUnits()
 {
 	for (auto& u : m_unitsToAdd)
 	{
-		uint32_t idx = m_units.size();
-		m_idToIdx[u.id] = idx;
-		m_units.push_back(u);
+		u.unit.index = m_units.size();
+		m_uuidToIdx[u.uuid] = u.unit.index;
+		m_units.push_back(u.unit);
 	}
 	m_unitsToAdd.clear();
 }

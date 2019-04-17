@@ -75,17 +75,15 @@ void AddUnitProcessor::FinalizeRequest()
 		return;
 	}
 
-	uint32_t id = 0;
-	if(!AddUnit(m_mind.data(), m_power, id))
+	char* uuid = (char*)malloc(64);
+	memset(uuid, 0, 64);
+	if(!AddUnit(m_mind.data(), m_power, uuid))
 	{
 		Complete(HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR));
 		return;
 	}
 
-	char* buffer = (char*)malloc(16);
-	memset(buffer, 0, 16);
-	sprintf(buffer, "%u", id);
-	Complete(HttpResponse(MHD_HTTP_OK, buffer, strlen(buffer), Headers()));
+	Complete(HttpResponse(MHD_HTTP_OK, uuid, strlen(uuid), Headers()));
 	printf("Unit added\n");
 }
 
@@ -121,13 +119,19 @@ HttpResponse RequestHandler::HandleGet(HttpRequest request)
 {
 	if (ParseUrl(request.url, 1, "get"))
 	{
-		static std::string idStr("id");
-		uint32_t id;
-		FindInMap(request.queryString, idStr, id);
+		printf("Get unit request\n");
+
+		static std::string uuidStr("uuid");
+		std::string uuid;
+		if(!FindInMap(request.queryString, uuidStr, uuid))
+		{
+			printf("Missing UUID in get request\n");
+			return HttpResponse(MHD_HTTP_BAD_REQUEST);
+		}
 
 		bool found = false;
 		UnitDesc desc;
-		if(!GetUnit(id, desc, found))
+		if(!GetUnit(uuid.c_str(), desc, found))
 			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR);
 
 		if (found)
@@ -141,7 +145,7 @@ HttpResponse RequestHandler::HandleGet(HttpRequest request)
 			response.content = (char*)malloc(512);
 			memset(response.content, 0, 512);
 			sprintf(response.content,
-					"{ \"id\": %u, \"mind\": \"%s\", \"posX\": %f, \"posY\": %f, \"posZ\": %f, \"power\": %f }", id,
+					"{ \"uuid\": %s, \"mind\": \"%s\", \"posX\": %f, \"posY\": %f, \"posZ\": %f, \"power\": %f }", uuid.c_str(),
 			        mindStr, desc.posX, desc.posY, desc.posZ, desc.power);
 			response.contentLength = strlen(response.content);
 

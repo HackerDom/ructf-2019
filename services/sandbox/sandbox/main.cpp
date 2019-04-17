@@ -95,6 +95,7 @@ void UpdateRandomTexture(Texture2D& tex)
 
 void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& responseSize)
 {
+	static char uuidStr[64] = {};
 	static char responseBuffer[512];
 	response = responseBuffer;
 	responseSize = 0;
@@ -105,17 +106,23 @@ void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& resp
 		{
 			CommandAddUnit* addUnit = (CommandAddUnit*)data;
 			CommandAddUnitResponse addUnitResponse;
-			addUnitResponse.id = GUnits.AddUnit(addUnit->mind, addUnit->power);
+			UUID uuid;
+			GUnits.AddUnit(addUnit->mind, addUnit->power, uuid);
+			memcpy(addUnitResponse.uuid, uuid.data(), uuid.size());
 			memcpy(response, &addUnitResponse, sizeof(addUnitResponse));
 			responseSize = sizeof(addUnitResponse);
-			printf("Add unit %u\n", addUnitResponse.id);
+
+			uuid_unparse(uuid, uuidStr);
+			printf("Add unit %s\n", uuidStr);
 		}
 		break;
 	case kCommandGetUnit:
 		{
 			CommandGetUnit* getUnit = (CommandGetUnit*)data;
 			CommandGetUnitResponse getUnitResponse;
-			const Unit* unit = GUnits.GetUnit(getUnit->id);
+			UUID uuid;
+			memcpy(uuid.data(), getUnit->uuid, 16);
+			const Unit* unit = GUnits.GetUnit(uuid);
 			if(unit)
 			{
 				getUnitResponse.ok = true;
@@ -131,7 +138,9 @@ void InterfaceCallback(ECommand cmd, char* data, char*& response, uint32_t& resp
 			}
 			memcpy(response, &getUnitResponse, sizeof(getUnitResponse));
 			responseSize = sizeof(getUnitResponse);
-			printf("Get unit %u\n", getUnit->id);
+
+			uuid_unparse(uuid, uuidStr);
+			printf("Get unit %s\n", uuidStr);
 		}
 		break;
 
