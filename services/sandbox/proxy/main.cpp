@@ -104,26 +104,32 @@ HttpResponse RequestHandler::HandlePost(HttpRequest request, HttpPostProcessor**
 			return HttpResponse(MHD_HTTP_OK, buf, strlen(buf), Headers());
 			printf("Unit added\n");
 		}
-		else if(result == kAddUnitTooMuchUnits)
-		{
-			const char* errorStr = "Too much units in simulation";
-			strcpy(buf, errorStr);
-			printf("%s\n", errorStr);
-			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers());
-		}
-		else if(result == kAddUnitAlreadyExists)
-		{
-			const char* errorStr = "Unit already exists";
-			printf("%s\n", errorStr);
-			strcpy(buf, errorStr);
-			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers());
-		}
 		else
 		{
 			const char* errorStr = "Unknown error";
-			printf("%s\n", errorStr);
+			uint32_t code = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			switch(result)
+			{
+				case kAddUnitTooMuchUnits:
+					errorStr = "Too much units in simulation";
+					break;
+				case kAddUnitAlreadyExists:
+					errorStr = "Unit already exists";
+					break;
+				case kAddUnitInternalError:
+					errorStr = "Internal error";
+					break;
+				case kAddUnitBadUUID:
+					errorStr = "Bad UUID";
+					code = MHD_HTTP_BAD_REQUEST;
+					break;
+				default:
+					break;
+			}
+
 			strcpy(buf, errorStr);
-			return HttpResponse(MHD_HTTP_INTERNAL_SERVER_ERROR, buf, strlen(buf), Headers());
+			printf("%s\n", errorStr);
+			return HttpResponse(code, buf, strlen(buf), Headers());
 		}
 	}
 
