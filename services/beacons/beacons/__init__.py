@@ -10,6 +10,7 @@ app.config.update(settings)
 BaseModel.init_app(app)
 
 jinja = SanicJinja2(app)
+app.static('/static', './beacons/static')
 
 session = {}
 @app.middleware('request')

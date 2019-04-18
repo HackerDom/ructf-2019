@@ -12,7 +12,7 @@ map_weight = 1000
 
 @map_page.route("/")
 @auth.login_required
-@jinja.template("quests.html")
+@jinja.template("map.html")
 def index(request):
     return {"quests": ["name"]}
 
