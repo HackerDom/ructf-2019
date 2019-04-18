@@ -5,4 +5,3 @@ typedef void (* TInterfaceCallback)(const CommandHeader& cmd, char* data, char*&
 
 bool InitInterface(TInterfaceCallback callback);
 void ShutdownInterface();
-bool UpdateInterface();

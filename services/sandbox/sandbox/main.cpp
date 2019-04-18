@@ -182,7 +182,7 @@ int main()
 	GLFWwindow* window = glfwCreateWindow(1024, 1024, "Sandbox", nullptr, nullptr);
 
 	glfwSetCursorPosCallback(window, ProcessMouse);
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
@@ -241,11 +241,9 @@ int main()
 		counter += GDeltaTime;
 		if (counter > 1.0)
 		{
-			//printf("Frame time: %fms\n", GDeltaTime * 1000.0);
+			printf("Frame time: %fms\n", GDeltaTime * 1000.0);
 			counter = 0.0;
 		}
-
-		UpdateInterface();
 
 		ProcessInput(window);
 
@@ -295,4 +293,7 @@ int main()
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	ShutdownInterface();
+	GUnits.Shutdown();
+
+	printf("Done\n");
 }

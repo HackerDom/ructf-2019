@@ -33,6 +33,8 @@ void Units::FlushThread(Units* units)
 		double endTime = tp.tv_sec + tp.tv_nsec / 1000000000.0;
 		printf("Units storage flushed, time: %f\n", endTime - startTime);
 	}
+
+	printf("Flush thread stopped\n");
 }
 
 
@@ -148,6 +150,8 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		}
+
+		printf("Units restored from storage: %u\n", m_units.size());
 	}
 
 	m_flushThread = std::thread(&Units::FlushThread, this);
@@ -160,6 +164,7 @@ void Units::Shutdown()
 {
 	m_stopFlushThread = true;
 	m_flushStorage = true;
+	m_condVar.notify_one();
 	m_flushThread.join();
 
 	if (m_vao)
@@ -212,6 +217,8 @@ void Units::Shutdown()
 
 Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 {
+	std::lock_guard<std::mutex> lck (m_mutex);
+
 	if (m_units.size() >= kMaxUnitsCount)
 	{
 		printf("Too much units in simulation\n");
@@ -254,6 +261,8 @@ Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 
 const Unit* Units::GetUnit(const UUID& uuid)
 {
+	std::lock_guard<std::mutex> lck (m_mutex);
+
 	if(m_uuidToIdx.find(uuid) == m_uuidToIdx.end())
 		return nullptr;
 
@@ -264,8 +273,6 @@ const Unit* Units::GetUnit(const UUID& uuid)
 
 void Units::AddPendingUnits()
 {
-	m_mutex.lock();
-
 	m_flushStorage = !m_unitsToAdd.empty();
 
 	for (auto& u : m_unitsToAdd)
@@ -279,7 +286,6 @@ void Units::AddPendingUnits()
 	if(m_flushStorage)
 		printf("Number of units: %u\n", m_units.size());
 
-	m_mutex.unlock();
 	m_condVar.notify_one();
 }
 
@@ -289,14 +295,18 @@ void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 	if (!m_simulationProgram)
 		return;
 
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-	if(m_units.size())
-		glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+	{
+		std::lock_guard<std::mutex> lck (m_mutex);
 
-	AddPendingUnits();
-	if (m_units.size())
-		glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
+		if(m_units.size())
+			glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+
+		AddPendingUnits();
+		if (m_units.size())
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	}
 
 	if (m_units.size())
 	{

@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <map>
+#include <thread>
 #include "interface.h"
 
 enum ESocketState
@@ -26,6 +27,8 @@ struct Socket
 };
 
 static TInterfaceCallback GCallback = nullptr;
+static std::thread GThread;
+static bool GStopThread = false;
 static int GListenSocket = 0;
 static uint16_t GListenPort = 3333;
 static fd_set GMasterSet;
@@ -36,6 +39,10 @@ static uint32_t kCommandsSize[] =
 	sizeof(CommandAddUnit),
 	sizeof(CommandGetUnit)
 };
+
+
+void NetworkThread();
+
 
 bool InitInterface(TInterfaceCallback callback)
 {
@@ -69,107 +76,112 @@ bool InitInterface(TInterfaceCallback callback)
 	FD_SET(GListenSocket, &GMasterSet);
 	GFDMax = GListenSocket;
 
+	GThread = std::thread(NetworkThread);
+
 	return true;
 }
 
 
 void ShutdownInterface()
 {
+	GStopThread = true;
+	GThread.join();
+
 	for(auto& sock : GSockets)
 		close(sock.first);
 	close(GListenSocket);
 }
 
 
-bool UpdateInterface()
+void NetworkThread()
 {
-	fd_set read_fds = GMasterSet;
-	timeval timeout;
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 1000;
-	if(select(GFDMax + 1, &read_fds, nullptr, nullptr, &timeout) == -1)
+	while(!GStopThread)
 	{
-		perror("select");
-		return false;
-	}
+		fd_set read_fds = GMasterSet;
+		timeval timeout;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 1;
+		if(select(GFDMax + 1, &read_fds, nullptr, nullptr, &timeout) == -1)
+			perror("select");
 
-	for(int i = 0; i <= GFDMax; i++)
-	{
-		if(FD_ISSET(i, &read_fds))
+		for(int i = 0; i <= GFDMax; i++)
 		{
-			if(i == GListenSocket)
+			if(FD_ISSET(i, &read_fds))
 			{
-				sockaddr_in clientaddr;
-				socklen_t addrLen = 0;
-				int s = accept(GListenSocket, (sockaddr*)&clientaddr, &addrLen);
-				if(s < 0)
+				if(i == GListenSocket)
 				{
-					perror("accept");
-					continue;
-				}
-
-				FD_SET(s, &GMasterSet);
-				if(s > GFDMax)
-					GFDMax = s;
-
-				GSockets[s] = Socket();
-			}
-			else
-			{
-				Socket& sock = GSockets[i];
-				uint32_t dataToRead = 0;
-				if(sock.state == kSocketStateWaitHeader)
-					dataToRead = sizeof(CommandHeader) - sock.dataRead;
-				else
-					dataToRead = kCommandsSize[sock.header.cmd] - sock.dataRead;
-
-				const uint32_t kBufSize = 512;
-				char buf[kBufSize];
-				int bytes = recv(i, buf, std::min(dataToRead, kBufSize), 0);
-				if(bytes <= 0)
-				{
-					if(bytes < 0)
-						perror("recv");
-
-					close(i);
-					FD_CLR(i, &GMasterSet);
-					GSockets.erase(i);
-				}
-				else
-				{
-					memcpy(&sock.buffer[sock.dataRead], buf, bytes);
-					sock.dataRead += bytes;
-
-					if(sock.state == kSocketStateWaitHeader)
+					sockaddr_in clientaddr;
+					socklen_t addrLen = 0;
+					int s = accept(GListenSocket, (sockaddr*)&clientaddr, &addrLen);
+					if(s < 0)
 					{
-						if(sock.dataRead == sizeof(CommandHeader))
-						{
-							memcpy(&sock.header, buf, sizeof(CommandHeader));
-							if(sock.header.cmd >= kCommandsCount)
-							{
-								close(i);
-								FD_CLR(i, &GMasterSet);
-								GSockets.erase(i);
-							}
-							else
-							{
-								sock.dataRead = 0;
-								sock.state = kSocketStateWaitCommand;
-							}
-						}
+						perror("accept");
+						continue;
+					}
+
+					FD_SET(s, &GMasterSet);
+					if(s > GFDMax)
+						GFDMax = s;
+
+					GSockets[s] = Socket();
+				}
+				else
+				{
+					Socket& sock = GSockets[i];
+					uint32_t dataToRead = 0;
+					if(sock.state == kSocketStateWaitHeader)
+						dataToRead = sizeof(CommandHeader) - sock.dataRead;
+					else
+						dataToRead = kCommandsSize[sock.header.cmd] - sock.dataRead;
+
+					const uint32_t kBufSize = 512;
+					char buf[kBufSize];
+					int bytes = recv(i, buf, std::min(dataToRead, kBufSize), 0);
+					if(bytes <= 0)
+					{
+						if(bytes < 0)
+							perror("recv");
+
+						close(i);
+						FD_CLR(i, &GMasterSet);
+						GSockets.erase(i);
 					}
 					else
 					{
-						if(sock.dataRead == kCommandsSize[sock.header.cmd])
+						memcpy(&sock.buffer[sock.dataRead], buf, bytes);
+						sock.dataRead += bytes;
+
+						if(sock.state == kSocketStateWaitHeader)
 						{
-							sock.state = kSocketStateReady;
-							if(GCallback)
+							if(sock.dataRead == sizeof(CommandHeader))
 							{
-								char* response = nullptr;
-								uint32_t responseSize = 0;
-								GCallback(sock.header, sock.buffer, response, responseSize);
-								if(responseSize)
-									send(i, response, responseSize, 0);
+								memcpy(&sock.header, buf, sizeof(CommandHeader));
+								if(sock.header.cmd >= kCommandsCount)
+								{
+									close(i);
+									FD_CLR(i, &GMasterSet);
+									GSockets.erase(i);
+								}
+								else
+								{
+									sock.dataRead = 0;
+									sock.state = kSocketStateWaitCommand;
+								}
+							}
+						}
+						else
+						{
+							if(sock.dataRead == kCommandsSize[sock.header.cmd])
+							{
+								sock.state = kSocketStateReady;
+								if(GCallback)
+								{
+									char* response = nullptr;
+									uint32_t responseSize = 0;
+									GCallback(sock.header, sock.buffer, response, responseSize);
+									if(responseSize)
+										send(i, response, responseSize, 0);
+								}
 							}
 						}
 					}
@@ -178,5 +190,5 @@ bool UpdateInterface()
 		}
 	}
 
-	return true;
+	printf("Network thread stopped\n");
 }
