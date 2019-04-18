@@ -43,7 +43,11 @@ EAddUnitResult AddUnit(const char* mind, const char* uuid)
 
     s.size = sizeof(CommandHeader);
 	s.h.cmd = kCommandAddUnit;
-    uuid_parse(uuid, s.h.uuid);
+    if(!uuid_parse(uuid, s.h.uuid))
+    {
+        close(s.sock);
+		return kAddUnitBadUUID;
+    }
 	write(s.sock, &s.h, s.size);
 
     s.size = sizeof(CommandAddUnit);
@@ -58,7 +62,7 @@ EAddUnitResult AddUnit(const char* mind, const char* uuid)
 	}
 	close(s.sock);
 
-    return s.response.result;
+    return (EAddUnitResult)s.response.result;
 }
 
 

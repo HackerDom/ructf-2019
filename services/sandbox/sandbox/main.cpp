@@ -110,7 +110,7 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 			CommandAddUnit* addUnit = (CommandAddUnit*)data;
 			CommandAddUnitResponse addUnitResponse;
 			auto result = GUnits.AddUnit(uuid, addUnit->mind);
-			addUnitResponse.result = (EAddUnitResult)result;
+			addUnitResponse.result = (CommandAddUnitResponse::EResult)result;
 			memcpy(response, &addUnitResponse, sizeof(addUnitResponse));
 			responseSize = sizeof(addUnitResponse);
 

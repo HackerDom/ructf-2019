@@ -22,18 +22,17 @@ struct CommandAddUnit
 };
 
 
-enum EAddUnitResult
-{
-	kAddUnitOk = 0,
-	kAddUnitTooMuchUnits,
-	kAddUnitAlreadyExists,
-	kAddUnitInternalError
-};
-
-
 struct CommandAddUnitResponse
 {
-	EAddUnitResult result;
+	enum EResult
+	{
+		kOk = 0,
+		kTooMuchUnits,
+		kAlreadyExists,
+		kInternalError
+	};
+
+	EResult result;
 };
 
 

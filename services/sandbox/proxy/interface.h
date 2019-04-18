@@ -13,5 +13,14 @@ struct UnitDesc
 	float power;
 };
 
+enum EAddUnitResult
+{
+	kAddUnitOk = CommandAddUnitResponse::kOk,
+	kAddUnitTooMuchUnits = CommandAddUnitResponse::kTooMuchUnits,
+	kAddUnitAlreadyExists = CommandAddUnitResponse::kAlreadyExists,
+	kAddUnitInternalError = CommandAddUnitResponse::kInternalError,
+	kAddUnitBadUUID
+};
+
 extern EAddUnitResult AddUnit(const char* mind, const char* uuid);
 extern bool GetUnit(const char* uuid, UnitDesc& desc, bool& found);
