@@ -12,6 +12,10 @@ void Units::FlushThread(Units* units)
 		while(!units->m_flushStorage)
 			units->m_condVar.wait(lock);
 
+		timespec tp;
+		clock_gettime( CLOCK_REALTIME, &tp );
+		double startTime = tp.tv_sec + tp.tv_nsec / 1000000000.0;
+
 		FILE* f = fopen("storage.dat", "w");
 		fseek(f, 0, SEEK_SET);
 		for(auto& iter : units->m_uuidToIdx)
@@ -24,7 +28,10 @@ void Units::FlushThread(Units* units)
 		units->m_flushStorage = false;
 		fflush(f);
 		fclose(f);
-		printf("Units storage flushed\n");
+
+		clock_gettime( CLOCK_REALTIME, &tp );
+		double endTime = tp.tv_sec + tp.tv_nsec / 1000000000.0;
+		printf("Units storage flushed, time: %f\n", endTime - startTime);
 	}
 }
 
@@ -268,6 +275,9 @@ void Units::AddPendingUnits()
 		m_units.push_back(u.unit);
 	}
 	m_unitsToAdd.clear();
+
+	if(m_flushStorage)
+		printf("Number of units: %u\n", m_units.size());
 
 	m_mutex.unlock();
 	m_condVar.notify_one();
