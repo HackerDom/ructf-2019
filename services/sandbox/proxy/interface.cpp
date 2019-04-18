@@ -118,7 +118,7 @@ bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
 
     found = s.response.ok;
     if(!found)
-        return false;
+        return true;
 
     memcpy(desc.mind, s.response.mind, sizeof(s.response.mind));
     desc.posX = s.response.posX;
