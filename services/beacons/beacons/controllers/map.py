@@ -26,7 +26,8 @@ def parse_int(s):
         if d:
             return d
         return 0
-    except:
+    except Exception as e:
+        print(e)
         return 0
 
 
@@ -37,9 +38,9 @@ def index(request):
     center_x = 0
     center_y = 0
     if "center_x" in request.args:
-        center_x = parse_int(request.args["center_x"])
+        center_x = parse_int(request.args["center_x"][0])
     if "center_y" in request.args:
-        center_y = parse_int(request.args["center_y"])
+        center_y = parse_int(request.args["center_y"][0])
 
     return {"center_x": center_x, "center_y": center_y}
 
@@ -61,8 +62,8 @@ async def get_beacons_in_area(top, right, bottom, left, request):
 @map_page.route("/GetBeacons")
 @auth.login_required
 async def get_beacons(request):
-    center_coord_x = parse_float(request.args["center_coord_x"])
-    center_coord_y = parse_float(request.args["center_coord_y"])
+    center_coord_x = parse_int(request.args["center_coord_x"][0])
+    center_coord_y = parse_int(request.args["center_coord_y"][0])
 
     beacons = await get_beacons_in_area(*get_borders(center_coord_x, center_coord_y), request)
 

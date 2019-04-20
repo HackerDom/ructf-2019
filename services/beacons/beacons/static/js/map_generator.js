@@ -8,7 +8,7 @@ const exponent = 2;
 const size = 20;
 const delta = 10;
 
-function GenerateMap(centerX, centerY) {
+function generateMap(centerX, centerY) {
 	let gen = new SimplexNoise('fkjwes');//ololol
     function noise(nx, ny) {
       return gen.noise2D(nx, ny) / 2 + 0.5;
@@ -41,13 +41,13 @@ function GenerateMap(centerX, centerY) {
 	return elevation
 }
 
-function ShiftCoords(centerX, centerY, newCenterX, newCenterY, x, y) {
+function shiftCoords(centerX, centerY, newCenterX, newCenterY, x, y) {
     let shiftedX = x - centerX + newCenterX;
     let shiftedY = y - centerY + newCenterY;
     return [shiftedX, shiftedY];
 }
 
-function RenderMap(map, ctx) {
+function renderMap(map, ctx) {
     for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
 			let p = map[y][x];
@@ -80,25 +80,25 @@ function RenderMap(map, ctx) {
 	ctx.stroke();
 }
 
-function RenderBeacons(beacons, centerX, centerY, ctx) {
+function renderBeacons(beacons, centerX, centerY, ctx) {
     let map = document.getElementById('map');
     let canvas = document.getElementById('canvas');
     beacons.forEach(function(beacon) {
-        let coords = ShiftCoords(centerX, centerY, width/2, height/2, beacon.coord_x, beacon.coord_y);
+        let coords = shiftCoords(centerX, centerY, width/2, height/2, beacon.coord_x, beacon.coord_y);
 
         ctx.fillStyle = "#C0C0C0";
         ctx.fillRect(coords[0]*size,coords[1]*size,size,size);
     });
 }
 
-function RenderFullMap(centerX, centerY, ctx) {
-    let map = GenerateMap(centerX, centerY);
-    RenderMap(map, ctx);
-    let beacons = GetBeacons(centerX, centerY);
-    RenderBeacons(beacons, centerX, centerY, ctx);
+function renderFullMap(centerX, centerY, ctx) {
+    let map = generateMap(centerX, centerY);
+    renderMap(map, ctx);
+    let beacons = getBeacons(centerX, centerY);
+    renderBeacons(beacons, centerX, centerY, ctx);
 }
 
-function GetBeacons(centerX, centerY) {
+function getBeacons(centerX, centerY) {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "/GetBeacons?center_coord_x=" + centerX + "&center_coord_y=" + centerY, false);
     xhr.send();
@@ -113,19 +113,19 @@ function GetBeacons(centerX, centerY) {
 function addButtonListeners(centerX, centerY, ctx) {
     document.getElementById('button-left').onclick = function() {
         centerX = centerX - delta;
-        RenderFullMap(centerX, centerY, ctx);
+        renderFullMap(centerX, centerY, ctx);
     };
     document.getElementById('button-up').onclick = function() {
         centerY = centerY - delta;
-        RenderFullMap(centerX, centerY, ctx);
+        renderFullMap(centerX, centerY, ctx);
     };
     document.getElementById('button-right').onclick = function() {
         centerX = centerX + delta;
-        RenderFullMap(centerX, centerY, ctx);
+        renderFullMap(centerX, centerY, ctx);
     };
     document.getElementById('button-down').onclick = function() {
         centerY = centerY + delta;
-        RenderFullMap(centerX, centerY, ctx);
+        renderFullMap(centerX, centerY, ctx);
     };
 }
 
@@ -135,9 +135,8 @@ function init(centerXStr, centerYStr){
 
 	var ctx = document.getElementById('canvas').getContext("2d");
 
-	RenderFullMap(centerX, centerY, ctx);
+	renderFullMap(centerX, centerY, ctx);
     addButtonListeners(centerX, centerY, ctx);
 
-//	let map = GenerateMap(width/2, height/2);
-//	PrintMap(map, ctx);
+
 }
