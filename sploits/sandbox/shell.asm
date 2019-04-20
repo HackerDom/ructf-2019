@@ -1,10 +1,11 @@
 [SECTION .text]
 global _start
 _start:
-		sub rsp, 0x8
- 		mov rbx, [rel $ + 0x2013d8]
- 		mov rax, 0x13F150
- 		sub rbx, rax
+		sub rsp, 0x10
+		push rbx
+ 		mov rbx, [rel $ + 0x2013cb]
+ 		sub rbx, 0x13F150
  		call rbx
- 		add rsp, 0x8
+ 		pop rbx
+ 		add rsp, 0x10
  		ret
