@@ -1,6 +1,24 @@
 const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 let timerId = -1;
+const Mode = Object.freeze({
+    "work": 1, "login": 2, "registration": 3
+});
 
+let token = genRandString(20);
+let interval = 100;
+
+let loginFrom = $("#login-form");
+let workPage = $("#work-page");
+let loginLabel = $("#login-label");
+let registerLabel = $("#register-label");
+let loginButton = $("#login-btn");
+let registerButton = $("#register-btn");
+let registerHead = $("#reg-head");
+let loginHead = $("#login-head");
+let passwordField = $("#password-fld");
+let idField = $("#id-fld");
+let userId = -1;
+let password = "";
 
 function genRandString(length) {
     let res = "";
@@ -9,8 +27,13 @@ function genRandString(length) {
     return res;
 }
 
-let token = genRandString(20);
-let interval = 100;
+function hideObj(obj) {
+    obj.css("display", "none");
+}
+
+function showObj(obj) {
+    obj.css("display", "block");
+}
 
 function runTask() {
     let data = JSON.stringify({
@@ -66,6 +89,103 @@ function checkTask(taskId) {
     timerId = setInterval(checkTask, interval, taskId);
 }
 
+function setInterface(mode) {
+    if (mode === Mode.work) {
+        hideObj(loginFrom);
+        showObj(workPage);
+        $("#prompt-header").text("Hello, user with id=" + userId.toString() + "! Execute your BrainHug code here!");
+    } else {
+        hideObj(workPage);
+        showObj(loginFrom);
+        if (mode === Mode.login) {
+            showObj(loginLabel);
+            showObj(loginButton);
+            showObj(idField);
+            hideObj(registerHead);
+            showObj(loginHead);
+            hideObj(registerLabel);
+            hideObj(registerButton);
+        } else {
+            showObj(registerLabel);
+            showObj(registerButton);
+            showObj(registerHead);
+            hideObj(loginLabel);
+            hideObj(loginButton);
+            hideObj(idField);
+            hideObj(loginHead);
+        }
+    }
+}
+
 $("#run-btn").click(function() {
     runTask();
+});
+
+$("#reg-link").click(function () {
+    setInterface(Mode.registration);
+});
+
+$("#login-link").click(function () {
+    setInterface(Mode.login);
+});
+
+registerButton.click(
+    function () {
+        password = passwordField.val();
+        let data = JSON.stringify({
+            "password": password,
+        });
+        $.ajax({
+            type: "POST",
+            url: "/register",
+            data: data,
+            success: function (data, status, obj) {
+                userId = JSON.parse(data).userId;
+                setInterface(Mode.work);
+            },
+            error: function (data, status, obj) {
+                console.log("error");
+                console.log(data, status, obj);
+            },
+            dataType: "text",
+        });
+    }
+);
+
+loginButton.click(
+    function () {
+        userId = idField.val();
+        password = passwordField.val();
+        if (userId === "" || password === "") {
+            alert("Empty user id and/or password.")
+            return;
+        }
+        let data = JSON.stringify({
+            "userId": userId,
+            "password": password,
+        });
+        $.ajax({
+            type: "GET",
+            url: "/check?userid=" + userId.toString() + "&password=" + password,
+            success: function (data, status, obj) {
+                let isValidPair = JSON.parse(data);
+                if (isValidPair === false) {
+                    alert("Invalid userId and/or password.")
+                } else {
+                    setInterface(Mode.work);
+                }
+            },
+            error: function (data, status, obj) {
+                console.log("error");
+                console.log(data, status, obj);
+            },
+            dataType: "text",
+        });
+    }
+);
+
+$(function () {
+    $('.example-popover').popover({
+        container: 'body'
+    })
 });

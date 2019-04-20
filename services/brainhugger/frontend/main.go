@@ -14,6 +14,9 @@ const configPath = "config"
 var config *Config
 
 func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
+	if request.URL.Path == "/" {
+		http.Redirect(writer, request, "/static/html", 301)
+	}
 	splitted := strings.Split(request.URL.Path, "/")
 	if len(splitted) > 1 {
 		if _, has := staticSubdirs[splitted[1]]; !has {

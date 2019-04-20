@@ -89,7 +89,6 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func handleRegUser(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -112,6 +111,24 @@ func handleRegUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleCheckUserPair(w http.ResponseWriter, r *http.Request) {
+	rawUserId := r.URL.Query().Get("userid")
+	password := r.URL.Query().Get("password")
+	if rawUserId == "" || password == "" {
+		w.WriteHeader(403)
+		return
+	}
+	userId, err := strconv.ParseUint(rawUserId, 10, 64)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	ok := usersManager.ValidateUserPassword(uint(userId), password)
+	if _, err := w.Write([]byte(strconv.FormatBool(ok))); err != nil {
+		panic(err)
+	}
+}
+
 func main() {
 	config, err := ParseConfig(configPath)
 	if err != nil {
@@ -124,5 +141,6 @@ func main() {
 	http.HandleFunc("/run_task", handleRunTask)
 	http.HandleFunc("/task_info/", handleTaskInfo)
 	http.HandleFunc("/register", handleRegUser)
+	http.HandleFunc("/check", handleCheckUserPair)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort), nil))
 }
