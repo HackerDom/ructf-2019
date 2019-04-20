@@ -271,15 +271,17 @@ const Unit* Units::GetUnit(const UUID& uuid)
 }
 
 
-void Units::AddPendingUnits()
+uint32_t Units::AddPendingUnits()
 {
 	m_flushStorage = !m_unitsToAdd.empty();
 
+	uint32_t ret = 0;
 	for (auto& u : m_unitsToAdd)
 	{
 		u.unit.index = m_units.size();
 		m_uuidToIdx[u.uuid] = u.unit.index;
 		m_units.push_back(u.unit);
+		ret++;
 	}
 	m_unitsToAdd.clear();
 
@@ -287,6 +289,8 @@ void Units::AddPendingUnits()
 		printf("Number of units: %u\n", m_units.size());
 
 	m_condVar.notify_one();
+
+	return ret;
 }
 
 
@@ -299,12 +303,16 @@ void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 		std::lock_guard<std::mutex> lck (m_mutex);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-		if(m_units.size())
-			glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+		//if(m_units.size())
+		//	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
 
-		AddPendingUnits();
-		if (m_units.size())
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+		uint32_t unitsAdded = AddPendingUnits();
+		if (unitsAdded)
+		{
+			uint32_t offset = m_units.size() - unitsAdded;
+			void* ptr = (void*)(m_units.data() + offset);
+			glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset * sizeof(Unit), unitsAdded * sizeof(Unit), ptr);
+		}
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
