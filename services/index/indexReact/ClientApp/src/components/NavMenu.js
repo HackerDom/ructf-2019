@@ -7,10 +7,6 @@ import { bindActionCreators } from 'redux';
 import { actionCreators } from '../store/User';
 
 class NavMenu extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
     logOut(props) {
         return async e => {
             e.preventDefault();
@@ -32,6 +28,9 @@ class NavMenu extends React.Component {
                     <Container>
                         <NavbarBrand tag={Link} to="/">index</NavbarBrand>
                         <Nav className="ml-auto" navbar>
+                            {isLoggedIn && <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/upload">Upload file</NavLink>
+                            </NavItem>}
                             <NavItem>
                                 {!isLoggedIn
                                     ? <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>

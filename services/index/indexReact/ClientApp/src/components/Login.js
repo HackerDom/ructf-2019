@@ -15,26 +15,24 @@ class Login extends React.Component {
         };
 
         this.handleChange = this.handleChange.bind(this);
+        this.submitForm = this.submitForm.bind(this);
     }
 
-    submitForm(props) {
-        return e => {
-            e.preventDefault();
-            const form = new FormData(document.getElementById('loginForm'));
-            this.setState({ error: null });
-            fetch('api/users/register', {
-                method: 'POST',
-                body: form
-            }).then(resp => {
-                if (!resp.ok)
-                    throw resp;
-            }).then(_ => {
-                props.history.push('/');
-                props.fetchUser();
-            }).catch(_ => this.setState({ error: "User already exists" })
-            );
-        };
-    }
+    submitForm(e) {
+        e.preventDefault();
+        const form = new FormData(document.getElementById('loginForm'));
+        this.setState({ error: null });
+        fetch('api/users/register', {
+            method: 'POST',
+            body: form
+        }).then(resp => {
+            if (!resp.ok)
+                throw resp;
+        }).then(_ => {
+            this.props.history.push('/');
+            this.props.fetchUser();
+        }).catch(_ => this.setState({ error: "User already exists" }));
+    };
 
     handleChange = async (event) => {
         const { target } = event;
