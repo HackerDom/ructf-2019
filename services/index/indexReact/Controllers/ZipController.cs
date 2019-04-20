@@ -22,6 +22,8 @@ namespace indexReact.Controllers
             if (file.FileName.Contains("/"))
                 return Json(new { error = "no slashes in file name" });
 
+
+
             return StatusCode(202);
         }
     }

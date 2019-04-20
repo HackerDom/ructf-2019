@@ -18,7 +18,7 @@ namespace indexReact.db
     {
         private readonly IMongoCollection<T> entities;
 
-        public ServiceBase(IConfiguration config, string dbCollection)
+        protected ServiceBase(IConfiguration config, string dbCollection)
         {
             var client = new MongoClient(config.GetConnectionString("mongo"));
             var database = client.GetDatabase("indexDb");
@@ -41,6 +41,13 @@ namespace indexReact.db
         public void Remove(T entityIn) => entities.DeleteOne(entity => entity.Id == entityIn.Id);
 
         public void Remove(string id) => entities.DeleteOne(entity => entity.Id == id);
+    }
+
+    class NodesService : ServiceBase<Node>
+    {
+        public NodesService(IConfiguration config, string dbCollection) : base(config, "nodes")
+        {
+        }
     }
 
     public class UserService : ServiceBase<User>
