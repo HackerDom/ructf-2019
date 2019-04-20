@@ -157,7 +157,7 @@ loginButton.click(
         userId = idField.val();
         password = passwordField.val();
         if (userId === "" || password === "") {
-            alert("Empty user id and/or password.")
+            alert("Empty user id and/or password.");
             return;
         }
         let data = JSON.stringify({
