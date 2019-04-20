@@ -40,6 +40,7 @@ function runTask() {
         "source": $("#src-fld").val(),
         "stdin": $("#stdin-fld").val(),
         "token": token,
+        "ownerId": userId,
     });
     $("#noTrespassingOuterBarG").css("display", "block");
     $.ajax({
@@ -66,7 +67,7 @@ function runTask() {
 function checkTask(taskId) {
     $.ajax({
         type: "GET",
-        url: "/task_info/" + taskId.toString() + "?token=" + token,
+        url: "/task_info/" + taskId.toString() + "?token=" + token + "&ownerid=" + userId.toString() + "&password=" + password,
         success: function (data, status, obj) {
             let task = JSON.parse(data);
             if (task.Status === 0) {
@@ -143,7 +144,7 @@ registerButton.click(
             url: "/register",
             data: data,
             success: function (data, status, obj) {
-                userId = JSON.parse(data).userId;
+                userId = parseInt(JSON.parse(data).userId);
                 setInterface(Mode.work);
             },
             error: function (data, status, obj) {
@@ -157,7 +158,7 @@ registerButton.click(
 
 loginButton.click(
     function () {
-        userId = idField.val();
+        userId = parseInt(idField.val());
         password = passwordField.val();
         if (userId === "" || password === "") {
             alert("Empty user id and/or password.");

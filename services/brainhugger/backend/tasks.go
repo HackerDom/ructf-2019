@@ -6,7 +6,6 @@ import (
 	"errors"
 	"brainhugger/backend/bhexecutor"
 	"brainhugger/backend/storage"
-	"fmt"
 	"log"
 )
 
@@ -87,7 +86,6 @@ func (tm *TasksManager) ProcessTask(taskId uint, source, token string, stdin []b
 	}
 	tm.SaveTask(taskId, &task)
 	stdout, err := tm.ExecuteTask(source, stdin)
-	fmt.Println("err: ", err)
 	if err != nil {
 		task.Status = ERROR
 		task.Result.Error = err.Error()

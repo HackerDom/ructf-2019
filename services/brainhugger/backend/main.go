@@ -17,6 +17,7 @@ type NewTask struct {
 	Source string
 	Stdin string
 	Token string
+	OwnerId uint
 }
 
 type NewUser struct {
@@ -41,7 +42,7 @@ func handleRunTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	taskId := taskManager.AddTask(newTask.Source, newTask.Token, []byte(newTask.Stdin), 0)
+	taskId := taskManager.AddTask(newTask.Source, newTask.Token, []byte(newTask.Stdin), newTask.OwnerId)
 	if _, err := w.Write([]byte(fmt.Sprintf("{\"taskId\": %v}", taskId))); err != nil {
 		panic(err)
 	}
@@ -64,15 +65,21 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token := r.URL.Query().Get("token")
-	if token == "" {
+	rawOwnerId := r.URL.Query().Get("ownerid")
+	password := r.URL.Query().Get("password")
+	if token == "" || rawOwnerId == "" || password == "" {
 		w.WriteHeader(403)
 		return
 	}
-	if task.Token != token {
+	ownerId, err := strconv.ParseUint(rawOwnerId, 10, 64)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	if task.Token != token || task.OwnerId != uint(ownerId) || !usersManager.ValidateUserPassword(uint(ownerId), password) {
 		w.WriteHeader(403)
 		return
 	}
-	fmt.Println("task: ", task)
 	taskResponse := TaskResponse{
 		Stdout: task.Result.Stdout,
 		Error:  task.Result.Error,
