@@ -33,6 +33,8 @@ namespace indexReact
 
             services.AddSingleton<IServiceBase<User>, UserService>();
             services.AddSingleton<IServiceBase<Node>, NodesService>();
+            services.AddSingleton<IServiceBase<IndexEntity>, IndexEntityService>();
+
             services.AddSingleton<IIndexHelper, IndexHelper>();
         }
 
