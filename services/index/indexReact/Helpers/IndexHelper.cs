@@ -11,7 +11,7 @@ namespace indexReact.Helpers
     public interface IIndexHelper
     {
         void AddToIndex(string user, IFormFile zip);
-        List<string> FindFile(string fileName);
+        List<List<string>> FindFile(string fileName, string user);
     }
 
     public class IndexHelper : IIndexHelper
@@ -68,9 +68,28 @@ namespace indexReact.Helpers
             }
         }
 
-        public List<string> FindFile(string fileName)
+        public List<List<string>> FindFile(string fileName, string user)
         {
-            throw new System.NotImplementedException();
+            var indexEntity = indexDb.Get(ie => ie.User == user);
+            if (indexEntity == null || !indexEntity.Hash.ContainsKey(fileName))
+                return null;
+
+            return indexEntity.Hash[fileName].Select(ListDir).Where(l => l != null).ToList();
+        }
+
+        private List<string> ListDir(string filePath)
+        {
+            var root = nodesDb.Get().First();
+            foreach (var node in Split(filePath).Skip(1))
+            {
+                var child = root.Children.FirstOrDefault(n => n.Name == node);
+                if (child == null)
+                    return null;
+
+                root = child;
+            }
+
+            return root.Children.Select(n => n.Name).ToList();
         }
 
         private void AddNodes(Node current, string filePath, string fileName)

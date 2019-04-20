@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using indexReact.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,8 +52,13 @@ namespace indexReact.Controllers
         {
             if (IsSessionValid())
                 return StatusCode(403);
+            Request.Cookies.TryGetValue(LoginKey, out var login);
 
-            return Json(indexHelper.FindFile(fileName));
+            var dirs = indexHelper.FindFile(fileName, login);
+            if (dirs == null || !dirs.Any())
+                ThrowError("Can't find anything");
+
+            return Json(dirs);
         }
     }
 }
