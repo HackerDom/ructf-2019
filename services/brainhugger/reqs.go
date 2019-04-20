@@ -11,8 +11,8 @@ import (
 
 type Task struct {
 	Source string
-	Stdin string
-	Token string
+	Stdin  string
+	Token  string
 }
 
 type User struct {
@@ -22,8 +22,8 @@ type User struct {
 func addNewTask(source, stdin, token string) []byte {
 	task := Task{
 		Source: source,
-		Stdin: stdin,
-		Token: token,
+		Stdin:  stdin,
+		Token:  token,
 	}
 	data, err := json.Marshal(task)
 	if err != nil {

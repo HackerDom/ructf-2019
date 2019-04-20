@@ -72,9 +72,10 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
+	fmt.Println("task: ", task)
 	taskResponse := TaskResponse{
 		Stdout: task.Result.Stdout,
-		Error: task.Result.Error,
+		Error:  task.Result.Error,
 		Status: task.Status,
 	}
 	rawTaskResponse, err := JsonMarshalWithoutEscaping(taskResponse)

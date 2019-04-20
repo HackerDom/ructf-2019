@@ -14,12 +14,13 @@ const unsigned int MAX_OUTPUT_LEN = 1024;
 const unsigned int MAX_OPERATION = 50000;
 
 static inline int disable_aslr() {
-  unsigned long pers_value = PER_LINUX | ADDR_NO_RANDOMIZE;
-  if (personality(pers_value) < 0) {
-    if (personality(pers_value) < 0)
-      return 1;
-  }
-  return 0;
+    unsigned long pers_value = PER_LINUX | ADDR_NO_RANDOMIZE;
+    if (personality(pers_value) < 0) {
+        if (personality(pers_value) < 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 struct Stack {
@@ -80,6 +81,17 @@ int skip(char* code, size_t code_size, int index) {
     }
     return 0;
 }
+
+const char* codes2errors[] = {
+    "OK",
+    "max output limit exceeded",
+    "max input limit exceeded",
+    "incorrect braces",
+    "incorrect braces",
+    "max operations limit exceeded",
+    "incorrect braces",
+    "memory error (it's very bad)"
+};
 
 int run_bh_code(char* code, int code_len, char* input, int input_len, char* output, int max_output_len, unsigned int max_operations, unsigned int* written_bytes) {
     int output_pointer = 0;
@@ -185,6 +197,7 @@ int main(int argc, char* argv[]) {
     unsigned int written_bytes;
     int ret_code = run_bh_code(code, code_len, input, input_len, output, MAX_OUTPUT_LEN, MAX_OPERATION, &written_bytes);
     if (ret_code) {
+        fprintf(stderr, "%s", codes2errors[ret_code]);
         return ret_code;
     }
     for (unsigned int i = 0; i < written_bytes; ++i) {

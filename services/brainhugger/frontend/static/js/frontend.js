@@ -68,9 +68,7 @@ function checkTask(taskId) {
         type: "GET",
         url: "/task_info/" + taskId.toString() + "?token=" + token,
         success: function (data, status, obj) {
-            console.log(":" + data);
             let task = JSON.parse(data);
-            console.log(task);
             if (task.Status === 0) {
                 $("#stdout-div").css("display", "block");
                 $("#stdout-out-fld").text(task.Stdout);
@@ -79,6 +77,7 @@ function checkTask(taskId) {
             } else if (task.Status === 2) {
                 $("#error-out-fld").text("Executing error: " + task.Error);
                 $("#error-div").css("display", "block");
+                $("#noTrespassingOuterBarG").css("display", "none");
                 clearInterval(timerId);
             }
         },
