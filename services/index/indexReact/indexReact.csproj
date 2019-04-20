@@ -25,6 +25,7 @@
 		<Content Remove="$(SpaRoot)**" />
 		<Content Include="ClientApp\public\favicon.png" />
 		<Content Include="ClientApp\src\components\Login.js" />
+		<Content Include="ClientApp\src\components\Upload.js" />
 		<None Remove="$(SpaRoot)**" />
 		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
 		<None Include="ClientApp\src\store\User.js" />

@@ -8,8 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace indexReact.Controllers
 {
-    [Route("api/[controller]")]
-    public class UsersController : Controller
+    public class UsersController : ControllerBase
     {
         private readonly IServiceBase<User> userDb;
 
@@ -21,11 +20,10 @@ namespace indexReact.Controllers
         [HttpGet("validate")]
         public JsonResult ValidateSession()
         {
-            if (!Request.Cookies.TryGetValue("sid", out var sid) ||
-                !Request.Cookies.TryGetValue("login", out var login) ||
-                !SessionManager.ValidateSession(login, sid))
+            if (IsSessionValid())
                 return Json(null);
 
+            Request.Cookies.TryGetValue("login", out var login);
             return Json(login);
         }
 
