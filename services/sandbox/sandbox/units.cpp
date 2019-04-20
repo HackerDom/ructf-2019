@@ -233,9 +233,9 @@ Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 		return kAddAlreadyExists;
 	}
 
-	std::default_random_engine e;
-	std::uniform_real_distribution<> dis(0.1, 1.0);
-	std::uniform_real_distribution<> disPos(-16.0, 16.0);
+	static std::default_random_engine e;
+	static std::uniform_real_distribution<> dis(0.1, 1.0);
+	static std::uniform_real_distribution<> disPos(-16.0, 16.0);
 
 	Unit u;
 	memcpy(u.mind, mind, 32);
