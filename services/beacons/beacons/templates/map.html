@@ -8,14 +8,24 @@
 </head>
 <body onload="init({{center_x}}, {{center_y}})">
     <nav></nav>
-    <main class="container">
+    <main class="container main">
         <div id="error" class="row error"></div>
         <div class="row">
             <div class="col sidebar">
               Это типа страничка с квестами
             </div>
-            <div class="col-md-auto map" id="map">
-              <canvas id="canvas" width="1000" height="600"></canvas>
+            <div class="col-md-auto map container" id="map">
+                <div class="row">
+                    <div id="button-up" class="col horizontal-button">&#9650;</div>
+                </div>
+                <div class="row">
+                    <div id="button-left" class="col vertical-button">&#9668;</div>
+                    <canvas id="canvas" width="1000" height="600"></canvas>
+                    <div id="button-right" class="col vertical-button">&#9658;</div>
+                </div>
+                <div class="row">
+                    <div id="button-down" class="col horizontal-button">&#9660;</div>
+                </div>
             </div>
         </div>
     </main>

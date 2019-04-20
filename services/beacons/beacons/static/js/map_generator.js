@@ -6,6 +6,7 @@ const width = 50;
 const freq = 0.1;
 const exponent = 2;
 const size = 20;
+const delta = 10;
 
 function GenerateMap(centerX, centerY) {
 	let gen = new SimplexNoise('fkjwes');//ololol
@@ -109,6 +110,25 @@ function GetBeacons(centerX, centerY) {
     }
 }
 
+function addButtonListeners(centerX, centerY, ctx) {
+    document.getElementById('button-left').onclick = function() {
+        centerX = centerX - delta;
+        RenderFullMap(centerX, centerY, ctx);
+    };
+    document.getElementById('button-up').onclick = function() {
+        centerY = centerY - delta;
+        RenderFullMap(centerX, centerY, ctx);
+    };
+    document.getElementById('button-right').onclick = function() {
+        centerX = centerX + delta;
+        RenderFullMap(centerX, centerY, ctx);
+    };
+    document.getElementById('button-down').onclick = function() {
+        centerY = centerY + delta;
+        RenderFullMap(centerX, centerY, ctx);
+    };
+}
+
 function init(centerXStr, centerYStr){
     let centerX = parseInt(centerXStr);
     let centerY = parseInt(centerYStr);
@@ -116,6 +136,7 @@ function init(centerXStr, centerYStr){
 	var ctx = document.getElementById('canvas').getContext("2d");
 
 	RenderFullMap(centerX, centerY, ctx);
+    addButtonListeners(centerX, centerY, ctx);
 
 //	let map = GenerateMap(width/2, height/2);
 //	PrintMap(map, ctx);
