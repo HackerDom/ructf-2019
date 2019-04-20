@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using indexReact.db.Models;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
@@ -9,6 +11,7 @@ namespace indexReact.db.Services
     {
         List<T> Get();
         T Get(string id);
+        T Get(Expression<Func<T, bool>> selector);
         T Create(T entity);
         void Update(string id, T entityIn);
         void Remove(T entityIn);
@@ -30,6 +33,7 @@ namespace indexReact.db.Services
         public List<T> Get() => entities.Find(_ => true).ToList();
 
         public T Get(string id) => entities.Find(e => e.Id == id).FirstOrDefault();
+        public T Get(Expression<Func<T, bool>> selector) => entities.Find(selector).FirstOrDefault();
 
         public T Create(T entity)
         {

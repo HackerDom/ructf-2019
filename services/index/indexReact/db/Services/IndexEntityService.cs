@@ -5,7 +5,7 @@ namespace indexReact.db.Services
 {
     public class IndexEntityService : ServiceBase<IndexEntity>
     {
-        protected IndexEntityService(IConfiguration config) : base(config, "index")
+        public IndexEntityService(IConfiguration config) : base(config, "index")
         {
         }
     }

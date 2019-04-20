@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
 
 namespace indexReact.db.Models
 {
@@ -13,7 +14,13 @@ namespace indexReact.db.Models
         [BsonElement("User")]
         public string User { get; set; }
 
-        [BsonElement("Hash")]
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
         public Dictionary<string, List<string>> Hash { get; set; }
+
+        public IndexEntity(string user)
+        {
+            User = user;
+            Hash = new Dictionary<string, List<string>>();
+        }
     }
 }

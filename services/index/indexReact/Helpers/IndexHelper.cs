@@ -17,24 +17,27 @@ namespace indexReact.Helpers
     {
         private const long MaxSize = 1024 * 1024 * 4;
         private const string IndexRoot = "index";
-        private readonly IServiceBase<Node> db;
+        private readonly IServiceBase<Node> nodesDb;
+        private readonly IServiceBase<IndexEntity> indexDb;
         private readonly string cwd;
 
-        public IndexHelper(IServiceBase<Node> db)
+        public IndexHelper(IServiceBase<Node> nodesDb, IServiceBase<IndexEntity> indexDb)
         {
             cwd = Directory.GetCurrentDirectory();
-            this.db = db;
+            this.nodesDb = nodesDb;
+            this.indexDb = indexDb;
             Init();
         }
 
         private void Init()
         {
-            var nodes = db.Get();
+            var nodes = nodesDb.Get();
             if (!nodes.Any() || nodes.Count > 1 || nodes[0].Name != IndexRoot)
             {
-                db.RemoveAll();
+                nodesDb.RemoveAll();
+                indexDb.RemoveAll();
 
-                db.Create(new Node(IndexRoot));
+                nodesDb.Create(new Node(IndexRoot));
             }
         }
 
@@ -42,10 +45,13 @@ namespace indexReact.Helpers
         {
             using (var fileStream = zip.OpenReadStream())
             {
-                var root = db.Get().First();
+                var root = nodesDb.Get().First();
                 var files = Unzip(fileStream);
                 foreach (var (fileName, fullName) in files)
                 {
+                    if (string.IsNullOrEmpty(fileName))
+                        continue;
+
                     var filePath = Path.GetFullPath(
                             Path.Join(
                                 Path.Join(IndexRoot, user),
@@ -53,14 +59,15 @@ namespace indexReact.Helpers
                                 fullName))
                         .Replace($"{cwd}{Path.DirectorySeparatorChar}", "");
                     var current = root;
-                    AddInternal(current, filePath, fileName);
+                    AddNodes(current, filePath, fileName);
+                    AddIndex(filePath, fileName, user);
                 }
 
-                db.Update(root.Id, root);
+                nodesDb.Update(root.Id, root);
             }
         }
 
-        private void AddInternal(Node current, string filePath, string fileName)
+        private void AddNodes(Node current, string filePath, string fileName)
         {
             if (!filePath.StartsWith(IndexRoot))
                 throw new IndexImportException($"wrong file name {fileName}");
@@ -81,7 +88,21 @@ namespace indexReact.Helpers
             }
         }
 
-        private List<string> Split(string path)
+        private void AddIndex(string filePath, string fileName, string user)
+        {
+            var indexEntity = indexDb.Get(ie => ie.User == user) ?? new IndexEntity(user);
+            if(!indexEntity.Hash.ContainsKey(fileName))
+                indexEntity.Hash[fileName] = new List<string>();
+
+            indexEntity.Hash[fileName].Add(Path.GetDirectoryName(filePath));
+
+            if (indexEntity.Id != null)
+                indexDb.Update(indexEntity.Id, indexEntity);
+            else
+                indexDb.Create(indexEntity);
+        }
+
+        private static List<string> Split(string path)
         {
             var l = new List<string>();
             while (!string.IsNullOrEmpty(path))
