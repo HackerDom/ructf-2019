@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -9,7 +10,16 @@ namespace indexReact.db
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
 
+        [BsonElement("Name")]
+        public string Name { get; set; }
+
         [BsonElement("Children")]
-        public Node[] Children { get; set; }
+        public List<Node> Children { get; set; }
+
+        public Node(string name)
+        {
+            Name = name;
+            Children = new List<Node>();
+        }
     }
 }

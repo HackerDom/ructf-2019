@@ -1,4 +1,5 @@
 using indexReact.db;
+using indexReact.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,8 @@ namespace indexReact
                 });
 
             services.AddSingleton<IServiceBase<User>, UserService>();
+            services.AddSingleton<IServiceBase<Node>, NodesService>();
+            services.AddSingleton<IIndexHelper, IndexHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

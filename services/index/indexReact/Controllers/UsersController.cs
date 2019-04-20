@@ -23,7 +23,7 @@ namespace indexReact.Controllers
             if (IsSessionValid())
                 return Json(null);
 
-            Request.Cookies.TryGetValue("login", out var login);
+            Request.Cookies.TryGetValue(LoginKey, out var login);
             return Json(login);
         }
 
@@ -31,7 +31,7 @@ namespace indexReact.Controllers
         public ActionResult CreateUser()
         {
             var formCollection = Request.Form;
-            formCollection.TryGetValue("login", out var login);
+            formCollection.TryGetValue(LoginKey, out var login);
             formCollection.TryGetValue("pwd", out var password);
 
             var user = userDb.Get().FirstOrDefault(u => u.Login == login);
@@ -48,7 +48,7 @@ namespace indexReact.Controllers
 
             var sid = SessionManager.CreateSession(login);
             Response.Cookies.Append("sid", sid);
-            Response.Cookies.Append("login", login);
+            Response.Cookies.Append(LoginKey, login);
             return StatusCode(201);
         }
 
@@ -56,7 +56,7 @@ namespace indexReact.Controllers
         public void LogOut()
         {
             Response.Cookies.Delete("sid");
-            Response.Cookies.Delete("login");
+            Response.Cookies.Delete(LoginKey);
         }
 
         private static User Create(string login, string password)

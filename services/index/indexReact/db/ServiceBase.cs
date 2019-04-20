@@ -12,6 +12,7 @@ namespace indexReact.db
         void Update(string id, T entityIn);
         void Remove(T entityIn);
         void Remove(string id);
+        void RemoveAll();
     }
 
     public class ServiceBase<T> : IServiceBase<T> where T : IEntity
@@ -41,11 +42,12 @@ namespace indexReact.db
         public void Remove(T entityIn) => entities.DeleteOne(entity => entity.Id == entityIn.Id);
 
         public void Remove(string id) => entities.DeleteOne(entity => entity.Id == id);
+        public void RemoveAll() => entities.DeleteMany(_ => true);
     }
 
-    class NodesService : ServiceBase<Node>
+    public class NodesService : ServiceBase<Node>
     {
-        public NodesService(IConfiguration config, string dbCollection) : base(config, "nodes")
+        public NodesService(IConfiguration config) : base(config, "nodes")
         {
         }
     }
