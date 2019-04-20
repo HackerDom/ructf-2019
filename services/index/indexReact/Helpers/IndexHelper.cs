@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -19,7 +18,6 @@ namespace indexReact.Helpers
         private const string IndexRoot = "index";
         private readonly IServiceBase<Node> db;
         private readonly string cwd;
-
 
         public IndexHelper(IServiceBase<Node> db)
         {
@@ -99,19 +97,15 @@ namespace indexReact.Helpers
         {
             using (var zip = new ZipArchive(file, ZipArchiveMode.Read))
             {
+                if (zip.Entries.Count > 500)
+                    throw new IndexImportException("Too much entries in archive");
+
                 var totalLen = zip.Entries.Sum(e => e.Length);
                 if (totalLen > MaxSize)
-                    throw new IndexImportException("File too big");
+                    throw new IndexImportException("Zip too big");
 
                 return zip.Entries.Select(e => (e.Name, e.FullName)).ToArray();
             }
-        }
-    }
-
-    public class IndexImportException : Exception
-    {
-        public IndexImportException(string message) : base(message)
-        {
         }
     }
 }

@@ -14,5 +14,11 @@ namespace indexReact.Controllers
                    !Request.Cookies.TryGetValue("login", out var login) ||
                    !SessionManager.ValidateSession(login, sid);
         }
+
+        protected JsonResult ThrowError(string error)
+        {
+            Response.StatusCode = 400;
+            return Json(new { error });
+        }
     }
 }
