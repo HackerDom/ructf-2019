@@ -2,10 +2,10 @@ import React from 'react';
 import { Alert, Button, Col, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import './NavMenu.css';
 
-export default class Upload extends React.Component {
+export default class Search extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { file: null, error: null };
+        this.state = { fileName: "", error: null, data: null };
         this.handleChange = this.handleChange.bind(this);
         this.submitForm = this.submitForm.bind(this);
     }
@@ -13,38 +13,37 @@ export default class Upload extends React.Component {
     submitForm(e) {
         e.preventDefault();
         this.setState({ error: null });
-        const form = new FormData();
-        form.append('file', this.state.file);
-
-        fetch('api/files', {
-            method: 'POST',
-            body: form
+        fetch(`api/files?fileName=${this.state.fileName}`, {
+            method: 'GET',
         }).then(async resp => {
             if (!resp.ok)
                 if (resp.status === 403)
                     this.setState({ error: "Unauthorized" });
                 else
                     throw await resp.json();
+            this.setState({ data: await resp.json() });
         }).catch(json => this.setState({ error: json.error }));
     };
 
-    handleChange = e => this.setState({ file: e.target.files[0] });
+    handleChange = e => {
+        const { target } = e;
+        const { name } = target;
+        this.setState({
+            [name]: target.value,
+        });
+    };
 
     render() {
         return <Container>
-            <Col sm={3} md={{ size: 8, offset: 4 }}>
+            <Col sm={3} md={{ size: 8, offset: 2 }}>
+                <Alert color="light">search your file by name and list containing directory</Alert>
                 {this.state.error && <Col sm={5}><Alert color="danger">{this.state.error}</Alert></Col>}
                 <Form onSubmit={this.submitForm} id="uploadForm">
                     <FormGroup row>
-                        <Label for="file" sm={2}>Zip File</Label>
-                        <Col sm={9}>
-                            <Input type="file" name="file" id="file" onChange={this.handleChange} />
+                        <Col sm={8}>
+                            <Input type="text" placeholder="file name" name="fileName" id="fileName" onChange={this.handleChange} />
                         </Col>
-                    </FormGroup>
-                    <FormGroup check row>
-                        <Col sm={{ size: 20, offset: 3 }}>
-                            <Button>upload</Button>
-                        </Col>
+                        <Button>find</Button>
                     </FormGroup>
                 </Form>
             </Col>

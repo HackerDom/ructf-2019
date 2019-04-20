@@ -4,6 +4,7 @@ import Layout from './components/Layout';
 import Home from './components/Home';
 import FetchData from './components/FetchData';
 import Login from './components/Login';
+import Search from './components/Search';
 import Upload from './components/Upload';
 
 export default (props) => (
@@ -12,5 +13,6 @@ export default (props) => (
         <Route path='/fetch-data/:startDateIndex?' component={FetchData} />
         <Route path='/login' component={Login} />
         <Route path='/upload' component={Upload} />
+        <Route path='/search' component={Search} />
     </Layout>
 );

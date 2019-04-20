@@ -1,13 +1,14 @@
+using System;
 using indexReact.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace indexReact.Controllers
 {
-    public class ZipController : ControllerBase
+    public class FilesController : ControllerBase
     {
         private readonly IIndexHelper indexHelper;
 
-        public ZipController(IIndexHelper indexHelper)
+        public FilesController(IIndexHelper indexHelper)
         {
             this.indexHelper = indexHelper;
         }
@@ -37,8 +38,21 @@ namespace indexReact.Controllers
             {
                 return ThrowError(e.Message);
             }
+            catch (Exception)
+            {
+                return ThrowError("ooops");
+            }
 
             return StatusCode(202);
+        }
+
+        [HttpGet]
+        public ActionResult FindFile(string fileName)
+        {
+            if (IsSessionValid())
+                return StatusCode(403);
+
+            return Json(indexHelper.FindFile(fileName));
         }
     }
 }

@@ -11,6 +11,7 @@ namespace indexReact.Helpers
     public interface IIndexHelper
     {
         void AddToIndex(string user, IFormFile zip);
+        List<string> FindFile(string fileName);
     }
 
     public class IndexHelper : IIndexHelper
@@ -65,6 +66,11 @@ namespace indexReact.Helpers
 
                 nodesDb.Update(root.Id, root);
             }
+        }
+
+        public List<string> FindFile(string fileName)
+        {
+            throw new System.NotImplementedException();
         }
 
         private void AddNodes(Node current, string filePath, string fileName)
