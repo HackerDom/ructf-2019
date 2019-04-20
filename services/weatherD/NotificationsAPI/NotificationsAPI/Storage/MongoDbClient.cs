@@ -13,17 +13,16 @@ namespace NotificationsApi.Storage
 
 		private readonly IMongoDatabase authorizesUsersDatabase;
 
-
 		public MongoDbClient()
         {
 			var client = new MongoClient(ConnectionString);
 			authorizesUsersDatabase = client.GetDatabase(SourceDataDbName);
 		}
 
-        public async Task InsertUser(string source, string token, string password)
+        public async Task InsertUser(string source, string token, string password, bool isPublic)
         {
             var collection = authorizesUsersDatabase.GetCollection<SourceShortedData>(SourceDataDbName);
-            var newData = new SourceShortedData(source, token, password);
+            var newData = new SourceShortedData(source, token, password, isPublic);
             await collection.InsertOneAsync(newData);
         }
 

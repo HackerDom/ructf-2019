@@ -25,10 +25,16 @@ namespace NotificationsApi.Handlers
 
         public async Task HandleAsync(NotificationApiRequest request)
         {
-	        var token = TokensGenerator.Generate(request);
-	        await mongoDbClient.InsertUser(request.SourceName, token, request.Password);
-			authorizer.Register(request.SourceName, token, request.Password);
-			sourceStorage.Add(request.SourceName);
+	        var token = request.IsPublic ? null : TokensGenerator.Generate(request);
+
+	        await mongoDbClient.InsertUser(request.SourceName, token, request.Password, request.IsPublic);
+
+	        if(request.IsPublic)
+		        authorizer.RegisterPublic(request.SourceName, request.Password);
+	        else
+		        authorizer.RegisterPrivate(request.SourceName, token, request.Password);
+
+	        sourceStorage.Add(request.SourceName);
 	        request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 			await request.HttpContext.Response.WriteAsync(token);
 	        await request.HttpContext.Response.Body.FlushAsync();

@@ -11,7 +11,7 @@ namespace NotificationsAPI.SSE
 			try
 			{
 				await httpContext.Response.Body.WriteAsync(message);
-				await httpContext.Response.WriteAsync("\n");
+				await httpContext.Response.WriteAsync("\n\n");
 				await httpContext.Response.Body.FlushAsync();
 			}
 			catch(Exception e)

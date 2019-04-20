@@ -11,11 +11,14 @@ namespace NotificationsApi.Requests
 		private const string MessageParamName = "message";
 		private const string TimeParamName = "time";
 		private const string PasswordParamName = "password";
+		private const string IsPublicParamName = "isPublic";
+
 		public byte[] Message { get; private set; }
 		public string SourceName { get; private set; }
 		public string Password { get; private set; }
 		public string Token { get; private set; }
 		public long Time { get; private set; }
+		public bool IsPublic { get; private set; }
 		public HttpContext HttpContext { get; private set; }
 
 		public static NotificationApiRequest CreateFromQueryCollection(IQueryCollection options, HttpContext context)
@@ -25,6 +28,7 @@ namespace NotificationsApi.Requests
 			string password = null;
 			byte[] message = null;
 			var time = 0L;
+			var isPublic = false;
 
 			if(options.ContainsKey(SourceParamName))
 				source = options[SourceParamName];
@@ -37,6 +41,9 @@ namespace NotificationsApi.Requests
 
 			if(options.ContainsKey(PasswordParamName))
 				password = options[PasswordParamName];
+
+			if(options.ContainsKey(IsPublicParamName))
+				isPublic = options[IsPublicParamName] == "true";
 
 			if(options.ContainsKey(MessageParamName))
 			{
@@ -54,7 +61,8 @@ namespace NotificationsApi.Requests
 				SourceName = source,
 				HttpContext = context,
 				Time = time,
-				Password = password
+				Password = password,
+				IsPublic = isPublic
 			};
 		}
 	}

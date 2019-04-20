@@ -11,14 +11,18 @@ namespace NotificationsApi.Documens
 		public string Token;
 	    [BsonElement]
 	    public string Password;
+		[BsonElement]
+	    public bool IsPublic;
 		[BsonRepresentation(BsonType.ObjectId)]
         public ObjectId Id;
-        public SourceShortedData(string source, string token, string password)
+
+        public SourceShortedData(string source, string token, string password, bool isPublic)
         {
             Id = ObjectId.GenerateNewId();
             Source = source;
             Token = token;
 	        Password = password;
+	        IsPublic = isPublic;
         }
     }
 }

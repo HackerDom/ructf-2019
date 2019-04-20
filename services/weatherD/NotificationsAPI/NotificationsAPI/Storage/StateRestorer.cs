@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NotificationsApi.Documens;
@@ -16,17 +15,18 @@ namespace NotificationsApi.Storage
 
         public async Task<(Authorizer, SourceStorage)> Restore()
         {
-	        var sourcesInfo = await client.GetAllUsers();
-	        var authorizerData = new Dictionary<string, (string token, string password)>();
+	        var authorizer = new Authorizer();
+			var sourcesInfo = await client.GetAllUsers();
 	        var sourceStorage = new SourceStorage();
+
 			foreach(var data in sourcesInfo)
 	        {
-				if(!authorizerData.ContainsKey(data.Source))
-				{
-					authorizerData.Add(data.Source, (data.Token, data.Password));
-					sourceStorage.Add(data.Source);
-				}
-	        }
+				if(data.IsPublic)
+					authorizer.RegisterPublic(data.Source, data.Password);
+				else
+					authorizer.RegisterPrivate(data.Source, data.Token, data.Password);
+				sourceStorage.Add(data.Source);
+			}
 
 	        var messageInfo = await client.GetAllMessages();
 	        var prouppingMessages = messageInfo.GroupBy(x => x.SourceName);
@@ -42,7 +42,7 @@ namespace NotificationsApi.Storage
 		        }
 	        }
 
-	        var authorizer = new Authorizer(authorizerData);
+
 	        return (authorizer, sourceStorage);
         }
 

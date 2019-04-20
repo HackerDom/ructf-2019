@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
@@ -28,7 +30,6 @@ namespace NotificationsAPI
 				Console.WriteLine(b.GetHashCode());
 
 				var options = b.Request.Query;
-
 				var notificationApiRequest = NotificationApiRequest.CreateFromQueryCollection(options, b);
 				var method = b.Request.Method == "GET" ? HttpMethod.Get : HttpMethod.Post; 
 				Console.WriteLine(b.Request.Method);

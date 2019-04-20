@@ -32,7 +32,6 @@ namespace NotificationsAPI
 
 		static void Main(string[] args)
 		{
-			var a = Encoding.UTF8.GetBytes("message");
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 			var log = log4net.LogManager.GetLogger(typeof(Program));
@@ -49,9 +48,9 @@ namespace NotificationsAPI
 
 			var expDaemon = new ExpirationDaemon(sourceStorage);
 
-			handlerMapper.Add("/addUserInfo", HttpMethod.Get, addUserInfoHandler);
+			handlerMapper.Add("/addUserInfo", HttpMethod.Post, addUserInfoHandler);
 			handlerMapper.Add("/subscribe", HttpMethod.Get, new SubscribeOnSourceHandler(subscriber));
-			handlerMapper.Add("/sendMessage", HttpMethod.Get, sendMessageHandler);
+			handlerMapper.Add("/sendMessage", HttpMethod.Post, sendMessageHandler);
 
 			var routingHandler = new RoutingHandler(handlerMapper, log);
 

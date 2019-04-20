@@ -19,16 +19,16 @@ namespace NotificationsApi.Handlers
 			request.HttpContext.Response.Headers.Add("Keep-alive", "true");
 			request.HttpContext.Response.ContentType = "text/event-stream";
 
-			if(await subscriber.Subscribe(request.SourceName, request.Token, request.HttpContext))
+			if(!(await subscriber.Subscribe(request.SourceName, request.Token, request.HttpContext)))
 			{
-				//request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
-			}
-			else
 				request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+				return;
+			}			
 
 			var cts = new TaskCompletionSource<byte>();
 			request.HttpContext.RequestAborted.Register(() => cts.TrySetResult(1));
 			await cts.Task;
+			request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 		}
 	}
 }
