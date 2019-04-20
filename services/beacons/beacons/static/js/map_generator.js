@@ -81,7 +81,6 @@ function renderMap(map, ctx) {
 }
 
 function renderBeacons(beacons, centerX, centerY, ctx) {
-    let map = document.getElementById('map');
     let canvas = document.getElementById('canvas');
     beacons.forEach(function(beacon) {
         let coords = shiftCoords(centerX, centerY, width/2, height/2, beacon.coord_x, beacon.coord_y);
@@ -96,6 +95,7 @@ function renderFullMap(centerX, centerY, ctx) {
     renderMap(map, ctx);
     let beacons = getBeacons(centerX, centerY);
     renderBeacons(beacons, centerX, centerY, ctx);
+    return beacons;
 }
 
 function getBeacons(centerX, centerY) {
@@ -110,23 +110,80 @@ function getBeacons(centerX, centerY) {
     }
 }
 
-function addButtonListeners(centerX, centerY, ctx) {
+function addButtonListeners(centerCoords, beacons, ctx) {
     document.getElementById('button-left').onclick = function() {
-        centerX = centerX - delta;
-        renderFullMap(centerX, centerY, ctx);
+        centerCoords[0] = centerCoords[0] - delta;
+        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
     };
     document.getElementById('button-up').onclick = function() {
-        centerY = centerY - delta;
-        renderFullMap(centerX, centerY, ctx);
+        centerCoords[1] = centerCoords[1] - delta;
+        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
     };
     document.getElementById('button-right').onclick = function() {
-        centerX = centerX + delta;
-        renderFullMap(centerX, centerY, ctx);
+        centerCoords[0] = centerCoords[0] + delta;
+        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
     };
     document.getElementById('button-down').onclick = function() {
-        centerY = centerY + delta;
-        renderFullMap(centerX, centerY, ctx);
+        centerCoords[1] = centerCoords[1] + delta;
+        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
     };
+}
+
+function div(val, by){
+    return (val - val % by) / by;
+}
+
+function getCoords(elem) {
+    var box = elem.getBoundingClientRect();
+
+    var body = document.body;
+    var docEl = document.documentElement;
+    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+
+    var clientTop = docEl.clientTop || body.clientTop || 0;
+    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+
+    var top = box.top + scrollTop - clientTop;
+    var left = box.left + scrollLeft - clientLeft;
+
+    return [top, left];
+}
+
+function addCanvasListener(centerCoords, beacons, ctx) {
+    let canvas = document.getElementById('canvas');
+    let canvasCoords = getCoords(canvas);
+
+    canvas.addEventListener('click', function(event) {
+        let clickedX = event.pageX - canvasCoords[1];
+        let clickedY = event.pageY - canvasCoords[0];
+
+        let x = div(clickedX, size);
+        let y = div(clickedY, size);
+
+        let selectedBeacons = beacons.filter(function(beacon) {
+            let beaconMapCoords = shiftCoords(centerCoords[0], centerCoords[1], width/2, height/2, beacon.coord_x, beacon.coord_y);
+            return beaconMapCoords[0] === x && beaconMapCoords[1] === y;
+        });
+
+        if (selectedBeacons.length > 0) {
+            ctx.fillStyle = "#D2691E";
+            ctx.fillRect(x*size,y*size,size,size);
+            viewBeacon(selectedBeacons[0]);
+        } else {
+            ctx.fillStyle = "#800000";
+            ctx.fillRect(x*size,y*size,size,size);
+            addBeacon(x, y, centerCoords)
+        }
+    });
+}
+
+function addBeacon(x, y, centerCoords) {
+    console.log("create beacon!")
+}
+
+function viewBeacon(beacon) {
+    console.log(beacon);
 }
 
 function init(centerXStr, centerYStr){
@@ -135,8 +192,9 @@ function init(centerXStr, centerYStr){
 
 	var ctx = document.getElementById('canvas').getContext("2d");
 
-	renderFullMap(centerX, centerY, ctx);
-    addButtonListeners(centerX, centerY, ctx);
-
+	let beacons = renderFullMap(centerX, centerY, ctx);
+	let centerCoords = [centerX, centerY];
+    addButtonListeners(centerCoords, beacons, ctx);
+    addCanvasListener(centerCoords, beacons, ctx)
 
 }
