@@ -23,7 +23,7 @@ function GenerateMap(centerX, centerY) {
     let elevationXIndex = 0;
     let elevationYIndex = 0;
     for (let y = startY; y < endY; y++) {
-        elevation[y] = [];
+        elevation[elevationYIndex] = [];
         for (let x = startX; x < endX; x++) {
             let nx = x/width - 0.5, ny = y/height - 0.5;
             // Можно поумножать на частоту (freq*nx, freq*ny)
@@ -40,7 +40,13 @@ function GenerateMap(centerX, centerY) {
 	return elevation
 }
 
-function PrintMap(map, ctx) {
+function ShiftCoords(centerX, centerY, newCenterX, newCenterY, x, y) {
+    let shiftedX = x - centerX + newCenterX;
+    let shiftedY = y - centerY + newCenterY;
+    return [shiftedX, shiftedY];
+}
+
+function RenderMap(map, ctx) {
     for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
 			let p = map[y][x];
@@ -73,9 +79,44 @@ function PrintMap(map, ctx) {
 	ctx.stroke();
 }
 
-function init(){
+function RenderBeacons(beacons, centerX, centerY, ctx) {
+    let map = document.getElementById('map');
+    let canvas = document.getElementById('canvas');
+    beacons.forEach(function(beacon) {
+        let coords = ShiftCoords(centerX, centerY, width/2, height/2, beacon.coord_x, beacon.coord_y);
+
+        ctx.fillStyle = "#C0C0C0";
+        ctx.fillRect(coords[0]*size,coords[1]*size,size,size);
+    });
+}
+
+function RenderFullMap(centerX, centerY, ctx) {
+    let map = GenerateMap(centerX, centerY);
+    RenderMap(map, ctx);
+    let beacons = GetBeacons(centerX, centerY);
+    RenderBeacons(beacons, centerX, centerY, ctx);
+}
+
+function GetBeacons(centerX, centerY) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/GetBeacons?center_coord_x=" + centerX + "&center_coord_y=" + centerY, false);
+    xhr.send();
+    if (xhr.status != 200) {
+        var elem = document.getElementById('error');
+        elem.innerHTML = "Could not get beacons. Try again.";
+    } else {
+        return JSON.parse(xhr.responseText)["beacons"];
+    }
+}
+
+function init(centerXStr, centerYStr){
+    let centerX = parseInt(centerXStr);
+    let centerY = parseInt(centerYStr);
+
 	var ctx = document.getElementById('canvas').getContext("2d");
 
-	let map = GenerateMap(width/2, height/2);
-	PrintMap(map, ctx);
+	RenderFullMap(centerX, centerY, ctx);
+
+//	let map = GenerateMap(width/2, height/2);
+//	PrintMap(map, ctx);
 }

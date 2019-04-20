@@ -6,15 +6,8 @@ from beacons.repositories.beacon import Beacon
 
 
 map_page = Blueprint("map_page", url_prefix="/")
-map_height = 400
-map_weight = 1000
-
-
-@map_page.route("/")
-@auth.login_required
-@jinja.template("map.html")
-def index(request):
-    return {"quests": ["name"]}
+map_height = 30
+map_weight = 50
 
 
 def parse_float(s):
@@ -25,6 +18,30 @@ def parse_float(s):
         return 0
     except:
         return 0
+
+
+def parse_int(s):
+    try:
+        d = int(s)
+        if d:
+            return d
+        return 0
+    except:
+        return 0
+
+
+@map_page.route("/")
+# @auth.login_required
+@jinja.template("map.html")
+def index(request):
+    center_x = 0
+    center_y = 0
+    if "center_x" in request.args:
+        center_x = parse_int(request.args["center_x"])
+    if "center_y" in request.args:
+        center_y = parse_int(request.args["center_y"])
+
+    return {"center_x": center_x, "center_y": center_y}
 
 
 def get_borders(center_coord_x, center_coord_y):
@@ -49,4 +66,4 @@ async def get_beacons(request):
 
     beacons = await get_beacons_in_area(*get_borders(center_coord_x, center_coord_y), request)
 
-    return json({"beacons": [beacon.name for beacon in beacons]})
+    return json({"beacons": [{"name": beacon.name, "coord_x": beacon.coord_x, "coord_y": beacon.coord_y} for beacon in beacons]})

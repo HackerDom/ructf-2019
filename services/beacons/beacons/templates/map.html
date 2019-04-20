@@ -6,15 +6,16 @@
     <meta charset="UTF-8">
     <title></title>
 </head>
-<body onload="init()">
+<body onload="init({{center_x}}, {{center_y}})">
     <nav></nav>
     <main class="container">
+        <div id="error" class="row error"></div>
         <div class="row">
             <div class="col sidebar">
               Это типа страничка с квестами
             </div>
-            <div class="col-md-auto map">
-              <canvas id="canvas" width="1000" height="1000"></canvas>
+            <div class="col-md-auto map" id="map">
+              <canvas id="canvas" width="1000" height="600"></canvas>
             </div>
         </div>
     </main>
