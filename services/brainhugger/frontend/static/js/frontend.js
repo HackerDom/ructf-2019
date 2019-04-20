@@ -131,6 +131,10 @@ $("#login-link").click(function () {
 registerButton.click(
     function () {
         password = passwordField.val();
+        if (password === "") {
+            alert("Password is empty!");
+            return;
+        }
         let data = JSON.stringify({
             "password": password,
         });
@@ -182,9 +186,3 @@ loginButton.click(
         });
     }
 );
-
-$(function () {
-    $('.example-popover').popover({
-        container: 'body'
-    })
-});
