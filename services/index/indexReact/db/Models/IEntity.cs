@@ -1,7 +1,7 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace indexReact.db
+namespace indexReact.db.Models
 {
     public interface IEntity
     {

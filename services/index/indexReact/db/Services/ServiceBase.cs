@@ -1,8 +1,9 @@
 using System.Collections.Generic;
+using indexReact.db.Models;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace indexReact.db
+namespace indexReact.db.Services
 {
     public interface IServiceBase<T> where T : IEntity
     {
@@ -43,19 +44,5 @@ namespace indexReact.db
 
         public void Remove(string id) => entities.DeleteOne(entity => entity.Id == id);
         public void RemoveAll() => entities.DeleteMany(_ => true);
-    }
-
-    public class NodesService : ServiceBase<Node>
-    {
-        public NodesService(IConfiguration config) : base(config, "nodes")
-        {
-        }
-    }
-
-    public class UserService : ServiceBase<User>
-    {
-        public UserService(IConfiguration config) : base(config, "users")
-        {
-        }
     }
 }

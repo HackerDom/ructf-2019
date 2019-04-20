@@ -2,7 +2,8 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using indexReact.db;
+using indexReact.db.Models;
+using indexReact.db.Services;
 using indexReact.Helpers;
 using Microsoft.AspNetCore.Mvc;
 

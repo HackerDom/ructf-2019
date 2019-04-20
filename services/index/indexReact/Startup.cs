@@ -1,4 +1,5 @@
-using indexReact.db;
+using indexReact.db.Models;
+using indexReact.db.Services;
 using indexReact.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

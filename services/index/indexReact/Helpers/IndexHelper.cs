@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using indexReact.db;
+using indexReact.db.Models;
+using indexReact.db.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace indexReact.Helpers
