@@ -1,10 +1,17 @@
 #include "units.h"
 #include "buildings.h"
+#include "thread_affinity.h"
 #include <random>
 
 
 void Units::FlushThread(Units* units)
 {
+	if(PinThreadToCore(2) != 0)
+	{
+		perror("PinThreadToCore");
+		return;
+	}
+
 	std::unique_lock<std::mutex> lock(units->m_mutex);
 
 	while(!units->m_stopFlushThread)

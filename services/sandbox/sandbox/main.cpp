@@ -8,6 +8,8 @@
 #include "buildings.h"
 #include "units.h"
 #include "interface.h"
+#include "thread_affinity.h"
+
 
 static void GlfwErrorCallback(int error, const char* description)
 {
@@ -167,6 +169,12 @@ int main()
 	setenv("DISPLAY", ":0", 0);
 #endif
 	srand(time(NULL));
+
+	if(PinThreadToCore(0) != 0)
+	{
+		perror("PinThreadToCore");
+		return 1;
+	}
 
 	InitInterface(InterfaceCallback);
 
