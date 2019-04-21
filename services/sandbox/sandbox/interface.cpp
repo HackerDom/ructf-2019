@@ -11,6 +11,8 @@
 #include <time.h>
 #include <poll.h>
 #include "interface.h"
+#include "thread_affinity.h"
+
 
 enum ESocketState
 {
@@ -21,6 +23,7 @@ enum ESocketState
 	kSocketStatesCount
 };
 
+
 struct Socket
 {
 	ESocketState state = kSocketStateWaitHeader;
@@ -29,6 +32,7 @@ struct Socket
 	uint32_t dataRead = 0;
 	time_t lastTouchTime = 0;
 };
+
 
 static TInterfaceCallback GCallback = nullptr;
 static std::thread GThread;
@@ -91,6 +95,12 @@ void ShutdownInterface()
 
 void NetworkThread()
 {
+	if(PinThreadToCore(1) != 0)
+	{
+		perror("PinThreadToCore");
+		return;
+	}
+
 	std::map<int, Socket> socketsMap;
 	std::vector<pollfd> pollFds;
 	std::vector<int> socketsToAdd;
