@@ -7,13 +7,25 @@ const freq = 0.1;
 const exponent = 2;
 const size = 20;
 const delta = 10;
+const stylesMap = {0: "#352D64", 1: "#6C2D6A", 2: "#933B92", 3: "#D35092", 4: "#EE82EE"};
+const beaconStyle = "#C0C0C0";
+const selectedBeaconStyle = "#D2691E";
+const selectedCellStyle = "#800000";
+let gen = undefined;
+
+function noise(nx, ny) {
+  return gen.noise2D(nx, ny) / 2 + 0.5;
+}
+
+function generateOneCell(x, y) {
+    let nx = x/width - 0.5, ny = y/height - 0.5;
+    // Можно поумножать на частоту (freq*nx, freq*ny)
+    let e = noise(nx, ny);
+    let exp = Math.pow(e, exponent);
+    return Math.round(exp * n);
+}
 
 function generateMap(centerX, centerY) {
-	let gen = new SimplexNoise('fkjwes');//ololol
-    function noise(nx, ny) {
-      return gen.noise2D(nx, ny) / 2 + 0.5;
-    }
-
     let startX = centerX - width / 2;
     let startY = centerY - height / 2;
 
@@ -26,12 +38,7 @@ function generateMap(centerX, centerY) {
     for (let y = startY; y < endY; y++) {
         elevation[elevationYIndex] = [];
         for (let x = startX; x < endX; x++) {
-            let nx = x/width - 0.5, ny = y/height - 0.5;
-            // Можно поумножать на частоту (freq*nx, freq*ny)
-            let e = noise(nx, ny);
-            let exp = Math.pow(e, exponent);
-            let a = Math.round(exp * n);
-            elevation[elevationYIndex][elevationXIndex] = a;
+            elevation[elevationYIndex][elevationXIndex] = generateOneCell(x, y);
             elevationXIndex++;
         }
         elevationYIndex++;
@@ -41,36 +48,28 @@ function generateMap(centerX, centerY) {
 	return elevation
 }
 
+function isBounded(centerX, centerY, x, y) {
+    return x >= centerX - width / 2 && x <= centerX + width / 2 &&
+           y >= centerY - height / 2 && y <= centerY + height / 2;
+}
+
 function shiftCoords(centerX, centerY, newCenterX, newCenterY, x, y) {
     let shiftedX = x - centerX + newCenterX;
     let shiftedY = y - centerY + newCenterY;
     return [shiftedX, shiftedY];
 }
 
+function renderRect(x, y, rectSize, style, ctx) {
+    ctx.fillStyle = style;
+    ctx.fillRect(x,y,rectSize,rectSize);
+}
+
 function renderMap(map, ctx) {
     for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
 			let p = map[y][x];
-			let style = "#352D64";
-			switch(p) {
-				case 0:
-					style = "#352D64";
-					break;
-				case 1:
-					style = "#6C2D6A";
-					break;
-				case 2:
-					style = "#933B92";
-					break;
-				case 3:
-					style = "#D35092";
-					break;
-				case 4:
-					style = "#EE82EE";
-					break;
-			}
-			ctx.fillStyle = style;
-			ctx.fillRect(x*size,y*size,size,size);
+			let style = stylesMap[p];
+			renderRect(x*size, y*size, size, style, ctx);
 
 			ctx.rect(x*size,y*size,size,size);
 		}
@@ -85,17 +84,45 @@ function renderBeacons(beacons, centerX, centerY, ctx) {
     beacons.forEach(function(beacon) {
         let coords = shiftCoords(centerX, centerY, width/2, height/2, beacon.coord_x, beacon.coord_y);
 
-        ctx.fillStyle = "#C0C0C0";
-        ctx.fillRect(coords[0]*size,coords[1]*size,size,size);
+        renderRect(coords[0]*size + 1, coords[1]*size + 1, size - 2, beaconStyle, ctx);
     });
 }
 
-function renderFullMap(centerX, centerY, ctx) {
-    let map = generateMap(centerX, centerY);
+function renderSelected(mapStateObject, ctx) {
+    if (mapStateObject["selected"] &&
+        isBounded(mapStateObject["centerX"], mapStateObject["centerY"],
+                  mapStateObject["selected"]["x"], mapStateObject["selected"]["y"])) {
+        let coords = shiftCoords(mapStateObject["centerX"], mapStateObject["centerY"],
+                                 width/2, height/2,
+                                 mapStateObject["selected"]["x"], mapStateObject["selected"]["y"]);
+        if (mapStateObject["selected"]["beacon"]) {
+            renderRect(coords[0]*size + 1, coords[1]*size + 1, size - 2, selectedBeaconStyle, ctx);
+            viewBeacon(mapStateObject["selected"]["beacon"]);
+        } else {
+            renderRect(coords[0]*size + 1, coords[1]*size + 1, size - 2, selectedCellStyle, ctx);
+            addBeacon(coords[0], coords[1], mapStateObject);
+        }
+    }
+}
+
+function undoSelected(mapStateObject, ctx) {
+    let x = mapStateObject["selected"]["x"];
+    let y = mapStateObject["selected"]["y"]
+    if (isBounded(mapStateObject["centerX"], mapStateObject["centerY"], x, y)) {
+        let style = mapStateObject["selected"]["beacon"] ? beaconStyle : stylesMap[generateOneCell(x, y)];
+        let coords = shiftCoords(mapStateObject["centerX"], mapStateObject["centerY"],
+                                 width/2, height/2, x, y);
+        renderRect(coords[0]*size+1, coords[1]*size+1, size-2, style, ctx);
+    }
+}
+
+function renderFullMap(mapStateObject, ctx) {
+    let map = generateMap(mapStateObject["centerX"], mapStateObject["centerY"]);
     renderMap(map, ctx);
-    let beacons = getBeacons(centerX, centerY);
-    renderBeacons(beacons, centerX, centerY, ctx);
-    return {"beacons": beacons};
+    let beacons = getBeacons(mapStateObject["centerX"], mapStateObject["centerY"]);
+    mapStateObject["beacons"] = beacons;
+    renderBeacons(beacons, mapStateObject["centerX"], mapStateObject["centerY"], ctx);
+    renderSelected(mapStateObject, ctx);
 }
 
 function getBeacons(centerX, centerY) {
@@ -110,22 +137,22 @@ function getBeacons(centerX, centerY) {
     }
 }
 
-function addButtonListeners(centerCoords, beacons, ctx) {
+function addButtonListeners(mapStateObject, ctx) {
     document.getElementById('button-left').onclick = function() {
-        centerCoords[0] = centerCoords[0] - delta;
-        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
+        mapStateObject["centerX"] = mapStateObject["centerX"] - delta;
+        renderFullMap(mapStateObject, ctx);
     };
     document.getElementById('button-up').onclick = function() {
-        centerCoords[1] = centerCoords[1] - delta;
-        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
+        mapStateObject["centerY"] = mapStateObject["centerY"] - delta;
+        renderFullMap(mapStateObject, ctx);
     };
     document.getElementById('button-right').onclick = function() {
-        centerCoords[0] = centerCoords[0] + delta;
-        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
+        mapStateObject["centerX"] = mapStateObject["centerX"] + delta;
+        renderFullMap(mapStateObject, ctx);
     };
     document.getElementById('button-down').onclick = function() {
-        centerCoords[1] = centerCoords[1] + delta;
-        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
+        mapStateObject["centerY"] = mapStateObject["centerY"] + delta;
+        renderFullMap(mapStateObject, ctx);
     };
 }
 
@@ -150,7 +177,7 @@ function getCoords(elem) {
     return [top, left];
 }
 
-function addCanvasListener(centerCoords, beacons, ctx) {
+function addCanvasListener(mapStateObject, ctx) {
     let canvas = document.getElementById('canvas');
     let canvasCoords = getCoords(canvas);
 
@@ -161,24 +188,26 @@ function addCanvasListener(centerCoords, beacons, ctx) {
         let x = div(clickedX, size);
         let y = div(clickedY, size);
 
-        let selectedBeacons = beacons["beacons"].filter(function(beacon) {
-            let beaconMapCoords = shiftCoords(centerCoords[0], centerCoords[1], width/2, height/2, beacon.coord_x, beacon.coord_y);
-            return beaconMapCoords[0] === x && beaconMapCoords[1] === y;
+        if (mapStateObject["selected"]) {
+            undoSelected(mapStateObject, ctx);
+        }
+
+        let realCoords = shiftCoords(width/2, height/2, mapStateObject["centerX"], mapStateObject["centerY"], x, y);
+
+        let selectedBeacons = mapStateObject["beacons"].filter(function(beacon) {
+            return realCoords[0] === beacon.coord_x && realCoords[1] === beacon.coord_y;
         });
 
         if (selectedBeacons.length > 0) {
-            ctx.fillStyle = "#D2691E";
-            ctx.fillRect(x*size,y*size,size,size);
-            viewBeacon(selectedBeacons[0]);
+            mapStateObject["selected"] = {"x": realCoords[0], "y": realCoords[1], "beacon": selectedBeacons[0]};
         } else {
-            ctx.fillStyle = "#800000";
-            ctx.fillRect(x*size,y*size,size,size);
-            addBeacon(x, y, centerCoords)
+            mapStateObject["selected"] = {"x": realCoords[0], "y": realCoords[1], "beacon": undefined};
         }
+        renderSelected(mapStateObject, ctx);
     });
 }
 
-function addBeacon(x, y, centerCoords) {
+function addBeacon(x, y, mapStateObject) {
     console.log("create beacon!")
 }
 
@@ -187,14 +216,16 @@ function viewBeacon(beacon) {
 }
 
 function init(centerXStr, centerYStr){
+    gen = new SimplexNoise('fkjwes');//ololol
     let centerX = parseInt(centerXStr);
     let centerY = parseInt(centerYStr);
 
 	var ctx = document.getElementById('canvas').getContext("2d");
+	let mapStateObject = {"beacons": [], "selected": undefined, "centerX": centerX, "centerY": centerY};
 
-	let beacons = renderFullMap(centerX, centerY, ctx);
+	let beacons = renderFullMap(mapStateObject, ctx);
 	let centerCoords = [centerX, centerY];
-    addButtonListeners(centerCoords, beacons, ctx);
-    addCanvasListener(centerCoords, beacons, ctx)
+    addButtonListeners(mapStateObject, ctx);
+    addCanvasListener(mapStateObject, ctx)
 
 }
