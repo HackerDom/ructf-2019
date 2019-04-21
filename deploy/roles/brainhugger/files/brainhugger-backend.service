@@ -2,8 +2,8 @@
     Description=Brainhugger service
 
 [Service]
-    ExecStart=/home/brainhugger/go/src/brainhugger/run.sh
-    WorkingDirectory=/home/brainhugger/go/src/brainhugger
+    ExecStart=/home/brainhugger/go/src/brainhugger/backend/backend
+    WorkingDirectory=/home/brainhugger/go/src/brainhugger/backend
     User=brainhugger
     Group=brainhugger
     Restart=on-failure
