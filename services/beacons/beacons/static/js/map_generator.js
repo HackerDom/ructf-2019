@@ -1,6 +1,6 @@
 'use strict';
 
-const n = 4;
+const stylesCount = 4;
 const height = 30;
 const width = 50;
 const freq = 0.1;
@@ -22,7 +22,7 @@ function generateOneCell(x, y) {
     // Можно поумножать на частоту (freq*nx, freq*ny)
     let e = noise(nx, ny);
     let exp = Math.pow(e, exponent);
-    return Math.round(exp * n);
+    return Math.round(exp * stylesCount);
 }
 
 function generateMap(centerX, centerY) {
@@ -215,6 +215,23 @@ function viewBeacon(beacon) {
     console.log(beacon);
 }
 
+function getExif() {
+    var img1 = document.getElementById("img1");
+    EXIF.getData(img1, function() {
+        var make = EXIF.getTag(this, "Make");
+        var model = EXIF.getTag(this, "Model");
+        var makeAndModel = document.getElementById("makeAndModel");
+        makeAndModel.innerHTML = `${make} ${model}`;
+    });
+
+//    var img2 = document.getElementById("img2");
+//    EXIF.getData(img2, function() {
+//        var allMetaData = EXIF.getAllTags(this);
+//        var allMetaDataSpan = document.getElementById("allMetaDataSpan");
+//        allMetaDataSpan.innerHTML = JSON.stringify(allMetaData, null, "\t");
+//    });
+}
+
 function init(centerXStr, centerYStr){
     gen = new SimplexNoise('fkjwes');//ololol
     let centerX = parseInt(centerXStr);
@@ -228,4 +245,5 @@ function init(centerXStr, centerYStr){
     addButtonListeners(mapStateObject, ctx);
     addCanvasListener(mapStateObject, ctx)
 
+    getExif();
 }
