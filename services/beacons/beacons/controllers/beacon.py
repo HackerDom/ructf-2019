@@ -42,7 +42,7 @@ async def add_beacon(request):
                    ).inserted_id
     print(user.beacons)
     await User.update_one({"_id": user.id}, 
-                            {"$set": {"beacons": user.beacons.append(inserted_id)}})
+                            {"$push": {"beacons": str(inserted_id)}})
     return json({"inserted_id": str(inserted_id)})
 
 
