@@ -9,6 +9,8 @@ import (
 	"log"
 )
 
+const MaxBhOperations = 50000
+
 const (
 	DONE = 0
 	RUNNING = 1
@@ -38,8 +40,8 @@ type TasksManager struct {
 	BhExecutor  bhexecutor.BhExecutor
 }
 
-func (tm *TasksManager) Init(taskDir string, bhExecutorBinPath string) error {
-	tm.TaskStorage.Init(taskDir, 40000)
+func (tm *TasksManager) Init(taskDir string, bhExecutorBinPath string, maxItemsCount uint) error {
+	tm.TaskStorage.Init(taskDir, maxItemsCount)
 	if err := tm.BhExecutor.Init(bhExecutorBinPath); err != nil {
 		return errors.New("can not init bhexecutor: " + err.Error())
 	}
@@ -67,7 +69,7 @@ func (tm *TasksManager) SaveTask(taskId uint, task *Task) {
 }
 
 func (tm *TasksManager) ExecuteTask(source string, stdin []byte) ([]byte, error) {
-	result, err := tm.BhExecutor.RunBhCode(source, stdin, 50000)
+	result, err := tm.BhExecutor.RunBhCode(source, stdin, MaxBhOperations)
 	return result, err
 }
 

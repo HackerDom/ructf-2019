@@ -142,7 +142,7 @@ func main() {
 	if err != nil {
 		panic("can not parse config: " + err.Error())
 	}
-	if err := taskManager.Init(config.TasksDir, config.BrainHugExecutorPath); err != nil {
+	if err := taskManager.Init(config.TasksDir, config.BrainHugExecutorPath, config.MaxItemsCount); err != nil {
 		panic(err)
 	}
 	usersManager.Init(config.UsersDir, config.MaxItemsCount)
