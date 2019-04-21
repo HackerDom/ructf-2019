@@ -1,5 +1,5 @@
 {
-	"ServerHost": "0.0.0.0",
+	"ServerHost": "localhost",
 	"ServerPort": 8080,
 	"TasksDir": "tasks",
 	"UsersDir": "users",
