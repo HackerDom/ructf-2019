@@ -67,4 +67,4 @@ async def get_beacons(request):
 
     beacons = await get_beacons_in_area(*get_borders(center_coord_x, center_coord_y), request)
 
-    return json({"beacons": [{"name": beacon.name, "coord_x": beacon.coord_x, "coord_y": beacon.coord_y} for beacon in beacons]})
+    return json({"beacons": [{"id": str(beacon.id), "coord_x": beacon.coord_x, "coord_y": beacon.coord_y} for beacon in beacons]})
