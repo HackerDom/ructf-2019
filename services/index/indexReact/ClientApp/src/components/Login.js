@@ -46,7 +46,7 @@ class Login extends React.Component {
         const { login, pwd } = this.state;
         return <Container>
             <Col sm={12} md={{ size: 4, offset: 4 }}>
-                <Alert>You also can register here, just use unique login:)</Alert>
+                <Alert color="info">You also can register here, just use unique login :)</Alert>
                 <Form onSubmit={this.submitForm} id="loginForm">
                     <FormGroup row>
                         <Label for="login" sm={3}>Login</Label>
