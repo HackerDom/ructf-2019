@@ -95,7 +95,7 @@ function renderFullMap(centerX, centerY, ctx) {
     renderMap(map, ctx);
     let beacons = getBeacons(centerX, centerY);
     renderBeacons(beacons, centerX, centerY, ctx);
-    return beacons;
+    return {"beacons": beacons};
 }
 
 function getBeacons(centerX, centerY) {
@@ -113,19 +113,19 @@ function getBeacons(centerX, centerY) {
 function addButtonListeners(centerCoords, beacons, ctx) {
     document.getElementById('button-left').onclick = function() {
         centerCoords[0] = centerCoords[0] - delta;
-        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
+        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
     };
     document.getElementById('button-up').onclick = function() {
         centerCoords[1] = centerCoords[1] - delta;
-        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
+        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
     };
     document.getElementById('button-right').onclick = function() {
         centerCoords[0] = centerCoords[0] + delta;
-        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
+        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
     };
     document.getElementById('button-down').onclick = function() {
         centerCoords[1] = centerCoords[1] + delta;
-        beacons = renderFullMap(centerCoords[0], centerCoords[1], ctx);
+        beacons["beacons"] = renderFullMap(centerCoords[0], centerCoords[1], ctx)["beacons"];
     };
 }
 
@@ -161,7 +161,7 @@ function addCanvasListener(centerCoords, beacons, ctx) {
         let x = div(clickedX, size);
         let y = div(clickedY, size);
 
-        let selectedBeacons = beacons.filter(function(beacon) {
+        let selectedBeacons = beacons["beacons"].filter(function(beacon) {
             let beaconMapCoords = shiftCoords(centerCoords[0], centerCoords[1], width/2, height/2, beacon.coord_x, beacon.coord_y);
             return beaconMapCoords[0] === x && beaconMapCoords[1] === y;
         });
