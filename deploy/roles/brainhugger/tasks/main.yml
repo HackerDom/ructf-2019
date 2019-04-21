@@ -1,13 +1,6 @@
 - hostname:
     name: brainhugger
 
-# put your authorized key here
-#- name: Set authorized key
-#  authorized_key:
-#    user: root
-#    key: "ssh-rsa xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx name@domain"
-#    state: present
-    
 - name: Set authorized key
   authorized_key:
     user: root
@@ -20,42 +13,33 @@
 - name: copy motd
   copy: src=motd dest=/etc/motd
 
-# example of installing packages
-#- name: install packages
-#  apt: 
-#    #update_cache: yes
-#    name:
-#      - cowsay  
-  
-- name: copy service
-  copy: src="brainhugger.py" dest=/home/brainhugger/
+- name: install packages
+  apt:
+    update_cache: yes
+    name:
+      - golang-go
+
+- name: set GOPATH
+  copy: src=go-path.sh
+        dest=/etc/profile.d
+
+- name: create service directory
+  file:
+    path: /home/brainhugger/go/src
+    state: directory
+
+- name: copy service files
+  synchronize:
+    src: "{{ playbook_dir }}/../services/brainhugger/"
+    dest: /home/brainhugger/go/src/brainhugger
+    rsync_opts:
+      - "--chmod=D0770"
+      - "--chown=brainhugger:brainhugger"
+#      - "--exclude=bhexecutor.notc"
   notify: enable and restart services
-
-# example of reusing the files from services folder
-#- name: copy service
-#  copy: src="{{ playbook_dir }}/../services/brainhugger/brainhugger.py" dest=/home/brainhugger/
-#  notify: enable and restart services
-
-# example of copying dirs with many files
-#- name: copy service files
-#  synchronize: 
-#    src: "{{ playbook_dir }}/../services/brainhugger/"
-#    dest: /home/brainhugger/
-#    rsync_opts:
-#      - "--chmod=D0770"
-#      - "--chmod=F0660"
-#      - "--chown=brainhugger:brainhugger"
-#  notify: enable and restart services
-#
 
 - name: fix permissions
-  file: name=/home/brainhugger owner=brainhugger group=brainhugger recurse=yes state=directory
-
-- name: make service executable
-  file: path={{item}} mode=0755
-  with_items:
-    - /home/brainhugger/brainhugger.py
-  notify: enable and restart services
+  file: name=/home/brainhugger/go/src/brainhugger owner=brainhugger group=brainhugger recurse=yes state=directory
 
 - name: add service files
   copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
