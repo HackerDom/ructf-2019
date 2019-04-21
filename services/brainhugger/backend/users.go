@@ -1,8 +1,8 @@
 package main
 
 import (
-	"errors"
 	"brainhugger/backend/storage"
+	"errors"
 )
 
 type UsersManager struct {
@@ -10,6 +10,9 @@ type UsersManager struct {
 }
 
 func (um *UsersManager) AddUser(password string) (uint, error) {
+	um.Storage.Locker.Lock()
+	defer um.Storage.Locker.Unlock()
+
 	usersCount := um.Storage.GetItemsCount()
 	if err := um.Storage.Set(usersCount, []byte(password)); err != nil {
 		return 0, errors.New("can not add user: " + err.Error())

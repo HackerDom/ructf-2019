@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"sync"
 )
 
 const CounterFilename = "count"
@@ -17,6 +18,7 @@ type Storage struct {
 	CounterFilename string
 	BlockSize uint
 	MaxItemsCount uint
+	Locker sync.Mutex
 }
 
 func (storage *Storage) Init(dirName string, maxItemsCount uint) {
