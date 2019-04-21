@@ -45,5 +45,6 @@
   copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
   notify: enable and restart services
   with_items:
-    - brainhugger
+    - brainhugger-backend
+    - brainhugger-frontend
 
