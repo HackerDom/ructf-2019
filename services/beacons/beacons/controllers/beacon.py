@@ -16,20 +16,35 @@ beacon_page = Blueprint("beacon", url_prefix='/Beacon')
 async def add_beacon(request):
     request_user = auth.current_user(request)
     user = await User.find_one(request_user.id)
-    if not re.match(r"[A-Za-z0-9_]+", request.args["name"]):
-        return {"message": "Username should contains only letters, numbers or _"}
-    if not re.match(r"[A-Za-z0-9_!?.,]+", request.args["comment"]):
-        return {"message": "Incorrect symbol in comment"}
 
-    inserted_id = (await Beacon.insert_one({"name": request.args["name"],
-                                            "comment": request.args["comment"],
+    name = request.args["name"][0]
+    comment = request.args["comment"][0]
+        
+    if not re.match(r"[A-Za-z0-9_]+", name):
+        return {"message": "Username should contains only letters, numbers or _"}
+    if not re.match(r"[A-Za-z0-9_!?.,]+", request.args["comment"][0]):
+        return {"message": "Incorrect symbol in comment"}
+    
+    coord_x = int(request.args["coord_x"][0])
+    coord_y = int(request.args["coord_y"][0])
+    
+    if await Beacon.find_one({"coord_x": coord_x, "coord_y": coord_y}):
+        return {"message": "Beacon exists"}
+    
+    inserted_id = (await Beacon.insert_one({"name": name,
+                                            "comment": comment,
+                                            "coord_x": coord_x,
+                                            "coord_y": coord_y,
                                             "creator": user.id})
                    ).inserted_id
-    return json({"inserted_id": inserted_id})
+    print(user.beacons)
+    await User.update_one({"_id": user.id}, 
+                            {"$set": {"beacons": user.beacons.append(inserted_id)}})
+    return json({"inserted_id": str(inserted_id)})
 
 
 @beacon_page.route("/<beacon_id>")
-# @auth.login_required
+@auth.login_required
 async def get_beacon(request, beacon_id):
     beacon = await Beacon.find_one(beacon_id)
     return json({'name': beacon.name})

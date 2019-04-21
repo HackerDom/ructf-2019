@@ -32,7 +32,7 @@ def parse_int(s):
 
 
 @map_page.route("/")
-# @auth.login_required
+@auth.login_required
 @jinja.template("map.html")
 def index(request):
     center_x = 0
@@ -60,7 +60,7 @@ async def get_beacons_in_area(top, right, bottom, left, request):
 
 
 @map_page.route("/GetBeacons")
-# @auth.login_required
+@auth.login_required
 async def get_beacons(request):
     center_coord_x = parse_int(request.args["center_coord_x"][0])
     center_coord_y = parse_int(request.args["center_coord_y"][0])

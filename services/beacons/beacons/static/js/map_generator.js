@@ -208,7 +208,19 @@ function addCanvasListener(mapStateObject, ctx) {
 }
 
 function addBeacon(x, y, mapStateObject) {
-    console.log("create beacon!")
+    var xhr = new XMLHttpRequest();
+    
+    var name = "Name";
+    var comment = "Comment";
+    
+    xhr.open("POST", "/Beacon/Add?name=" + name + "&comment=" + comment + "&coord_x=" + x + "&coord_y=" + y, false);
+    xhr.send();
+    if (xhr.status != 200) {
+        var elem = document.getElementById('error');
+        elem.innerHTML = "Could not add beacon. Try again.";
+    } else {
+        return JSON.parse(xhr.responseText)["inserted_id"];
+    }
 }
 
 function viewBeacon(beacon) {
