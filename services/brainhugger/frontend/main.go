@@ -15,7 +15,7 @@ var config *Config
 
 func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 	if request.URL.Path == "/" {
-		http.Redirect(writer, request, "/static/html", 301)
+		http.Redirect(writer, request, fmt.Sprintf("/%v/html", config.StaticDir), 301)
 	}
 	splitted := strings.Split(request.URL.Path, "/")
 	if len(splitted) > 1 {
@@ -29,6 +29,7 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 				if _, err = io.Copy(writer, resp.Body); err != nil {
 					panic(err)
 				}
+				writer.WriteHeader(resp.StatusCode)
 			} else if request.Method == http.MethodPost {
 				url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
 				resp, err := http.Post(url, "text", request.Body)
@@ -38,6 +39,7 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 				if _, err = io.Copy(writer, resp.Body); err != nil {
 					panic(err)
 				}
+				writer.WriteHeader(resp.StatusCode)
 			}
 		}
 	}
