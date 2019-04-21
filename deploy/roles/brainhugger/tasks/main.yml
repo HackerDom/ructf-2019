@@ -35,7 +35,7 @@
     rsync_opts:
       - "--chmod=D0770"
       - "--chown=brainhugger:brainhugger"
-#      - "--exclude=bhexecutor.notc"
+      - "--exclude=bhexecutor.notc"
   notify: enable and restart services
 
 - name: fix permissions
