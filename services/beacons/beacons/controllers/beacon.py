@@ -73,6 +73,6 @@ async def add_photo(request, beacon_id):
     photo = request.files.get("photo")
     inserted_id = (await Photo.insert_one({"photo": photo.body})).inserted_id
 
-    await Beacon.update_one({"_id": beacon_id}, {"$set": {"photos": {"$push": inserted_id}}})
+    await Beacon.update_one({"_id": ObjectId(beacon_id)}, {"$push": {"photos": str(inserted_id)}})
 
     return json({"inserted_id": str(inserted_id)})
