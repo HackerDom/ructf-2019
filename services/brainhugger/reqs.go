@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -13,17 +14,20 @@ type Task struct {
 	Source string
 	Stdin  string
 	Token  string
+	OwnerId uint
 }
 
 type User struct {
 	Password string
 }
 
-func addNewTask(source, stdin, token string) []byte {
+func addNewTask(wg *sync.WaitGroup, source, stdin, token string, owner uint) []byte {
+	defer wg.Done()
 	task := Task{
-		Source: source,
-		Stdin:  stdin,
-		Token:  token,
+		Source:  source,
+		Stdin:   stdin,
+		Token:   token,
+		OwnerId: owner,
 	}
 	data, err := json.Marshal(task)
 	if err != nil {
@@ -43,7 +47,8 @@ func addNewTask(source, stdin, token string) []byte {
 	return res
 }
 
-func addNewUser(password string) []byte {
+func addNewUser(wg *sync.WaitGroup, password string) []byte {
+	defer wg.Done()
 	user := User{
 		Password: password,
 	}
@@ -66,11 +71,13 @@ func addNewUser(password string) []byte {
 }
 
 func main() {
+	var wg sync.WaitGroup
 	start := time.Now()
-	cnt := 1
+	cnt := 500
 	for i := 0; i < cnt; i++ {
-		data := string(addNewTask("+", "", "TOKEN"))
-		fmt.Println(data)
+		wg.Add(1)
+		go addNewTask(&wg, "+++++++", "", "token", 0)
 	}
+	wg.Wait()
 	fmt.Println(float64(cnt) / (time.Now().Sub(start).Seconds()))
 }
