@@ -1,4 +1,5 @@
 from sanic.response import json
+from sanic.response import raw
 from sanic import Blueprint
 from beacons import jinja
 from beacons import auth
@@ -41,10 +42,7 @@ async def get_beacon(request, beacon_id):
 # @auth.login_required
 async def get_photo(request, photo_id):
     photo = await Photo.find_one(photo_id)
-    # with open("ddd.txt", 'w') as f:
-    #     f.write(photo)
-    print(photo.photo)
-    return json({"photo": photo.photo})
+    return raw(photo.photo)
 
 
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
@@ -58,7 +56,7 @@ async def add_photo(request, beacon_id):
     #     return {"message": "Incorrect symbol in comment"}
 
     photo = request.files.get("photo")
-    inserted_id = (await Photo.insert_one({"photo": photo})).inserted_id
+    inserted_id = (await Photo.insert_one({"photo": photo.body})).inserted_id
 
     await Beacon.update_one({"_id": beacon_id}, {"$set": {"photos": {"$push": inserted_id}}})
 
