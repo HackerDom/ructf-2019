@@ -8,9 +8,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #include "httpserver.h"
 #include "hash.h"
 #include "interface.h"
+
+
+TAddUnit* AddUnit = nullptr;
+TGetUnit* GetUnit = nullptr;
 
 
 class RequestHandler : public HttpRequestHandler
@@ -148,7 +153,7 @@ bool CheckInterfaceVersion()
 
 	int size = lseek(f, 0, SEEK_END);
 	lseek(f, 0, SEEK_SET);
-	
+
 	uint32_t hash = 0;
 	for(int i = 0; i < size; i += 4)
 	{
@@ -168,6 +173,26 @@ int main()
 	if(!CheckInterfaceVersion())
 	{
 		printf("Something wrong\n");
+		return 1;
+	}
+
+	void* dlh = dlopen("libinterface.so", RTLD_NOW | RTLD_LOCAL);
+	if (!dlh)
+	{
+		fprintf(stderr, "dlopen failed: %s\n", dlerror());
+		return 1;
+	}
+
+	AddUnit = (TAddUnit*)dlsym(dlh, "AddUnit");
+	if(!AddUnit)
+	{
+		printf("Symbol load error: %s\n", dlerror());
+		return 1;
+	}
+	GetUnit = (TGetUnit*)dlsym(dlh, "GetUnit");
+	if(!GetUnit)
+	{
+		printf("Symbol load error: %s\n", dlerror());
 		return 1;
 	}
 

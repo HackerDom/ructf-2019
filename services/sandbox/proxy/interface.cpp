@@ -19,7 +19,7 @@ struct AddUnitStackFrame
 };
 
 
-EAddUnitResult AddUnit(const char* mind, const char* uuid)
+extern "C" EAddUnitResult AddUnit(const char* mind, const char* uuid)
 {
     AddUnitStackFrame s;
     memset(&s.addr, 0, sizeof(s.addr));
@@ -77,7 +77,7 @@ struct GetUnitStackFrame
 };
 
 
-bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
+extern "C" bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
 {
     GetUnitStackFrame s;
     memset(&s.addr, 0, sizeof(s.addr));

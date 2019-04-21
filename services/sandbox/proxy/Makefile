@@ -1,7 +1,7 @@
 #.PHONY: debug release clean
 CXXFLAGS = -g -std=c++17 -DLINUX=1
 SOURCES = httpserver.cpp main.cpp
-LDFLAGS = -L $(shell pwd) -lmicrohttpd -linterface
+LDFLAGS = -L $(shell pwd) -lmicrohttpd -ldl
 
 all: release
 

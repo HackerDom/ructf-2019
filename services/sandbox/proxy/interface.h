@@ -22,5 +22,5 @@ enum EAddUnitResult
 	kAddUnitBadUUID
 };
 
-extern EAddUnitResult AddUnit(const char* mind, const char* uuid);
-extern bool GetUnit(const char* uuid, UnitDesc& desc, bool& found);
+typedef EAddUnitResult TAddUnit(const char*, const char*);
+typedef bool TGetUnit(const char*, UnitDesc&, bool&);

@@ -90,7 +90,7 @@ private:
 	bool m_flushStorage = false;
 	std::condition_variable m_condVar;
 
-	void AddPendingUnits();
+	uint32_t AddPendingUnits();
 
 	static void FlushThread(Units* units);
 };

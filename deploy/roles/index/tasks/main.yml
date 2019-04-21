@@ -2,11 +2,11 @@
     name: index
 
 # put your authorized key here
-#- name: Set authorized key
-#  authorized_key:
-#    user: root
-#    key: "ssh-rsa xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx name@domain"
-#    state: present
+- name: Set authorized key
+  authorized_key:
+    user: root
+    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDRAUpOOZAoG2QAj6N/+vMd1jHaDjuMMjB0h6z9x6IEwGtm3sFC9FF94tIm0mJ1MiDcnK48KCMgda/2b4jPBUDYT6L8J8t91NnPO351+7RV/WgtOL/Z63TXTfPcsM+l58+EwQNU3ITawqyW3Nx0tlXNcYQpG33bnqZ/f4224CvDm1PoL2gtf0iHaKj+7G2Op3L0GHsp+xN1BQ1L90jyBuzunzr00Kjc6VWSMxOtDgEy8zGp0Uz4UVJXwmGjf8zDO/7S69Awl7qpk3GJVA9k7rnEdKI2NU3arHgbLV3kzjVszeUAQjsbzxgwmitAlvDpb9SPnHTGizfN9oIZUpkA8VHi0eub6JTrNteb5ekwjPI1vXk/w8f3A8nsr8zjztZ4eNOvm3LAjlma3+8xQzACjK/XtkBmAdvrKvX+LXTsU77Vvn4XxpDXtpgLSk0ZZtCAN1bKxFs9C1SttJ7f9d8MXWXaqNj6ERkkelvQnWnUNdeOK0ugZDd+gOuP/7q5Lb7Uzo//EnZh/8hnWpDtix6sgje/GYe2UzsneinWMntTp3QLc6EVOqLSuCWZgWJvcv+eycyy8X1RK0cN0QXmUMVlkrBiHYmZ+emfVcyNhfFYrEUyADF9RCUshvdaD/Pzf7FYeLz1tQsKYx86jYOUrV/8N4aM7XYd7cLxy/ruJAPG8nApIw== a.dubrovin@skbkontur.ru"
+    state: present
     
 - name: create user
   user: name=index shell=/bin/false
