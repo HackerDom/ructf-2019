@@ -228,8 +228,11 @@ function viewBeacon(beacon) {
     let beaconAddSubmitElement = document.getElementById("beacon-add-submit");
     let beaconAddFormElement = document.getElementById("beacon-add-form");
     beaconAddFormElement.addEventListener("submit", function(event) {
-        console.log("ksihdfki")
         event.preventDefault();
+        if (beaconAddInputElement.files[0].size > 5000000) {
+            showError("File should be less then 5 mg");
+            return;
+        }
         var form = new FormData(document.forms.beacon);
         let insertedPhoto = addPhoto(beacon.id, form);
         addPhotoRender(insertedPhoto);

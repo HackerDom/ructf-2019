@@ -67,11 +67,12 @@ async def add_photo(request, beacon_id):
     if not re.match(r"image\/jpg|image\/jpeg|image\/tiff", photo.type):
         return json({"error": "File should be *.jpeg or *.tiff"})
     if not re.match(r"[A-Za-z0-9_!?.,]+", photo.name):
-        return json({"error": "File should be *.jpeg or *.tiff"})
+        return json({"error": "Incorrect symbol in filename"})
     if len(photo.body) > 10000000:
         return json({"error": "File should be less then 5 mg"})
     inserted_id = (await Photo.insert_one({"photo": photo.body})).inserted_id
 
-    await Beacon.update_one({"_id": ObjectId(beacon_id)}, {"$push": {"photos": {"id": str(inserted_id), "name": photo.name}}})
+    await Beacon.update_one({"_id": ObjectId(beacon_id)},
+                            {"$push": {"photos": {"id": str(inserted_id), "name": photo.name}}})
 
     return json({"id": str(inserted_id), "name": photo.name})
