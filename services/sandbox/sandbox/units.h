@@ -53,8 +53,12 @@ public:
 	EAddResult AddUnit(const UUID& uuid, uint32_t mind[8]);
 	const Unit* GetUnit(const UUID& uuid);
 
+	uint32_t GetUnitsNumber() const;
+
 	void Simulate(const Texture2D& target, const Texture2D& randomTex);
-	void Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[]);
+	void Draw(const glm::mat4& projMatrix, GLuint cameraDataSsbo);
+
+	GLuint GetSSBO() const;
 
 private:
 	GLuint m_ssbo = 0;
@@ -86,7 +90,7 @@ private:
 
 	std::thread m_flushThread;
 	bool m_stopFlushThread = false;
-	std::mutex m_mutex;
+	mutable std::mutex m_mutex;
 	bool m_flushStorage = false;
 	std::condition_variable m_condVar;
 

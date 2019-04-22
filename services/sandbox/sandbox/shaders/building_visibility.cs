@@ -2,8 +2,6 @@
 
 uniform ivec4 numBuildings;
 uniform vec4 buildingSize;
-uniform vec4 frustumPlanes[6];
-uniform vec4 viewerPos;
 
 layout(std430, binding = 0) buffer Lod0Instances
 {
@@ -23,6 +21,17 @@ layout(std430, binding = 2) buffer Lod2Instances
 layout(std430, binding = 3) buffer Lod3Instances
 {
     uint lod3instances [];
+};
+
+layout(std430, binding = 5) buffer CameraData
+{
+    mat4 ViewMatrix;
+    vec4 CameraPos;
+    vec4 CameraDir;
+    vec4 CameraUp;
+    vec4 FrustumPlanes[6];
+    uint forceMode;
+    uint padding[3];
 };
 
 layout(binding = 0, offset = 4) uniform atomic_uint lod0counter;
@@ -49,9 +58,9 @@ void main()
     bool visible = true;
     for(uint p = 0; p < 6; p++)
     {
-        uint negMskX = frustumPlanes[p].x < 0.0f ? 0xffffffff : 0;
-        uint negMskY = frustumPlanes[p].y < 0.0f ? 0xffffffff : 0;
-        uint negMskZ = frustumPlanes[p].z < 0.0f ? 0xffffffff : 0;
+        uint negMskX = FrustumPlanes[p].x < 0.0f ? 0xffffffff : 0;
+        uint negMskY = FrustumPlanes[p].y < 0.0f ? 0xffffffff : 0;
+        uint negMskZ = FrustumPlanes[p].z < 0.0f ? 0xffffffff : 0;
 
         uvec3 un;
         un.x = (~negMskX & umin.x) | (negMskX & umax.x);
@@ -60,7 +69,7 @@ void main()
 
         vec3 n = uintBitsToFloat(un);
 
-        float dist = dot(frustumPlanes[p].xyz, n) - frustumPlanes[p].w;
+        float dist = dot(FrustumPlanes[p].xyz, n) - FrustumPlanes[p].w;
         if(dist >= 0.0f)
         {
             visible = false;
@@ -70,7 +79,7 @@ void main()
 
     if (visible)
     {
-        float distance = length(pos - viewerPos.xyz);
+        float distance = length(pos - CameraPos.xyz);
         if(distance < 32.0f * 20.0f)
         {
             uint index = atomicCounterIncrement(lod0counter);

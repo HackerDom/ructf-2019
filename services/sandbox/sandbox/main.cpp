@@ -9,6 +9,7 @@
 #include "units.h"
 #include "interface.h"
 #include "thread_affinity.h"
+#include "gpu_camera.h"
 
 
 static void GlfwErrorCallback(int error, const char* description)
@@ -69,9 +70,15 @@ void GlDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLs
 static Buildings GBuildings;
 static Units GUnits;
 static Camera GCamera;
+static GpuCamera GGpuCamera;
 static double GDeltaTime;
 static uint32_t GFieldSizeX = 256 + kStreetWidth;
 static uint32_t GFieldSizeY = 256 + kStreetWidth;
+#if DEBUG
+static bool GSpectatorMode = false;
+#elif
+static bool GSpectatorMode = true;
+#endif
 
 
 void ProcessInput(GLFWwindow *window)
@@ -95,6 +102,11 @@ void ProcessInput(GLFWwindow *window)
 		GCamera.ProcessKeyboard(kCameraDirectionUp, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
 		GCamera.ProcessKeyboard(kCameraDirectionDown, deltaTime);
+
+#if DEBUG
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		GSpectatorMode = !GSpectatorMode;
+#endif
 }
 
 
@@ -264,11 +276,17 @@ int main()
 
 	GCamera.m_pos = glm::vec3(GFieldSizeX * 0.5f, 32.0f, GFieldSizeY * 0.5f);
 
+	if (!GGpuCamera.Init(GCamera.GetViewMatrix(), GCamera.m_pos, GCamera.m_dir, GCamera.m_up))
+		return false;
+	GGpuCamera.EnableForceMode(!GSpectatorMode);
+
 	GLuint dummyVao;
 	glGenVertexArrays(1, &dummyVao);
 
 	static double lastFrame = glfwGetTime();
 	double counter = 0.0f;
+	double followTime = 0.0f;
+	std::default_random_engine randomEngine;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -307,15 +325,36 @@ int main()
 		float aspect = (float)width / (float)height;
 		float near = 0.1f;
 		float far = 4000.0f;
-
 		glm::mat4 proj = glm::perspective(fovY, aspect, near, far);
-		glm::mat4 view = GCamera.GetViewMatrix();
-		glm::mat4 viewProj = proj * view;
-		glm::vec4 frustumPlanes[6];
-		BuildFrustumPlanes(GCamera.m_pos, view, fovY, aspect, near, far, frustumPlanes);
-		GBuildings.Draw(viewProj, GCamera.m_dir, GCamera.m_pos, frustumPlanes);
 
-		GUnits.Draw(viewProj, glm::transpose(view), frustumPlanes);
+		if (GGpuCamera.IsForceModeEnabled() != !GSpectatorMode)
+			GGpuCamera.EnableForceMode(!GSpectatorMode);
+
+		if (!GSpectatorMode)
+			GGpuCamera.ForceCameraData(GCamera.m_pos, GCamera.m_dir, GCamera.m_up);
+
+		uint32_t unitsNumber = GUnits.GetUnitsNumber();
+		if (unitsNumber)
+		{
+			if (GGpuCamera.GetUnitIdxToFollow() == -1)
+			{
+				GGpuCamera.SetUnitToFollow(0);
+				followTime = 0.0f;
+			}
+
+			if (followTime > 20.0f)
+			{
+				std::uniform_real_distribution<> dis(0, unitsNumber - 1);
+				int idx = dis(randomEngine);
+				GGpuCamera.SetUnitToFollow(idx);
+				followTime = 0.0f;
+			}
+			followTime += GDeltaTime;
+		}
+
+		GGpuCamera.Update(fovY, aspect, near, far, GUnits.GetSSBO());
+		GBuildings.Draw(proj, GGpuCamera.GetDataSSBO());
+		GUnits.Draw(proj, GGpuCamera.GetDataSSBO());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

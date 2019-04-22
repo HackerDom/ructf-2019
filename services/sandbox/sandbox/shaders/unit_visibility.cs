@@ -1,7 +1,6 @@
 #version 450
 
 uniform ivec4 unitsCount;
-uniform vec4 frustumPlanes[6];
 
 layout(std430, binding = 0) buffer Instances
 {
@@ -26,6 +25,17 @@ layout(std430, binding = 1) buffer Units
     Unit units [];
 };
 
+layout(std430, binding = 2) buffer CameraData
+{
+    mat4 ViewMatrix;
+    vec4 CameraPos;
+    vec4 CameraDir;
+    vec4 CameraUp;
+    vec4 FrustumPlanes[6];
+    uint forceMode;
+    uint padding[3];
+};
+
 layout(binding = 0, offset = 4) uniform atomic_uint counter;
 
 layout(local_size_x = 8, local_size_y = 4) in;
@@ -42,7 +52,7 @@ void main()
     bool visible = true;
     for (uint p = 0; p < 6; p++)
     {
-        float dist = dot(frustumPlanes[p].xyz, pos) - frustumPlanes[p].w;
+        float dist = dot(FrustumPlanes[p].xyz, pos) - FrustumPlanes[p].w;
         if (dist >= 0.0f)
         {
             visible = false;
