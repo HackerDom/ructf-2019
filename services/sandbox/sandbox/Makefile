@@ -1,6 +1,6 @@
 #.PHONY: debug release clean
 CXXFLAGS = -c -g -std=c++17 -DLINUX=1
-SOURCES = buildings.cpp gl.cpp thread_affinity.cpp interface.cpp main.cpp png.cpp shader.cpp texture.cpp tiny_obj_loader.cpp units.cpp
+SOURCES = buildings.cpp gl.cpp thread_affinity.cpp interface.cpp gpu_camera.cpp main.cpp png.cpp shader.cpp texture.cpp tiny_obj_loader.cpp units.cpp
 LDFLAGS = -lglfw -lGL -lGLEW -lpng16 -pthread
 OBJS = $(SOURCES:.cpp=.o)
 

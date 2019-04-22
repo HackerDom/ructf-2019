@@ -257,6 +257,10 @@ int main()
 
 	glDebugMessageCallback(GlDebugCallback, nullptr);
 
+	printf("GL Vendor: \"%s\"\n", glGetString(GL_VENDOR));
+	printf("GL Renderer: \"%s\"\n", glGetString(GL_RENDERER));
+	printf("GL Version: \"%s\"\n", glGetString(GL_VERSION));
+
 	Texture2D simulationTex(GFieldSizeX, GFieldSizeY, FORMAT_R32U);
 	GLuint simulationFramebuffer;
 	glGenFramebuffers(1, &simulationFramebuffer);
