@@ -69,7 +69,8 @@ void main()
 	int maskedDirections0 = 15;
 
 	int maskedDirections1 = 0;
-	if((prevUPos.x % 32) < 8 && (prevUPos.y % 32) < 8 && randf.y > 0.0f)
+	ivec2 prevUPosMod = ivec2(prevUPos.x % 32, prevUPos.y % 32);
+	if(prevUPosMod.x > 2 && prevUPosMod.x < 6 && prevUPosMod.y > 2 && prevUPosMod.y < 6 && randf.y > 0.0f)
 		maskedDirections1 = 15;
 
 	int maskedDirections2 = 1 << ((unit.prevDirIdx + 2) % 4);
