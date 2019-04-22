@@ -195,22 +195,6 @@ function addCanvasListener(mapStateObject, ctx) {
     });
 }
 
-function addBeacon(x, y, mapStateObject) {
-    var xhr = new XMLHttpRequest();
-    
-    var name = "Name";
-    var comment = "Comment";
-    
-    xhr.open("POST", "/Beacon/Add?name=" + name + "&comment=" + comment + "&coord_x=" + x + "&coord_y=" + y, false);
-    xhr.send();
-    if (xhr.status != 200) {
-        var elem = document.getElementById('error');
-        elem.innerHTML = "Could not add beacon. Try again.";
-    } else {
-        return JSON.parse(xhr.responseText)["inserted_id"];
-    }
-}
-
 function viewBeacon(beacon) {
     let beaconInfo = getBeacon(beacon.id);
     let beaconNameElement = document.getElementById("beacon-name");
@@ -223,9 +207,17 @@ function viewBeacon(beacon) {
     beaconPhotosElement.innerHTML = "";
 
     function addPhotoRender(photo) {
+        let imgDiv = document.createElement("div");
+
         let img = document.createElement("img");
-        img.setAttribute("src", "/Beacon/GetPhoto/" + photo);
-        beaconPhotosElement.appendChild(img);
+        img.setAttribute("src", "/Beacon/GetPhoto/" + photo["id"]);
+        imgDiv.appendChild(img);
+
+        let imgLabel = document.createElement("label");
+        imgLabel.innerHTML = photo["name"];
+        imgDiv.appendChild(imgLabel);
+
+        beaconPhotosElement.appendChild(imgDiv);
     }
 
     beaconInfo.photos.forEach(function(photo) {
@@ -268,8 +260,7 @@ function getBeacons(centerX, centerY) {
     xhr.open("GET", "/GetBeacons?center_coord_x=" + centerX + "&center_coord_y=" + centerY, false);
     xhr.send();
     if (xhr.status != 200) {
-        var elem = document.getElementById('error');
-        elem.innerHTML = "Could not get beacons. Try again.";
+        showError("Could not get beacons. Try again.");
     } else {
         return JSON.parse(xhr.responseText)["beacons"];
     }
@@ -280,8 +271,7 @@ function getBeacon(beacon) {
     xhr.open("GET", "/Beacon/" + beacon, false);
     xhr.send();
     if (xhr.status != 200) {
-        var elem = document.getElementById('error');
-        elem.innerHTML = "Could not get beacon. Try again.";
+        showError("Could not get beacon. Try again.");
     } else {
         return JSON.parse(xhr.responseText);
     }
@@ -292,11 +282,46 @@ function addPhoto(beaconId, formData) {
     xhr.open("POST", "/Beacon/AddPhoto/" + beaconId, false);
     xhr.send(formData);
     if (xhr.status != 200) {
-        var elem = document.getElementById('error');
-        elem.innerHTML = "Could not get beacon. Try again.";
+        showError("Could not add photo. Try again.");
     } else {
-        return JSON.parse(xhr.responseText).inserted_id;
+        let response = JSON.parse(xhr.responseText);
+        if (response.error) {
+            showError(response.error);
+        } else {
+            return response;
+        }
     }
+}
+
+function addBeacon(x, y, mapStateObject) {
+    var xhr = new XMLHttpRequest();
+
+    var name = "Name";
+    var comment = "Comment";
+
+    xhr.open("POST", "/Beacon/Add?name=" + name + "&comment=" + comment + "&coord_x=" + x + "&coord_y=" + y, false);
+    xhr.send();
+    if (xhr.status != 200) {
+        showError("Could not add beacon. Try again.");
+    } else {
+        return JSON.parse(xhr.responseText)["inserted_id"];
+    }
+}
+
+let errorTimer = undefined;
+
+function showError(text) {
+    if (errorTimer) {
+        clearTimeout(errorTimer);
+    }
+    var elem = document.getElementById('error');
+    elem.innerHTML = text;
+    errorTimer = setTimeout(hideError, 2000)
+}
+
+function hideError() {
+    var elem = document.getElementById('error');
+    elem.innerHTML = "";
 }
 
 function init(centerXStr, centerYStr){

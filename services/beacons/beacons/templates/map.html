@@ -8,9 +8,9 @@
 <body onload="init({{center_x}}, {{center_y}})">
     <nav></nav>
     <main class="container main">
-        <div id="error" class="row error"></div>
         <div class="row">
             <div class="sidebar">
+                <div id="error" class="row error"></div>
                 <div id="profile" class="hidden card">
 
                 </div>
@@ -21,7 +21,7 @@
                         </p>
                         <div id="beacon-photos"></div>
                         <form id="beacon-add-form" name="beacon">
-                            <input name="photo" id="beacon-add-input" type="file">
+                            <input name="photo" id="beacon-add-input" accept="image/jpeg,image/tiff" type="file" value="Choose file">
                             <input id="beacon-add-submit" type="submit" value="Add photo">
                         </form>
                     </div>

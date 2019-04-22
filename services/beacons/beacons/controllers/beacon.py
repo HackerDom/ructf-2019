@@ -63,16 +63,15 @@ async def get_photo(request, photo_id):
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
 # @auth.login_required
 async def add_photo(request, beacon_id):
-    # request_user = auth.current_user(request)
-    # user = await User.find_one(request_user.id)
-    # if not re.match(r"[A-Za-z0-9_]+", request.args["name"]):
-    #     return {"message": "Username should contains only letters, numbers or _"}
-    # if not re.match(r"[A-Za-z0-9_!?.,]+", request.args["comment"]):
-    #     return {"message": "Incorrect symbol in comment"}
-
     photo = request.files.get("photo")
+    if not re.match(r"image\/jpg|image\/jpeg|image\/tiff", photo.type):
+        return json({"error": "File should be *.jpeg or *.tiff"})
+    if not re.match(r"[A-Za-z0-9_!?.,]+", photo.name):
+        return json({"error": "File should be *.jpeg or *.tiff"})
+    if len(photo.body) > 10000000:
+        return json({"error": "File should be less then 5 mg"})
     inserted_id = (await Photo.insert_one({"photo": photo.body})).inserted_id
 
-    await Beacon.update_one({"_id": ObjectId(beacon_id)}, {"$push": {"photos": str(inserted_id)}})
+    await Beacon.update_one({"_id": ObjectId(beacon_id)}, {"$push": {"photos": {"id": str(inserted_id), "name": photo.name}}})
 
-    return json({"inserted_id": str(inserted_id)})
+    return json({"id": str(inserted_id), "name": photo.name})
