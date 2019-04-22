@@ -25,13 +25,23 @@ struct Unit
 	uint prevCrossIdx;
 };
 
+layout(std430, binding = 0) buffer CameraData
+{
+    mat4 ViewMatrix;
+    vec4 CameraPos;
+    vec4 CameraDir;
+    vec4 CameraUp;
+    vec4 FrustumPlanes[6];
+	uint forceMode;
+    uint padding[3];
+};
+
 layout(std430, binding = 8) buffer Units
 {
 	Unit units[];
 };
 
-uniform mat4 viewProjMatrix;
-uniform mat4 viewMatrix;
+uniform mat4 projMatrix;
 
 out vec2 pos2d;
 
@@ -39,10 +49,12 @@ void main()
 {
 	Unit unit = units[instanceId];
 
+	mat4 trViewMatrix = transpose(ViewMatrix);
+
 	vec4 vertexPos = vec4(0.0f, 0.0f, 0.0, 1.0);
-	vertexPos.xyz = vec3(positions[gl_VertexID].x) * viewMatrix[0].xyz + vec3(positions[gl_VertexID].y) * viewMatrix[1].xyz;
+	vertexPos.xyz = vec3(positions[gl_VertexID].x) * trViewMatrix[0].xyz + vec3(positions[gl_VertexID].y) * trViewMatrix[1].xyz;
 	vertexPos.xyz += vec3(unit.posX, unit.posY, unit.posZ);
 
-	gl_Position = viewProjMatrix * vertexPos;
+	gl_Position = projMatrix * ViewMatrix * vertexPos;
 	pos2d = positions[gl_VertexID];
 }

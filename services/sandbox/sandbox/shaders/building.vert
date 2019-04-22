@@ -4,7 +4,6 @@
 layout (location = 0) in vec3 vertexPos;
 layout (location = 1) in uint instanceId;
 
-uniform mat4 viewProjMatrix;
 uniform ivec4 numBuildings;
 uniform vec4 buildingSize;
 

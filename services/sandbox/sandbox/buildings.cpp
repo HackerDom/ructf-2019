@@ -156,7 +156,7 @@ void Buildings::Shutdown()
 }
 
 
-void Buildings::Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir, const glm::vec3& viewerPos, const glm::vec4 frustumPlanes[])
+void Buildings::Draw(const glm::mat4& projMatrix, GLuint cameraDataSsbo)
 {
 	if (!m_program)
 		return;
@@ -177,23 +177,21 @@ void Buildings::Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir, 
 	glUseProgram(m_visProgram->GetProgram());
 	m_visProgram->SetIVec4("numBuildings", glm::ivec4(m_numBuildingsX, m_numBuildingsY, 0, 0));
 	m_visProgram->SetVec4("buildingSize", glm::vec4(kBuildingSize, kStreetWidth, 0.0f, 0.0f));
-	m_visProgram->SetVec4("viewerPos",  glm::vec4(viewerPos.x, viewerPos.y, viewerPos.z, 0.0f));
+	m_visProgram->SetSSBO("CameraData", cameraDataSsbo);
 	for (uint32_t l = 0; l < kLodsCount; l++)
 	{
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, l, m_indirectBuffer[l]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, l, m_meshes[l].instancesVbo);
 	}
 	m_visProgram->BindUniforms();
-	GLint location = glGetUniformLocation(m_visProgram->GetProgram(), "frustumPlanes");
-	glUniform4fv(location, 6, (GLfloat*)frustumPlanes);
 	glDispatchCompute(m_numBuildingsX / 8, m_numBuildingsY / 8, 1);
 	glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
 
 	glUseProgram(m_program->GetProgram());
-	m_program->SetMat4("viewProjMatrix", viewProjMatrix);
-	m_program->SetVec4("viewDir", glm::vec4(viewDir.x, viewDir.y, viewDir.z, 0.0f));
+	m_program->SetMat4("projMatrix", projMatrix);
 	m_program->SetIVec4("numBuildings", glm::ivec4(m_numBuildingsX, m_numBuildingsY, 0, 0));
 	m_program->SetVec4("buildingSize", glm::vec4(kBuildingSize, kStreetWidth, 0.0f, 0.0f));
+	m_program->SetSSBO("CameraData", cameraDataSsbo);
 	m_program->BindUniforms();
 
 	glEnable(GL_DEPTH_TEST);

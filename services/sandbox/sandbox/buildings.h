@@ -25,7 +25,7 @@ public:
 	bool Init(uint32_t fieldSizeX, uint32_t fieldSizeY);
 	void Shutdown();
 
-	void Draw(const glm::mat4& viewProjMatrix, const glm::vec3& viewDir, const glm::vec3& viewerPos, const glm::vec4 frustumPlanes[]);
+	void Draw(const glm::mat4& projMatrix, GLuint cameraDataSsbo);
 
 private:
 	uint32_t m_lodIndicesNum[kLodsCount];

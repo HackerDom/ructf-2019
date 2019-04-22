@@ -278,6 +278,13 @@ const Unit* Units::GetUnit(const UUID& uuid)
 }
 
 
+uint32_t Units::GetUnitsNumber() const
+{
+	std::lock_guard<std::mutex> lck(m_mutex);
+	return m_units.size();
+}
+
+
 uint32_t Units::AddPendingUnits()
 {
 	m_flushStorage = !m_unitsToAdd.empty();
@@ -338,7 +345,7 @@ void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 }
 
 
-void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, const glm::vec4 frustumPlanes[])
+void Units::Draw(const glm::mat4& projMatrix, GLuint cameraDataSsbo)
 {
 	if (!m_visualizationProgram)
 		return;
@@ -359,8 +366,8 @@ void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, c
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_indirectBuffer);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_instancesVbo);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_ssbo);
-	GLint location = glGetUniformLocation(m_visibilityProgram->GetProgram(), "frustumPlanes");
-	glUniform4fv(location, 6, (GLfloat*)frustumPlanes);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, cameraDataSsbo);
+	
 	m_visibilityProgram->SetIVec4("unitsCount", glm::ivec4(m_units.size(), 0, 0, 0));
 	m_visibilityProgram->BindUniforms();
 	glDispatchCompute((m_units.size() + 31) / 32, 1, 1);
@@ -369,9 +376,9 @@ void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, c
 	glBindVertexArray(m_vao);
 
 	glUseProgram(m_visualizationProgram->GetProgram());
-	m_visualizationProgram->SetMat4("viewProjMatrix", viewProjMatrix);
+	m_visualizationProgram->SetMat4("projMatrix", projMatrix);
 	m_visualizationProgram->SetSSBO("Units", m_ssbo);
-	m_visualizationProgram->SetMat4("viewMatrix", viewMatrix);
+	m_visualizationProgram->SetSSBO("CameraData", cameraDataSsbo);
 	m_visualizationProgram->BindUniforms();
 
 	glEnable(GL_DEPTH_TEST);
@@ -384,4 +391,10 @@ void Units::Draw(const glm::mat4& viewProjMatrix, const glm::mat4& viewMatrix, c
 	glDrawArraysIndirect(GL_TRIANGLES, (void*)0);
 
 	glBindVertexArray(0);
+}
+
+
+GLuint Units::GetSSBO() const
+{
+	return m_ssbo;
 }

@@ -9,6 +9,7 @@
 #include "units.h"
 #include "interface.h"
 #include "thread_affinity.h"
+#include "gpu_camera.h"
 
 
 static void GlfwErrorCallback(int error, const char* description)
@@ -16,20 +17,68 @@ static void GlfwErrorCallback(int error, const char* description)
 	fprintf(stderr, "GLFW Error: %s\n", description);
 }
 
-void GlDebugCallback( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data )
+
+void GlDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *msg, const void *data)
 {
 	if (id == 131185 || id == 131186)
 		return;
-	printf("GL Error: %s\n", msg);
+
+	const char* debSource = "";
+	const char* debType = "";
+	const char* debSev = "";
+
+	if (source == GL_DEBUG_SOURCE_API)
+		debSource = "OpenGL";
+	else if (source == GL_DEBUG_SOURCE_WINDOW_SYSTEM)
+		debSource = "Windows";
+	else if (source == GL_DEBUG_SOURCE_SHADER_COMPILER)
+		debSource = "Shader Compiler";
+	else if (source == GL_DEBUG_SOURCE_THIRD_PARTY)
+		debSource = "Third Party";
+	else if (source == GL_DEBUG_SOURCE_APPLICATION)
+		debSource = "Application";
+	else if (source == GL_DEBUG_SOURCE_OTHER)
+		debSource = "Other";
+
+	if (type == GL_DEBUG_TYPE_ERROR)
+		debType = "Error";
+	else if (type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR)
+		debType = "Deprecated behavior";
+	else if (type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR)
+		debType = "Undefined behavior";
+	else if (type == GL_DEBUG_TYPE_PORTABILITY)
+		debType = "Portability";
+	else if (type == GL_DEBUG_TYPE_PERFORMANCE)
+		debType = "Performance";
+	else if (type == GL_DEBUG_TYPE_OTHER)
+		debType = "Other";
+
+	bool showMes = true;
+	if (severity == GL_DEBUG_SEVERITY_HIGH)
+		debSev = "High";
+	else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
+		debSev = "Medium";
+	else if (severity == GL_DEBUG_SEVERITY_LOW)
+		debSev = "Low";
+	else
+		showMes = false;
+
+	printf("OpenGL debug:\n\tSource:%s\n\tType:%s\n\tID:%u\n\tSeverity:%s\n\tMessage:%s\n", debSource, debType, id, debSev, msg);
 }
 
 
 static Buildings GBuildings;
 static Units GUnits;
 static Camera GCamera;
+static GpuCamera GGpuCamera;
 static double GDeltaTime;
 static uint32_t GFieldSizeX = 256 + kStreetWidth;
 static uint32_t GFieldSizeY = 256 + kStreetWidth;
+#if DEBUG
+static bool GSpectatorMode = false;
+#elif
+static bool GSpectatorMode = true;
+#endif
 
 
 void ProcessInput(GLFWwindow *window)
@@ -53,6 +102,11 @@ void ProcessInput(GLFWwindow *window)
 		GCamera.ProcessKeyboard(kCameraDirectionUp, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
 		GCamera.ProcessKeyboard(kCameraDirectionDown, deltaTime);
+
+#if DEBUG
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		GSpectatorMode = !GSpectatorMode;
+#endif
 }
 
 
@@ -85,7 +139,7 @@ void UpdateRandomTexture(Texture2D& tex)
 
 	const int kSize = 32 * 32 * 4;
 	static float data[kSize];
-	for(int i = 0; i < kSize; i++)
+	for (int i = 0; i < kSize; i++)
 		data[i] = (float)dis(e);
 
 	glBindTexture(GL_TEXTURE_2D, tex.GetTexture());
@@ -107,7 +161,7 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 
 	switch (cmd.cmd)
 	{
-	case kCommandAddUnit:
+		case kCommandAddUnit:
 		{
 			CommandAddUnit* addUnit = (CommandAddUnit*)data;
 			CommandAddUnitResponse addUnitResponse;
@@ -117,24 +171,24 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 			responseSize = sizeof(addUnitResponse);
 
 			const char* resultStr = "Unknown";
-			if(result == Units::kAddOk)
+			if (result == Units::kAddOk)
 				resultStr = "Ok";
-			else if(result == Units::kAddTooMuchUnits)
+			else if (result == Units::kAddTooMuchUnits)
 				resultStr = "Error, too much units";
-			if(result == Units::kAddAlreadyExists)
+			if (result == Units::kAddAlreadyExists)
 				resultStr = "Error, unit already exists";
 
 			uuid_unparse(uuid, uuidStr);
 			printf("Add unit %s result: %s\n", uuidStr, resultStr);
 		}
 		break;
-	case kCommandGetUnit:
+		case kCommandGetUnit:
 		{
 			CommandGetUnit* getUnit = (CommandGetUnit*)data;
 			CommandGetUnitResponse getUnitResponse;
 			const Unit* unit = GUnits.GetUnit(uuid);
 			const char* resultStr = "Ok";
-			if(unit)
+			if (unit)
 			{
 				getUnitResponse.ok = true;
 				memcpy(getUnitResponse.mind, unit->mind, 32);
@@ -156,9 +210,9 @@ void InterfaceCallback(const CommandHeader& cmd, char* data, char*& response, ui
 		}
 		break;
 
-	default:
-		printf("Unknown command\n");
-		break;
+		default:
+			printf("Unknown command\n");
+			break;
 	}
 }
 
@@ -170,7 +224,7 @@ int main()
 #endif
 	srand(time(NULL));
 
-	if(PinThreadToCore(0) != 0)
+	if (PinThreadToCore(0) != 0)
 	{
 		perror("PinThreadToCore");
 		return 1;
@@ -189,7 +243,9 @@ int main()
 #endif
 	GLFWwindow* window = glfwCreateWindow(1024, 1024, "Sandbox", nullptr, nullptr);
 
+#if DEBUG
 	glfwSetCursorPosCallback(window, ProcessMouse);
+#endif
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glfwMakeContextCurrent(window);
@@ -200,21 +256,6 @@ int main()
 	glewInit();
 
 	glDebugMessageCallback(GlDebugCallback, nullptr);
-
-	int work_grp_cnt[3];
-
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
-	glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
-
-	printf("max global (total) work group size x:%i y:%i z:%i\n", work_grp_cnt[0], work_grp_cnt[1], work_grp_cnt[2]);
-
-	VertexShader vs("shaders/base.vert");
-	FragmentShader fs("shaders/base.frag");
-	Shader* shaders[] = {&vs, &fs};
-	Program program(shaders, 2);
-	if(!program.IsValid())
-		return 1;
 
 	Texture2D simulationTex(GFieldSizeX, GFieldSizeY, FORMAT_R32U);
 	GLuint simulationFramebuffer;
@@ -235,11 +276,17 @@ int main()
 
 	GCamera.m_pos = glm::vec3(GFieldSizeX * 0.5f, 32.0f, GFieldSizeY * 0.5f);
 
+	if (!GGpuCamera.Init(GCamera.GetViewMatrix(), GCamera.m_pos, GCamera.m_dir, GCamera.m_up))
+		return false;
+	GGpuCamera.EnableForceMode(!GSpectatorMode);
+
 	GLuint dummyVao;
 	glGenVertexArrays(1, &dummyVao);
 
 	static double lastFrame = glfwGetTime();
 	double counter = 0.0f;
+	double followTime = 0.0f;
+	std::default_random_engine randomEngine;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -253,7 +300,9 @@ int main()
 			counter = 0.0;
 		}
 
+#if DEBUG
 		ProcessInput(window);
+#endif
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, simulationFramebuffer);
 		glViewport(0, 0, GFieldSizeX, GFieldSizeY);
@@ -272,27 +321,40 @@ int main()
 
 		GUnits.Simulate(simulationTex, randomTex);
 
-		/*glUseProgram(program.GetProgram());
-		program.SetVec4("targetSize", glm::vec4(width, height, 0, 0));
-		program.SetTexture("units", tex);
-		//program.SetTexture("map", GBuildings_.GetMap());
-		program.BindUniforms();
-		glBindVertexArray(dummyVao);
-		glDrawArrays(GL_TRIANGLES, 0, 6);*/
-
 		const float fovY = glm::radians(45.0f);
 		float aspect = (float)width / (float)height;
 		float near = 0.1f;
 		float far = 4000.0f;
-
 		glm::mat4 proj = glm::perspective(fovY, aspect, near, far);
-		glm::mat4 view = GCamera.GetViewMatrix();
-		glm::mat4 viewProj = proj * view;
-		glm::vec4 frustumPlanes[6];
-		BuildFrustumPlanes(GCamera.m_pos, view, fovY, aspect, near, far, frustumPlanes);
-		GBuildings.Draw(viewProj, GCamera.m_dir, GCamera.m_pos, frustumPlanes);
 
-		GUnits.Draw(viewProj, glm::transpose(view), frustumPlanes);
+		if (GGpuCamera.IsForceModeEnabled() != !GSpectatorMode)
+			GGpuCamera.EnableForceMode(!GSpectatorMode);
+
+		if (!GSpectatorMode)
+			GGpuCamera.ForceCameraData(GCamera.m_pos, GCamera.m_dir, GCamera.m_up);
+
+		uint32_t unitsNumber = GUnits.GetUnitsNumber();
+		if (unitsNumber)
+		{
+			if (GGpuCamera.GetUnitIdxToFollow() == -1)
+			{
+				GGpuCamera.SetUnitToFollow(0);
+				followTime = 0.0f;
+			}
+
+			if (followTime > 20.0f)
+			{
+				std::uniform_real_distribution<> dis(0, unitsNumber - 1);
+				int idx = dis(randomEngine);
+				GGpuCamera.SetUnitToFollow(idx);
+				followTime = 0.0f;
+			}
+			followTime += GDeltaTime;
+		}
+
+		GGpuCamera.Update(fovY, aspect, near, far, GUnits.GetSSBO());
+		GBuildings.Draw(proj, GGpuCamera.GetDataSSBO());
+		GUnits.Draw(proj, GGpuCamera.GetDataSSBO());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
