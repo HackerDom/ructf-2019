@@ -47,6 +47,17 @@
     group: mongodb
   notify: enable and restart mongo
 
+- name: create dotnet directory
+  file:
+    path: /opt/dotnet
+    state: directory
+
+- name: unpack dotnet-runtime
+  unarchive:
+    src: dotnet-runtime-2.1.2-linux-arm.tar.gz
+    dest: /opt/dotnet/
+
+
 #- name: install packages
 #  apt: 
 #    update_cache: yes
