@@ -212,11 +212,6 @@ function addBeacon(x, y, mapStateObject) {
 }
 
 function viewBeacon(beacon) {
-    function addPhotoRender(photo) {
-        let img = document.createElement("img");
-        img.setAttribute("src", "/Beacon/GetPhoto/" + photo);
-        beaconPhotosElement.appendChild(img);
-    }
     let beaconInfo = getBeacon(beacon.id);
     let beaconNameElement = document.getElementById("beacon-name");
     beaconNameElement.innerHTML = beaconInfo.name;
@@ -225,6 +220,13 @@ function viewBeacon(beacon) {
     beaconDescElement.innerHTML = beaconInfo.description;
 
     let beaconPhotosElement = document.getElementById("beacon-photos");
+    beaconPhotosElement.innerHTML = "";
+
+    function addPhotoRender(photo) {
+        let img = document.createElement("img");
+        img.setAttribute("src", "/Beacon/GetPhoto/" + photo);
+        beaconPhotosElement.appendChild(img);
+    }
 
     beaconInfo.photos.forEach(function(photo) {
         addPhotoRender(photo);
