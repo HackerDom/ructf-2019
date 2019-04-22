@@ -10,5 +10,5 @@ void main()
 	float dist = 0.5f - length(pos2d);
 	if(dist < 0.1f)
 		discard;
-	outColor = vec4(0.5f, 1.0f, 0.5f, 1.0f);
+	outColor = vec4(247.0f, 236.0f, 68.0f, 255.0f) / 255.0f;
 }

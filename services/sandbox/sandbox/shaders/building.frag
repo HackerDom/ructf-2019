@@ -19,5 +19,5 @@ void main()
 	vec3 val = smoothstep(vec3(0.0f, 0.0f, 0.0f), fw * edgeThikness, barycentricCoords);
 	float edge = min(min(val.x, val.y), val.z);
 	if(edge <= 0.5f)
-		outColor.g = 1.0f;
+		outColor.rgb = vec3(207.0f, 2.0f, 159.0f) / 255.0f;
 }
