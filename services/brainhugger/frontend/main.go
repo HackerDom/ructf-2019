@@ -20,26 +20,25 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 	splitted := strings.Split(request.URL.Path, "/")
 	if len(splitted) > 1 {
 		if _, has := staticSubdirs[splitted[1]]; !has {
-			if request.Method == http.MethodGet {
-				url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
-				resp, err := http.Get(url)
-				if err != nil {
-					panic(err)
-				}
-				writer.WriteHeader(resp.StatusCode)
-				if _, err = io.Copy(writer, resp.Body); err != nil {
-					panic(err)
-				}
-			} else if request.Method == http.MethodPost {
-				url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
-				resp, err := http.Post(url, "text", request.Body)
-				if err != nil {
-					panic(err)
-				}
-				writer.WriteHeader(resp.StatusCode)
-				if _, err = io.Copy(writer, resp.Body); err != nil {
-					panic(err)
-				}
+			url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
+			req, err := http.NewRequest(request.Method, url, request.Body)
+			if err != nil {
+				panic(err)
+			}
+			for _, cookie := range request.Cookies() {
+				req.AddCookie(cookie)
+			}
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				panic(err)
+			}
+			for _, cookie := range resp.Cookies() {
+				http.SetCookie(writer, cookie)
+			}
+			writer.WriteHeader(resp.StatusCode)
+			if _, err = io.Copy(writer, resp.Body); err != nil {
+				panic(err)
 			}
 		}
 	}
