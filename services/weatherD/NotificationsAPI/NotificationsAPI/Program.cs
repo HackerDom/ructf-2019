@@ -40,10 +40,10 @@ namespace NotificationsAPI
 
 			var mongoDbClient = new MongoDbClient();
 
-			mongoDbClient.InsertMessage("ab", new Message(new byte[0], DateTime.UtcNow + TimeSpan.FromSeconds(10))).GetAwaiter().GetResult();
-			var a = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
-			Thread.Sleep(TimeSpan.FromSeconds(15));
-			var b = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
+			//mongoDbClient.InsertMessage("ab", new Message(new byte[0], DateTime.UtcNow + TimeSpan.FromSeconds(10))).GetAwaiter().GetResult();
+			//var a = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
+			//Thread.Sleep(TimeSpan.FromSeconds(15));
+			//var b = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
 			var (authorizer, sourceStorage) = new StateRestorer(mongoDbClient).Restore().GetAwaiter().GetResult();
 
 			var addUserInfoHandler = new AddSourceInfoHandler(mongoDbClient, authorizer, sourceStorage, log);

@@ -6,11 +6,11 @@ namespace NotificationsAPI.SSE
 {
 	public class SseClient
 	{
-		public async Task SendMessageAsync(HttpContext httpContext, byte[] message)
+		public async Task SendMessageAsync(HttpContext httpContext, string message)
 		{
 			try
 			{
-				await httpContext.Response.Body.WriteAsync(message);
+				await httpContext.Response.WriteAsync(message);
 				await httpContext.Response.WriteAsync("\n\n");
 				await httpContext.Response.Body.FlushAsync();
 			}

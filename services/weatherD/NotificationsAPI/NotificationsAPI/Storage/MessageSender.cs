@@ -15,7 +15,7 @@ namespace NotificationsApi.Storage
 			sseClient = new SseClient();
 		}
 
-		public void Send(byte[] message, SourceInfo info)
+		public void Send(string message, SourceInfo info)
 		{
 			var subscribers = info.GetSubscribers();
 			if(subscribers.Count == 0)

@@ -35,7 +35,7 @@ namespace NotificationsAPI.SSE
 			return false;
 		}
 
-		private async Task SendMessagesHistory(List<byte[]> messages, HttpContext context)
+		private async Task SendMessagesHistory(List<string> messages, HttpContext context)
 		{
 			foreach(var message in messages)
 			{

@@ -33,10 +33,10 @@ namespace NotificationsApi.Handlers
 
 			if(sourceStorage.TryGetInfo(request.SourceName, out var info))
 			{
-				var message = new Message(request.Message, DateTime.UtcNow + TTL);
+				var message = new Message(request.Base64Message, DateTime.UtcNow + TTL);
 				//await mongoClient.InsertMessage(request.SourceName, message);
 				info.AddMessage(message);
-				messageSender.Send(request.Message, info);
+				messageSender.Send(request.Base64Message, info);
 			}
 
 			request.HttpContext.Response.StatusCode = (int) HttpStatusCode.Accepted;

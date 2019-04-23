@@ -6,14 +6,15 @@ namespace NotificationsApi.Storage
 {
 	public class StoredMessage
 	{
-		public byte[] Content;
+		public string Content;
 		[BsonElement("expireAt")]
 		public DateTime expireAt;
+
 		public string SourceName;
 		[BsonRepresentation(BsonType.ObjectId)]
 		public ObjectId Id;
 
-		public StoredMessage(string sourceName, byte[] content, DateTime expireAt)
+		public StoredMessage(string sourceName, string content, DateTime expireAt)
 		{
 			Id = ObjectId.GenerateNewId();
 			Content = content;

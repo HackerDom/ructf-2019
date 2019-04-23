@@ -13,7 +13,7 @@ namespace NotificationsApi.Requests
 		private const string TimeParamName = "time";
 		private const string PasswordParamName = "password";
 		private const string IsPublicParamName = "isPublic";
-		public byte[] Message { get; private set; }
+		public string Base64Message { get; private set; }
 		public string SourceName { get; private set; }
 		public string Password { get; private set; }
 		public string Token { get; private set; }
@@ -34,7 +34,7 @@ namespace NotificationsApi.Requests
 			string source = null;
 			string token = null;
 			string password = null;
-			byte[] message = null;
+			string message = null;
 			var time = 0L;
 			var isPublic = false;
 
@@ -55,16 +55,12 @@ namespace NotificationsApi.Requests
 
 			if(options.ContainsKey(MessageParamName))
 			{
-				string hex = options[MessageParamName];
-				message = Enumerable.Range(0, hex.Length)
-					.Where(x => x % 2 == 0)
-					.Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-					.ToArray();
+				message = options[MessageParamName];
 			}
 
 			return new NotificationApiRequest
 			{
-				Message = message,
+				Base64Message = message,
 				Token = token,
 				SourceName = source,
 				HttpContext = context,
