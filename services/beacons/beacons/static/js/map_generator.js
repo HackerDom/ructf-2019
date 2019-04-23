@@ -350,7 +350,12 @@ function addBeaconToServer(formData) {
     if (xhr.status != 200) {
         showError("Could not add beacon. Try again.");
     } else {
-        return JSON.parse(xhr.responseText)["inserted_id"];
+        let response = JSON.parse(xhr.responseText);
+        if (response.error) {
+            showError(response.error);
+        } else {
+            return response["upserted_id"];
+        }
     }
 }
 

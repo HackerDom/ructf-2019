@@ -30,15 +30,15 @@ async def add_beacon(request):
     comment = request.form.get("comment")
 
     if not re.match(r"[\w_]+", name):
-        return {"message": "Username should contains only letters, numbers or _"}
+        return {"error": "Username should contains only letters, numbers or _"}
     if comment and not re.match(r"[\w_!?.,]+", comment):
-        return {"message": "Incorrect symbol in comment"}
+        return {"error": "Incorrect symbol in comment"}
     
     coord_x = int(request.form.get("coord_x"))
     coord_y = int(request.form.get("coord_y"))
     
     if await Beacon.find_one({"coord_x": coord_x, "coord_y": coord_y}):
-        return json({"message": "Beacon exists"})
+        return json({"error": "Beacon exists"})
     
     upserted_id  = (await Beacon.update_one({"_id": ObjectId(get_random_id())}, {
                                             "$set": {"name": name,
