@@ -16,6 +16,7 @@ pub enum Race {
 pub struct WeatherSource {
     pub name : String,
     pub password : String,
+    pub token : String,
 //    discovery_date : DateTime<Utc>,
 //    planet_name : String,
 //    population : u64,
