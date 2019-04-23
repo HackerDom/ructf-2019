@@ -8,28 +8,40 @@
 <body onload="init({{center_x}}, {{center_y}})">
     <nav></nav>
     <main class="container main">
-        <div id="error" class="row error"></div>
         <div class="row">
             <div class="sidebar">
-                <div id="profile" class="hidden card">
-
+                <div id="error" class="row error"></div>
+                <div id="profile" class="card">
+                    <div class="">{{user.name}}</div>
+                    <div class="">Your last beacons</div>
+                    <div id="profile-beacons" class=""></div>
                 </div>
-                <div id="beacon" class="">
+                <div id="beacon" class="hidden card">
                     <h3 id="beacon-name" class=""></h3>
                     <div class="">
-                        <p id="beacon-desc" class="">
-                        </p>
+                        <p id="beacon-comment" class=""></p>
                         <div id="beacon-photos"></div>
-                        <form id="beacon-add-form" name="beacon">
-                            <input name="photo" id="beacon-add-input" type="file">
-                            <input id="beacon-add-submit" type="submit" value="Add photo">
+                        <form id="beacon-add-photo-form" name="beaconPhotos">
+                            <input name="photo" id="beacon-add-photo-input" required accept="image/jpeg,image/tiff,image/jpg" type="file" value="Choose file">
+                            <input type="submit" value="Add photo">
                         </form>
                     </div>
                 </div>
-                <div id="add-beacon" class="hidden">
-                    тут можем создать новый маячок
+                <div id="add-beacon" class="hidden card">
+                    <h3 class="">Create new beacon</h3>
+                    <div class="">
+                        <form id="beacon-add-form" name="beacon">
+                            <label for="beacon-add-name">Write beacon name</label>
+                            <input id="beacon-add-name" name="name" type="text" placeholder="For instance, beacon">
+                            <label for="beacon-add-comment">Write beacon comment</label>
+                            <input id="beacon-add-comment" name="comment" type="text" placeholder="For instance, my beacon">
+                            <label for="beacon-add-is-private">Make your beacon private</label>
+                            <input id="beacon-add-is-private" name="isPrivate" type="checkbox">
+                            <input type="submit" value="Add beacon">
+                        </form>
+                    </div>
                 </div>
-                <div id="latest" class="hidden">
+                <div id="latest" class="hidden card">
                     тут мы видим последние несколько фоточек
                 </div>
             </div>

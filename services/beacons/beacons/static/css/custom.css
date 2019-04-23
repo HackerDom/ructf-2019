@@ -16,8 +16,6 @@
 }
 
 body {
-    flex-wrap: nowrap;
-    display: flex;
 }
 
 .hidden {

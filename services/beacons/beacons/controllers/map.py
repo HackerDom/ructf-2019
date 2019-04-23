@@ -42,7 +42,9 @@ def index(request):
     if "center_y" in request.args:
         center_y = parse_int(request.args["center_y"][0])
 
-    return {"center_x": center_x, "center_y": center_y}
+    request_user = auth.current_user(request)
+
+    return {"center_x": center_x, "center_y": center_y, "user": {"name": request_user.name}}
 
 
 def get_borders(center_coord_x, center_coord_y):
