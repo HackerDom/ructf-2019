@@ -3,7 +3,6 @@ from sanic.response import raw
 from sanic import Blueprint
 from beacons import jinja
 from beacons import auth
-from beacons.repositories.database import users_quests_progress
 from beacons.repositories.user import User
 from beacons.repositories.beacon import Beacon
 from beacons.repositories.photo import Photo
@@ -51,8 +50,7 @@ async def add_beacon(request):
                                             "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
                    ).upserted_id
 
-    await User.update_one({"_id": user.id}, 
-                            {"$push": {"beacons": str(upserted_id)}})
+    await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
     return json({"upserted_id": str(upserted_id)})
 
 

@@ -278,7 +278,7 @@ function viewBeacon(beacon) {
     beaconNameElement.innerHTML = beaconInfo.name;
 
     let beaconCommentElement = document.getElementById("beacon-comment");
-    beaconCommentElement.innerHTML = beaconInfo.Comment;
+    beaconCommentElement.innerHTML = beaconInfo.comment;
 
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.innerHTML = "";
