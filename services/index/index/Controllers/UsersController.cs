@@ -2,12 +2,12 @@ using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using indexReact.db.Models;
-using indexReact.db.Services;
-using indexReact.Helpers;
+using index.db.Models;
+using index.db.Services;
+using index.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace indexReact.Controllers
+namespace index.Controllers
 {
     public class UsersController : ControllerBase
     {

@@ -1,7 +1,7 @@
-using indexReact.db.Models;
+using index.db.Models;
 using Microsoft.Extensions.Configuration;
 
-namespace indexReact.db.Services
+namespace index.db.Services
 {
     public class IndexEntityService : ServiceBase<IndexEntity>
     {

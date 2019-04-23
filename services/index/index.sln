@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "indexReact", "indexReact\indexReact.csproj", "{772E7A15-C8E6-406D-87C7-2DC162B3448C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "index", "index\index.csproj", "{772E7A15-C8E6-406D-87C7-2DC162B3448C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
 using System;
 
-namespace indexReact.Helpers
+namespace index.Helpers
 {
     public class IndexImportException : Exception
     {

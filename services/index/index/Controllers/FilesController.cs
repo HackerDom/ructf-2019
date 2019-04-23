@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using indexReact.Helpers;
+using index.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace indexReact.Controllers
+namespace index.Controllers
 {
     public class FilesController : ControllerBase
     {

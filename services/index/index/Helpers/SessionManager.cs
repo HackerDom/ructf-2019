@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace indexReact.Helpers
+namespace index.Helpers
 {
     public static class SessionManager
     {

@@ -3,7 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 
-namespace indexReact.db.Models
+namespace index.db.Models
 {
     public class IndexEntity : IEntity
     {

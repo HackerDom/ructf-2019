@@ -1,7 +1,7 @@
-using indexReact.Helpers;
+using index.Helpers;
 using Microsoft.AspNetCore.Mvc;
 
-namespace indexReact.Controllers
+namespace index.Controllers
 {
     [Route("api/[controller]")]
     public class ControllerBase:Controller

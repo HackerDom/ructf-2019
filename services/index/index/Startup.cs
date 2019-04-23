@@ -1,6 +1,6 @@
-using indexReact.db.Models;
-using indexReact.db.Services;
-using indexReact.Helpers;
+using index.db.Models;
+using index.db.Services;
+using index.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace indexReact
+namespace index
 {
     public class Startup
     {

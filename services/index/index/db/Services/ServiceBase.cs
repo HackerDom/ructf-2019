@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using indexReact.db.Models;
+using index.db.Models;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace indexReact.db.Services
+namespace index.db.Services
 {
     public interface IServiceBase<T> where T : IEntity
     {

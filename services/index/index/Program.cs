@@ -3,7 +3,7 @@ using System.Threading;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace indexReact
+namespace index
 {
     public class Program
     {

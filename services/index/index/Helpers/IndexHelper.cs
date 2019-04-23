@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using indexReact.db.Models;
-using indexReact.db.Services;
+using index.db.Models;
+using index.db.Services;
 using Microsoft.AspNetCore.Http;
 
-namespace indexReact.Helpers
+namespace index.Helpers
 {
     public interface IIndexHelper
     {
