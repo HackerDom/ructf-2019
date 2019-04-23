@@ -11,7 +11,7 @@ use gotham::state::State;
 
 use gotham::helpers::http::response::*;
 
-use hyper::StatusCode;
+use hyper::{StatusCode, Error, Body, Response};
 use hyper::Client;
 
 use http::{Uri, request};
@@ -22,12 +22,17 @@ use futures::future::Future;
 use gotham::state::{FromState};
 
 use crate::create_source_query_string_extractor::CreateSourceQueryStringExtractor;
-use crate::create_source_query_string_extractor::PushMessageQueryStringExtractor;
+use crate::push_message_query_string_extractor::PushMessageQueryStringExtractor;
 
 use crate::weather_state::WeatherSource;
 use crate::weather_state::WeatherState;
 use chrono::{DateTime, Utc};
 
+
+use tokio_core::reactor::Core;
+use futures::{Stream};
+
+use hyper::{Method};
 
 #[derive(Clone)]
 pub struct CreateSourceHandler {
@@ -48,53 +53,74 @@ impl Handler for CreateSourceHandler {
         let query_param = CreateSourceQueryStringExtractor::take_from(&mut state);
 
         let time = Utc::now();
-        let time_string = time.to_rfc3339();
+        let time_string = time.timestamp();
+
+        let is_public = query_param.is_public == "true";
 
         let query_string = format!(
-            "source={}&time={}",
+//            "source={}&time={}&isPublic={}",
+            "source={}&time={}&password={}",
             query_param.name,
-            time_string
+            time_string,
+            query_param.password
+//            is_public.to_string()
         );
 
-        let uri = format!("http://localhost:5000/addUserInfo?{}", query_string).parse::<Uri>().unwrap();
+        println!("query_string, create source handler : {}", query_string);
+
+        let uri = format!("{}addUserInfo?{}", crate::constants::NOTIFICATION_API_ADDR, query_string).parse::<Uri>().unwrap();
 
         let client = Client::new();
 
-        let new_source = WeatherSource{name : query_param.name.to_string(), password : query_param.password.to_string()};
 
-        {
-            let mut v = self.weather_state.lock().unwrap();
-            v.add_source(&query_param.name,new_source);
-        }
 
         let req = request::Builder::new()
-            .method("POST")
+//            .method("POST")
+            .method("GET")
             .uri(uri)
+            .header("Content-Length",0)
             .body(hyper::Body::empty())
+
             .unwrap();
 
-        let result = client
+        let mut result = client
             .request(req)
-            .then(|res|
+            .map_err(|e| println!("everything is bad"))
+
+//        .map(|mut res|
+            .then(|mut res|
                 {
                     match res
                         {
                             Ok(response) => {
-                                if response.status() == hyper::StatusCode::OK
-                                {
-                                    let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Response is OK.");
-                                    return future::ok((state, response));
-                                }
-                                let response = create_response(&state, http::StatusCode::INTERNAL_SERVER_ERROR, mime::TEXT_PLAIN, "Something went wrong.");
+                                println!("everything is good");
+
+//                                let token = response.body().map_err(|_| ()).fold(vec![], |mut acc, chunk| {
+//                                    acc.extend_from_slice(&chunk);
+//                                    Ok(acc)
+//                                }).and_then(|v| String::from_utf8(v).map_err(|_| ())).wait().unwrap();
+//
+//                                let new_source = WeatherSource{name : query_param.name.to_string(), password : query_param.password.to_string(), token : token.to_string()};
+//
+//                                {
+//                                    let mut v = self.weather_state.lock().unwrap();
+//                                    v.add_source(&query_param.name,new_source);
+//                                }
+
                                 return future::ok((state, response));
                             }
                             Err(e) => {
-                                println!("something is wrong {}", e);
+//                                println!("something is wrong {}", e);
+                                println!("something is wrong");
                                 let response = create_response(&state, http::StatusCode::INTERNAL_SERVER_ERROR, mime::TEXT_PLAIN, "Something went completely wrong.");
                                 return future::ok((state, response));
                             }
                         }
-                });
+                })
+
+        ;
+        println!("sended something create source handled");
+
 
         return Box::new(result);
     }
