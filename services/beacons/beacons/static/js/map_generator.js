@@ -144,6 +144,24 @@ function addButtonListeners(mapStateObject, ctx) {
     };
 }
 
+function addFormsListener(mapStateObject) {
+    let beaconAddInputElement = document.getElementById("beacon-add-input");
+    let beaconAddSubmitElement = document.getElementById("beacon-add-submit");
+    let beaconAddFormElement = document.getElementById("beacon-add-form");
+    beaconAddFormElement.addEventListener("submit", function(event) {
+        event.preventDefault();
+        if (beaconAddInputElement.files[0].size > 5000000) {
+            showError("File should be less then 5 mg");
+            return;
+        }
+        var form = new FormData(document.forms.beacon);
+        let insertedPhoto = addPhoto(mapStateObject["selected"]["beacon"]["id"], form);
+        if(insertedPhoto)
+            addPhotoRender(insertedPhoto);
+        beaconAddFormElement.reset();
+    });
+}
+
 function div(val, by){
     return (val - val % by) / by;
 }
@@ -195,8 +213,26 @@ function addCanvasListener(mapStateObject, ctx) {
     });
 }
 
+function addPhotoRender(photo) {
+    let imgDiv = document.createElement("div");
+
+    let img = document.createElement("img");
+    img.setAttribute("src", "/Beacon/GetPhoto/" + photo["id"]);
+    imgDiv.appendChild(img);
+
+    let imgLabel = document.createElement("label");
+    imgLabel.innerHTML = photo["name"];
+    imgDiv.appendChild(imgLabel);
+
+    let beaconPhotosElement = document.getElementById("beacon-photos");
+    beaconPhotosElement.appendChild(imgDiv);
+}
+
 function viewBeacon(beacon) {
     let beaconInfo = getBeacon(beacon.id);
+    if (!beaconInfo) {
+        return;
+    }
     let beaconNameElement = document.getElementById("beacon-name");
     beaconNameElement.innerHTML = beaconInfo.name;
 
@@ -206,39 +242,9 @@ function viewBeacon(beacon) {
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.innerHTML = "";
 
-    function addPhotoRender(photo) {
-        let imgDiv = document.createElement("div");
-
-        let img = document.createElement("img");
-        img.setAttribute("src", "/Beacon/GetPhoto/" + photo["id"]);
-        imgDiv.appendChild(img);
-
-        let imgLabel = document.createElement("label");
-        imgLabel.innerHTML = photo["name"];
-        imgDiv.appendChild(imgLabel);
-
-        beaconPhotosElement.appendChild(imgDiv);
-    }
-
     beaconInfo.photos.forEach(function(photo) {
         addPhotoRender(photo);
     });
-
-    let beaconAddInputElement = document.getElementById("beacon-add-input");
-    let beaconAddSubmitElement = document.getElementById("beacon-add-submit");
-    let beaconAddFormElement = document.getElementById("beacon-add-form");
-    beaconAddFormElement.addEventListener("submit", function(event) {
-        event.preventDefault();
-        if (beaconAddInputElement.files[0].size > 5000000) {
-            showError("File should be less then 5 mg");
-            return;
-        }
-        var form = new FormData(document.forms.beacon);
-        let insertedPhoto = addPhoto(beacon.id, form);
-        addPhotoRender(insertedPhoto);
-    });
-
-//    beaconAddFormElement.innerHTML = beaconInfo.description;
 }
 
 function getExif() {
@@ -339,4 +345,5 @@ function init(centerXStr, centerYStr){
 	let centerCoords = [centerX, centerY];
     addButtonListeners(mapStateObject, ctx);
     addCanvasListener(mapStateObject, ctx)
+    addFormsListener(mapStateObject);
 }

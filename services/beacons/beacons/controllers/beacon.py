@@ -66,7 +66,7 @@ async def add_photo(request, beacon_id):
     photo = request.files.get("photo")
     if not re.match(r"image\/jpg|image\/jpeg|image\/tiff", photo.type):
         return json({"error": "File should be *.jpeg or *.tiff"})
-    if not re.match(r"[A-Za-z0-9_!?.,]+", photo.name):
+    if not re.match(r"[\w_!?.,]+", photo.name):
         return json({"error": "Incorrect symbol in filename"})
     if len(photo.body) > 10000000:
         return json({"error": "File should be less then 5 mg"})
