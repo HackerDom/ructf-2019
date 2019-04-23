@@ -7,12 +7,5 @@ use gotham::router::response::extender;
 pub struct CreateSourceQueryStringExtractor {
     pub name: String,
     pub password : String,
-}
-
-#[derive(Deserialize, StateData, StaticResponseExtender)]
-pub struct PushMessageQueryStringExtractor {
-    pub name: String,
-    pub message: String,
-    pub token: String,
-    pub password : String,
+    pub is_public : String,
 }
