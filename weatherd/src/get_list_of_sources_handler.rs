@@ -22,7 +22,7 @@ use futures::future::Future;
 use gotham::state::{FromState};
 
 use crate::create_source_query_string_extractor::CreateSourceQueryStringExtractor;
-use crate::create_source_query_string_extractor::PushMessageQueryStringExtractor;
+use crate::push_message_query_string_extractor::PushMessageQueryStringExtractor;
 
 use crate::weather_state::WeatherSource;
 use crate::weather_state::WeatherState;
@@ -35,8 +35,8 @@ pub struct GetListOfSourcesHandler {
 }
 
 impl GetListOfSourcesHandler {
-    pub fn new(state : &Arc<Mutex<WeatherState>>) -> CreateSourceHandler {
-        CreateSourceHandler {
+    pub fn new(state : &Arc<Mutex<WeatherState>>) -> GetListOfSourcesHandler {
+        GetListOfSourcesHandler {
             weather_state: state.clone()
         }
     }
@@ -45,15 +45,14 @@ impl GetListOfSourcesHandler {
 impl Handler for GetListOfSourcesHandler {
     fn handle(self, mut state: State) -> Box<HandlerFuture> {
 
-        let sources : Vec<weather_source>;
+        let sources : String;
 
         {
             let mut v = self.weather_state.lock().unwrap();
-            sources = v.get_all_sources().collect().connect("-");
+            sources = v.get_all_sources().iter().map(|(k ,v)| k.to_string()).collect::<Vec<String>>().connect("\n");
         }
 
-
-        let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Response is OK.");
+        let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, sources);
         let result = future::ok((state, response));
 
         return Box::new(result);
