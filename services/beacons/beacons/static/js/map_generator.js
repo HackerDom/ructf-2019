@@ -169,7 +169,7 @@ function addFormsListener(mapStateObject) {
             showError("File should be less then 5 mg");
             return;
         }
-        var form = new FormData(document.forms.beacon-photos);
+        var form = new FormData(document.forms.beaconPhotos);
         let insertedPhoto = addPhoto(mapStateObject["selected"]["beacon"]["id"], form);
         if(insertedPhoto)
             addPhotoRender(insertedPhoto);
@@ -218,9 +218,9 @@ function getCoords(elem) {
 
 function addCanvasListener(mapStateObject, ctx) {
     let canvas = document.getElementById('canvas');
-    let canvasCoords = getCoords(canvas);
 
     canvas.addEventListener('click', function(event) {
+        let canvasCoords = getCoords(canvas);
         let clickedX = event.pageX - canvasCoords[1];
         let clickedY = event.pageY - canvasCoords[0];
 
