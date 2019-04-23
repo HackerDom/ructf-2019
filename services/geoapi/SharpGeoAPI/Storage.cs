@@ -18,7 +18,6 @@ namespace SharpGeoAPI
             db = new LiteDatabase(DBNames.DBName);
             seeds = db.GetCollection<Seed>(DBNames.SeedCollection);
             sessions = db.GetCollection<Session>(DBNames.SessionCollection);
-            ч
         }
 
         public async Task<Session> GetSession(string sessionId)

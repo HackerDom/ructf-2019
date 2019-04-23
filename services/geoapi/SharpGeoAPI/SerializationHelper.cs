@@ -14,7 +14,10 @@ namespace SharpGeoAPI
 
         public static T FromJson<T>(this string source)
         {
-            return JsonConvert.DeserializeObject<T>(source);
+            return JsonConvert.DeserializeObject<T>(source, new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All
+            });
         }
 
         public static byte[] ToBytes(this string source)
