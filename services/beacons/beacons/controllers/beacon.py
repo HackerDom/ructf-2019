@@ -70,7 +70,7 @@ async def add_photo(request, beacon_id):
         return json({"error": "Incorrect symbol in filename"})
     if len(photo.body) > 10000000:
         return json({"error": "File should be less then 5 mg"})
-    inserted_id = (await Photo.insert_one({"photo": photo.body})).inserted_id
+    inserted_id = (await Photo.insert_one({"photo": photo.body, "beaconId": beacon_id})).inserted_id
 
     await Beacon.update_one({"_id": ObjectId(beacon_id)},
                             {"$push": {"photos": {"id": str(inserted_id), "name": photo.name}}})
