@@ -8,21 +8,6 @@ layout(std430, binding = 0) buffer Lod0Instances
     uint lod0instances [];
 };
 
-layout(std430, binding = 1) buffer Lod1Instances
-{
-    uint lod1instances [];
-};
-
-layout(std430, binding = 2) buffer Lod2Instances
-{
-    uint lod2instances [];
-};
-
-layout(std430, binding = 3) buffer Lod3Instances
-{
-    uint lod3instances [];
-};
-
 layout(std430, binding = 5) buffer CameraData
 {
     mat4 ViewMatrix;
@@ -35,9 +20,6 @@ layout(std430, binding = 5) buffer CameraData
 };
 
 layout(binding = 0, offset = 4) uniform atomic_uint lod0counter;
-layout(binding = 1, offset = 4) uniform atomic_uint lod1counter;
-layout(binding = 2, offset = 4) uniform atomic_uint lod2counter;
-layout(binding = 3, offset = 4) uniform atomic_uint lod3counter;
 
 layout(local_size_x = 8, local_size_y = 8) in;
 void main()
@@ -79,26 +61,7 @@ void main()
 
     if (visible)
     {
-        float distance = length(pos - CameraPos.xyz);
-        if(distance < 32.0f * 20.0f)
-        {
-            uint index = atomicCounterIncrement(lod0counter);
-            lod0instances[index] = pixel_coords.y * numBuildings.x + pixel_coords.x;
-        }
-        else if (distance < 32.0f * 30.0f)
-        {
-            uint index = atomicCounterIncrement(lod1counter);
-            lod1instances[index] = pixel_coords.y * numBuildings.x + pixel_coords.x;
-        }
-        else if (distance < 32.0f * 40.0f)
-        {
-            uint index = atomicCounterIncrement(lod2counter);
-            lod2instances[index] = pixel_coords.y * numBuildings.x + pixel_coords.x;
-        }
-        else
-        {
-            uint index = atomicCounterIncrement(lod3counter);
-            lod3instances[index] = pixel_coords.y * numBuildings.x + pixel_coords.x;
-        }
+        uint index = atomicCounterIncrement(lod0counter);
+        lod0instances[index] = pixel_coords.y * numBuildings.x + pixel_coords.x;
     }
 }

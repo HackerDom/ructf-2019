@@ -188,6 +188,8 @@ bool Texture2D::Init(int width, int height, Format format, void* initData)
 	m_height = height;
 	m_format = format;
 
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	return true;
 }
 
