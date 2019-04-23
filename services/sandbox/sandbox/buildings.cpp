@@ -114,8 +114,9 @@ bool Buildings::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_texture = new Texture2D(image);
 
 	glBindTexture(GL_TEXTURE_2D, m_texture->GetTexture());
+	glGenerateTextureMipmap(m_texture->GetTexture());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glBindTexture(GL_TEXTURE_2D, 0);
