@@ -1,6 +1,4 @@
-﻿using SharpGeoAPI.Models;
-
-namespace SharpGeoAPI
+﻿namespace SharpGeoAPI.Models
 {
     public class Chunk : IChunk
     {

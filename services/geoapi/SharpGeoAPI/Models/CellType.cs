@@ -1,4 +1,4 @@
-﻿namespace SharpGeoAPI
+﻿namespace SharpGeoAPI.Models
 {
     public enum CellType
     {
