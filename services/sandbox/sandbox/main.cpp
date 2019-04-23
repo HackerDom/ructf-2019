@@ -72,8 +72,8 @@ static Units GUnits;
 static Camera GCamera;
 static GpuCamera GGpuCamera;
 static double GDeltaTime;
-static uint32_t GFieldSizeX = 256 + kStreetWidth;
-static uint32_t GFieldSizeY = 256 + kStreetWidth;
+static uint32_t GFieldSizeX = 4096 + kStreetWidth;
+static uint32_t GFieldSizeY = 4096 + kStreetWidth;
 #if DEBUG
 static bool GSpectatorMode = false;
 #else
@@ -240,8 +240,10 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #if DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-#endif
 	GLFWwindow* window = glfwCreateWindow(1024, 1024, "Sandbox", nullptr, nullptr);
+#else
+	GLFWwindow* window = glfwCreateWindow(1920, 1080, "Sandbox", glfwGetPrimaryMonitor(), nullptr);
+#endif
 
 #if DEBUG
 	glfwSetCursorPosCallback(window, ProcessMouse);
