@@ -6,6 +6,7 @@ from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
 
 from Crypto.Cipher import AES
+from sseclient import  SSEClient
 import string
 import random
 import uuid
@@ -16,8 +17,8 @@ NotificationApiPort = 5000
 
 tokens_storage = {}
 
-rustClient = RustClient(RUSTPORT, 300)
-notificationApiClient = NotificationApiClient(NotificationApiPort, 300)
+rustClient = RustClient(RUSTPORT, 3)
+notificationApiClient = NotificationApiClient(NotificationApiPort, 3)
 
 
 def check_result(result, out):
@@ -59,25 +60,25 @@ def check_service(host: str) -> Verdict:
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
-@Checker.define_put(vuln_num=1)
-def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
+def put_flag_into_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
-    result = rustClient.create_source(flag_id, password, False, False, '', host)
+    result = rustClient.create_source(flag_id, password, False, False, '', '', host)
     a = None
     if not check_result(result, a):
         return a
 
     token = result.result
+    print(token)
     push_result = rustClient.push_to_source(flag_id, password, flag, host)
     a = None
     if not check_result(push_result, a):
         return a
 
-    return Verdict.OK('{}:{}'.format(flag, token))
+    return '{}:{}'.format(flag_id, token)
 
 
-@Checker.define_get(vuln_num=1)
-def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
+
+def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
@@ -86,6 +87,7 @@ def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
         return Verdict.DOWN("network error", "network error")
 
     for mess in subscribe_result.iter:
+        a = mess.strip()
         decode_result = decode_flag_from_image(mess)
         if decode_result is None:
             continue
@@ -200,5 +202,6 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-    a = generate_random_bytes()
-    print(a)
+    name=uuid.uuid4()
+  #  a = put_flag_into_the_service1("localhost", name, "13")
+    print(get_flag_from_the_service1("localhost", "bla:00018894-0000-0000-626c-610000000000", "13"))

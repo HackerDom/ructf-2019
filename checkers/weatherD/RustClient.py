@@ -43,17 +43,18 @@ class RustClient:
                                      use_encryption: bool, encryption_key: str, iv: str, ip: str):
         post_fields = {'name': source_name,
                        'password': passwrd,
-                       'isPublic': is_public,
+                       'is_public': is_public,
                        'encryption': use_encryption,
                        'encryption_key': encryption_key,
                        'iv': iv
                        }
-
-        return Request("http://{0}:{1}/create_source".format(ip, self.port), urlencode(post_fields).encode())
+        post_str = "name={}&password={}&is_public={}&encryption={}&encryption_key={}&iv={}".format(source_name, passwrd, is_public, use_encryption, encryption_key, iv)
+        return Request("http://{0}:{1}/create_source?{2}".format(ip, self.port, post_str), urlencode(post_fields).encode())
 
     def create_push_to_source_request(self, source_name, password, message, ip):
         post_fields = {'name': source_name, 'password': password, 'message': message}
-        return Request("http://{0}:{1}/push_message".format(ip, self.port), urlencode(post_fields).encode())
+        post_str = "name={}&password={}&message={}".format(source_name, password,message)
+        return Request("http://{0}:{1}/push_message?{2}".format(ip, self.port, post_str), urlencode(post_fields).encode())
 
     def decode_body(self, response):
         try:

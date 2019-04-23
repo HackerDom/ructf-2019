@@ -13,10 +13,10 @@ class NotificationApiClient:
         url = "http://{0}:{1}/subscribe?source={2}&token={3}".format(ip, self.port, source_name, token)
         try:
             messages = SSEClient(url)
-        except:
+        except Exception as e:
             return SubscribeResult(False)
 
-        return messages
+        return SubscribeResult(True, messages)
 
     def create_subscribe_on_source_request(self, source_name, token, ip):
         post_fields = {'source': source_name, 'token': token}
