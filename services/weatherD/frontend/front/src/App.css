@@ -1,0 +1,161 @@
+.wrapper
+{
+  display: grid;
+  grid-template-columns: 1.5fr 3.5fr 0.5fr;
+  grid-template-areas: 'sources news .';
+  grid-gap: 5%;
+  text-align: center;
+
+}
+
+.sources
+{
+  grid-area: sources;
+  width: 100%;
+  height: 100%;
+
+}
+
+.source
+{
+  margin: 15px;
+}
+
+.news_content
+{
+  grid-area: news;
+}
+
+.sources_list
+{
+  overflow-y: scroll;
+}
+
+.news_header
+{
+  font: 20em;
+}
+
+.news
+{
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+#add_source
+{
+  height: 30px;
+  width: 100%;
+  background: lightgreen;
+  border: lightgray 2px solid;
+  
+}
+
+.article
+{
+  width: 100%;
+}
+
+#push_to_source
+{
+  height: 30px;
+  width: 100%;
+  background: palegoldenrod;
+  border: lightgray 2px solid;
+}
+
+.subscribe_button
+{
+  display: inline-block;
+  width: 10%;
+  height: 100%;
+  float: right;
+}
+
+.source_name
+{
+  overflow-wrap: break-word;
+}
+
+.popup {
+  display: inline-block;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+.popup {
+  width: 500px;
+  height: 200px;
+  background-color: rgb(199, 191, 191);
+  color: #fff;
+  left: 40%;
+  top: 30%;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  text-align: center;
+  font-size: 40px;
+}
+
+.popup_close
+{
+  background: rgb(199, 191, 191);
+  float: right;
+  font: 100px;
+  border:  rgb(199, 191, 191);
+}
+
+#add_src_popup
+{
+  visibility: hidden;
+  width: 500px;
+  height: 200px;
+  background-color: rgb(199, 191, 191);
+  color: #fff;
+  left: 40%;
+  top: 30%;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  text-align: center;
+  font-size: 40px;
+}
+
+#push_to_src_popup
+{
+  visibility: hidden;
+  width: 500px;
+  height: 400px;
+  background-color: rgb(199, 191, 191);
+  color: #fff;
+  left: 40%;
+  top: 30%;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  text-align: center;
+  font-size: 40px;
+}
+
+.App-form {
+  display: grid;
+  grid-gap: 15px;
+}
+
+.source_image
+{
+  object-fit: contain;
+  width: 700px;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+}

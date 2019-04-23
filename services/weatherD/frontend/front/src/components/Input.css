@@ -1,0 +1,15 @@
+.Input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #FC63E3;
+    font: unset;
+    color: unset;
+    display: flex;
+    flex-wrap: wrap-reverse;
+    display: inline;
+}
+
+.Input-label {
+    float: left;
+    font-size: 20px;
+}
