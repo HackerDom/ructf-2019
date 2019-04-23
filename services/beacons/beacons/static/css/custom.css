@@ -1,0 +1,45 @@
+.main {
+    margin-top: 10px;
+}
+
+.row,
+.main {
+    margin-left: 0px;
+    margin-right: 0px;
+    display: flex;
+    flex-direction: row;
+}
+
+.sidebar {
+    flex-direction: column;
+    flex: 0.5;
+}
+
+body {
+}
+
+.hidden {
+    display: none;
+}
+
+.map {
+    padding: 0px;
+}
+
+.horizontal-button {
+    background-color: #E485B7;
+    height: 20px;
+    text-align: center;
+    flex: 1;
+}
+
+.vertical-button {
+    background-color: #E485B7;
+    width: 20px;
+    padding: 0px;
+    vertical-align: center;
+}
+
+img {
+    max-width: 60px;
+}

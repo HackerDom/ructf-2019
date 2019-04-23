@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div>Это типа страничка с текущим квестом</div>
+    <img>
+    <p>{{quest_point}}</p>
+    <form action="/Quest/CheckIn/{{quest_id}}" method="post">
+        <input type="text" value="Latitude"></input>
+        <input type="text" value="Longitude"></input>
+        <input type="submit">
+    </form>
+</body>
+</html>

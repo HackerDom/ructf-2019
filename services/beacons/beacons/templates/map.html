@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <link href="/static/css/custom.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body onload="init({{center_x}}, {{center_y}})">
+    <nav></nav>
+    <main class="container main">
+        <div class="row">
+            <div class="sidebar">
+                <div id="error" class="row error"></div>
+                <div id="profile" class="card">
+                    <div class="">{{user.name}}</div>
+                    <div class="">Your last beacons</div>
+                    <div id="profile-beacons" class=""></div>
+                </div>
+                <div id="beacon" class="hidden card">
+                    <h3 id="beacon-name" class=""></h3>
+                    <div class="">
+                        <p id="beacon-comment" class=""></p>
+                        <div id="beacon-photos"></div>
+                        <form id="beacon-add-photo-form" name="beaconPhotos">
+                            <input name="photo" id="beacon-add-photo-input" required accept="image/jpeg,image/tiff,image/jpg" type="file" value="Choose file">
+                            <input type="submit" value="Add photo">
+                        </form>
+                    </div>
+                </div>
+                <div id="add-beacon" class="hidden card">
+                    <h3 class="">Create new beacon</h3>
+                    <div class="">
+                        <form id="beacon-add-form" name="beacon">
+                            <label for="beacon-add-name">Write beacon name</label>
+                            <input id="beacon-add-name" name="name" type="text" placeholder="For instance, beacon">
+                            <label for="beacon-add-comment">Write beacon comment</label>
+                            <input id="beacon-add-comment" name="comment" type="text" placeholder="For instance, my beacon">
+                            <label for="beacon-add-is-private">Make your beacon private</label>
+                            <input id="beacon-add-is-private" name="isPrivate" type="checkbox">
+                            <input type="submit" value="Add beacon">
+                        </form>
+                    </div>
+                </div>
+                <div id="latest" class="hidden card">
+                    тут мы видим последние несколько фоточек
+                </div>
+            </div>
+            <div class="map container" id="map">
+                <div class="row">
+                    <div id="button-up" class="col horizontal-button">&#9650;</div>
+                </div>
+                <div class="row">
+                    <div id="button-left" class="vertical-button">&#9668;</div>
+                    <canvas id="canvas" width="1000" height="600"></canvas>
+                    <div id="button-right" class="vertical-button">&#9658;</div>
+                </div>
+                <div class="row">
+                    <div id="button-down" class="horizontal-button">&#9660;</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+<script src="/static/js/map_generator.js"></script>
+<script src="/static/js/simplex-noise.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+</html>
