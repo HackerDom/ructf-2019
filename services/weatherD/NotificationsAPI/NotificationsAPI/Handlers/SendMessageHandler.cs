@@ -13,7 +13,7 @@ namespace NotificationsApi.Handlers
 	    private readonly MongoDbClient mongoClient;
 	    private readonly SourceStorage sourceStorage;
 	    private readonly Authorizer authorizer;
-	    private readonly TimeSpan TTL = TimeSpan.FromMinutes(0.5);
+	    private readonly TimeSpan TTL = TimeSpan.FromMinutes(60);
 
 
 		public SendMessageHandler(MessageSender messageSender, MongoDbClient mongoClient, SourceStorage sourceStorage, Authorizer authorizer)
@@ -34,7 +34,7 @@ namespace NotificationsApi.Handlers
 			if(sourceStorage.TryGetInfo(request.SourceName, out var info))
 			{
 				var message = new Message(request.Message, DateTime.UtcNow + TTL);
-				await mongoClient.InsertMessage(request.SourceName, message);
+				//await mongoClient.InsertMessage(request.SourceName, message);
 				info.AddMessage(message);
 				messageSender.Send(request.Message, info);
 			}

@@ -23,7 +23,8 @@ namespace NotificationsApi.Handlers
 			{
 				request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 				return;
-			}			
+			}
+
 
 			var cts = new TaskCompletionSource<byte>();
 			request.HttpContext.RequestAborted.Register(() => cts.TrySetResult(1));
