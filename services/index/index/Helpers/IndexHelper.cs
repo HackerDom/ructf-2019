@@ -101,7 +101,7 @@ namespace index.Helpers
             foreach (var nodeName in nodesToAdd.Skip(1))
             {
                 var next = current.Children.FirstOrDefault(n => n.Name == nodeName);
-                if (next!=null)
+                if (next != null)
                 {
                     current = next;
                     continue;
@@ -116,10 +116,12 @@ namespace index.Helpers
         private void AddIndex(string filePath, string fileName, string user)
         {
             var indexEntity = indexDb.Get(ie => ie.User == user) ?? new IndexEntity(user);
-            if(!indexEntity.Hash.ContainsKey(fileName))
+            if (!indexEntity.Hash.ContainsKey(fileName))
                 indexEntity.Hash[fileName] = new List<string>();
 
-            indexEntity.Hash[fileName].Add(Path.GetDirectoryName(filePath));
+            var directoryName = Path.GetDirectoryName(filePath);
+            if (!indexEntity.Hash[fileName].Contains(directoryName))
+                indexEntity.Hash[fileName].Add(directoryName);
 
             if (indexEntity.Id != null)
                 indexDb.Update(indexEntity.Id, indexEntity);
