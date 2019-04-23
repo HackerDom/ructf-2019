@@ -16,6 +16,11 @@
     min-width: 270px;
 }
 
+.navigation {
+    display: flex;
+    flex-direction: row;
+}
+
 body {
 }
 

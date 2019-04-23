@@ -158,6 +158,13 @@ function addButtonListeners(mapStateObject, ctx) {
         mapStateObject["centerY"] = mapStateObject["centerY"] + delta;
         renderFullMap(mapStateObject, ctx);
     };
+    document.getElementById("go-to-profile").onclick = function() {
+        if (mapStateObject["selected"]) {
+            undoSelected(mapStateObject, ctx);
+        }
+        mapStateObject["selected"] = undefined;
+        viewProfile();
+    };
 }
 
 function addFormsListener(mapStateObject) {
@@ -286,6 +293,11 @@ function viewBeacon(beacon) {
     beaconInfo.photos.forEach(function(photo) {
         addPhotoRender(photo);
     });
+}
+
+function viewProfile() {
+    hideSidebarsCards();
+    showSidebarsCard("profile");
 }
 
 function getExif() {

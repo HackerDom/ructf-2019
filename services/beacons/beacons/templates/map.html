@@ -6,10 +6,13 @@
     <title></title>
 </head>
 <body onload="init({{center_x}}, {{center_y}})">
-    <nav></nav>
     <main class="container main">
         <div class="row">
             <div class="sidebar">
+                <nav class="navigation">
+                    <div id="go-to-profile">Profile</div>
+                    <div id="go-to-latest">Latest activity</div>
+                </nav>
                 <div id="error" class="row error"></div>
                 <div id="profile" class="card">
                     <div class="">{{user.name}}</div>
@@ -32,9 +35,9 @@
                     <div class="">
                         <form id="beacon-add-form" name="beacon">
                             <label for="beacon-add-name">Write beacon name</label>
-                            <input id="beacon-add-name" name="name" type="text" placeholder="For instance, beacon">
+                            <input id="beacon-add-name" name="name" required pattern="[\w\d_]+" type="text" placeholder="For instance, beacon">
                             <label for="beacon-add-comment">Write beacon comment</label>
-                            <input id="beacon-add-comment" name="comment" type="text" placeholder="For instance, my beacon">
+                            <input id="beacon-add-comment" name="comment" required pattern="[\w\d_!?.,]+" type="text" placeholder="For instance, my beacon">
                             <label for="beacon-add-is-private">Make your beacon private</label>
                             <input id="beacon-add-is-private" name="isPrivate" type="checkbox">
                             <input type="submit" value="Add beacon">
