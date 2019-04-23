@@ -9,9 +9,15 @@ from beacons.repositories.beacon import Beacon
 from beacons.repositories.photo import Photo
 import re
 from bson.objectid import ObjectId
+from random import choices
+import string
 
 
 beacon_page = Blueprint("beacon", url_prefix="/Beacon")
+
+    
+def get_random_id():
+    return ''.join(choices(string.hexdigits, k=24))
 
 
 @beacon_page.route("/Add", methods=["POST"])
@@ -34,16 +40,19 @@ async def add_beacon(request):
     if await Beacon.find_one({"coord_x": coord_x, "coord_y": coord_y}):
         return {"message": "Beacon exists"}
     
-    inserted_id = (await Beacon.insert_one({"name": name,
-                                            "comment": comment,
-                                            "coord_x": coord_x,
-                                            "coord_y": coord_y,
-                                            "creator": user.id})
-                   ).inserted_id
+    upserted_id  = (await Beacon.update_one({"_id": ObjectId(get_random_id())}, {
+                                            "$set": {"name": name,
+                                                     "comment": comment,
+                                                     "coord_x": coord_x,
+                                                     "coord_y": coord_y,
+                                                     "creator": str(user.id)},
+                                            "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
+                   ).upserted_id
+                   
     print(user.beacons)
     await User.update_one({"_id": user.id}, 
-                            {"$push": {"beacons": str(inserted_id)}})
-    return json({"inserted_id": str(inserted_id)})
+                            {"$push": {"beacons": str(upserted_id)}})
+    return json({"upserted_id": str(upserted_id)})
 
 
 @beacon_page.route("/<beacon_id>")
@@ -71,8 +80,11 @@ async def add_photo(request, beacon_id):
     #     return {"message": "Incorrect symbol in comment"}
 
     photo = request.files.get("photo")
-    inserted_id = (await Photo.insert_one({"photo": photo.body})).inserted_id
+    upserted_id = (await Photo.update_one({"_id": ObjectId(get_random_id())}, {
+                                                            "$set": {"photo": photo.body},
+                                                            "$currentDate": {"createDate": {"$type": "timestamp"}}},
+                                                            upsert=True)).upserted_id
 
-    await Beacon.update_one({"_id": ObjectId(beacon_id)}, {"$push": {"photos": str(inserted_id)}})
+    await Beacon.update_one({"_id": ObjectId(beacon_id)}, {"$push": {"photos": str(upserted_id)}})
 
-    return json({"inserted_id": str(inserted_id)})
+    return json({"upserted_id": str(upserted_id)})
