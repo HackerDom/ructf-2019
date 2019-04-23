@@ -7,6 +7,12 @@ namespace NotificationsApi.Requests
 {
 	internal class NotificationApiRequest
 	{
+		private const string SourceParamName = "source";
+		private const string TokenParamName = "token";
+		private const string MessageParamName = "message";
+		private const string TimeParamName = "time";
+		private const string PasswordParamName = "password";
+		private const string IsPublicParamName = "isPublic";
 		public byte[] Message { get; private set; }
 		public string SourceName { get; private set; }
 		public string Password { get; private set; }
@@ -16,11 +22,56 @@ namespace NotificationsApi.Requests
 		[JsonIgnore]
 		public HttpContext HttpContext { get; private set; }
 
-		public static NotificationApiRequest CreateFromQueryCollection(string body, HttpContext context)
+		public static NotificationApiRequest CreateFromBody(string body, HttpContext context)
 		{
 			var result = JsonConvert.DeserializeObject<NotificationApiRequest>(body);
 			result.HttpContext = context;
 			return result;
+		}
+
+		public static NotificationApiRequest CreateFromQueryCollection(IQueryCollection options, HttpContext context)
+		{
+			string source = null;
+			string token = null;
+			string password = null;
+			byte[] message = null;
+			var time = 0L;
+			var isPublic = false;
+
+			if(options.ContainsKey(SourceParamName))
+				source = options[SourceParamName];
+
+			if(options.ContainsKey(TokenParamName))
+				token = options[TokenParamName];
+
+			if(options.ContainsKey(TimeParamName))
+				time = long.Parse(options[TimeParamName]);
+
+			if(options.ContainsKey(PasswordParamName))
+				password = options[PasswordParamName];
+
+			if(options.ContainsKey(IsPublicParamName))
+				isPublic = options[IsPublicParamName] == "true";
+
+			if(options.ContainsKey(MessageParamName))
+			{
+				string hex = options[MessageParamName];
+				message = Enumerable.Range(0, hex.Length)
+					.Where(x => x % 2 == 0)
+					.Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+					.ToArray();
+			}
+
+			return new NotificationApiRequest
+			{
+				Message = message,
+				Token = token,
+				SourceName = source,
+				HttpContext = context,
+				Time = time,
+				Password = password,
+				IsPublic = isPublic
+			};
 		}
 	}
 }

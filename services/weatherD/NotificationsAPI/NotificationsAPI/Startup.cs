@@ -34,8 +34,8 @@ namespace NotificationsAPI
 				}
 
 				b.Request.Body.Position = 0;
-				var notificationApiRequest = NotificationApiRequest.CreateFromQueryCollection(body, b);
-				var method = b.Request.Method == "GET" ? HttpMethod.Get : HttpMethod.Post; 
+				var notificationApiRequest = NotificationApiRequest.CreateFromBody(body, b);
+				var method = string.Equals(b.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) ? HttpMethod.Get : HttpMethod.Post; 
 				Console.WriteLine(b.Request.Method);
 				await handler.HandleAsync(notificationApiRequest, b.Request.Path, method);
 			});

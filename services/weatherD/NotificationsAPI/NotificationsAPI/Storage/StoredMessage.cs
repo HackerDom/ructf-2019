@@ -7,6 +7,7 @@ namespace NotificationsApi.Storage
 	public class StoredMessage
 	{
 		public byte[] Content;
+		[BsonElement("expireAt")]
 		public DateTime expireAt;
 		public string SourceName;
 		[BsonRepresentation(BsonType.ObjectId)]
