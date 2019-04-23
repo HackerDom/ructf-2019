@@ -26,7 +26,7 @@ use http::Uri;
 use super::weather_state::WeatherState;
 use crate::weather_state::WeatherSource;
 
-use crate::create_source_query_string_extractor::PushMessageQueryStringExtractor;
+use crate::push_message_query_string_extractor::PushMessageQueryStringExtractor;
 use self::http::request;
 use crate::create_image;
 
@@ -50,29 +50,35 @@ impl Handler for PushMessageHandler {
         let query_param = PushMessageQueryStringExtractor::take_from(&mut state);
 
         let client = Client::new();
-        let query_string = format!(
-            "source={}&token={}&message={}",
-            "source",
-            "token",
-            "message"
-        );
 
-        let uri = format!("http://localhost:5000/sendMessage?{}", query_string).parse::<Uri>().unwrap();
+
         {
 
             let mut v = self.weather_state.lock().unwrap();
 
-            let source = v.get_source(&query_param.name);
+//            let source = v.get_source(&query_param.name);
 
-            if source.password != query_param.password {
-                panic!("password mismatch");
-            }
+            //todo : checck lock spoiling
+
+//            if source.password != query_param.password {
+//                panic!("password mismatch");
+//            }
         }
+
+        let query_string = format!(
+            "source={}&message={}&password={}",
+            query_param.name,
+            query_param.message,
+            query_param.password
+        );
+
+        let uri = format!("{}sendMessage?{}", crate::constants::NOTIFICATION_API_ADDR, query_string).parse::<Uri>().unwrap();
 
         let req = request::Builder::new()
              .method("POST")
              .uri(uri)
-             .body(hyper::Body::from(create_image::encode(&query_param.message)))
+//             .body(hyper::Body::from(create_image::encode(&query_param.message)))
+             .body(hyper::Body::from("string"))
              .unwrap();
 
         let result = client
@@ -87,6 +93,7 @@ impl Handler for PushMessageHandler {
                                     let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Bingo");
                                     return future::ok((state, response));
                                 }
+                                println!("{}", response.status());
                                 let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Pain");
                                 return future::ok((state, response));
                             }
@@ -98,6 +105,7 @@ impl Handler for PushMessageHandler {
                             }
                         }
                 });
+
 
         return Box::new(result);
     }
