@@ -61,6 +61,9 @@ func splitPlainSecret(plainSecret string) (uint, string, error) {
 func (um *UsersManager) LoginUser(userId uint, password string) (bool, string, error) {
 	var user User
 	rawUser, err := um.Storage.Get(userId)
+	if err != nil {
+		return false, "", errors.New("can not get user from storage: " + err.Error())
+	}
 	err = json.Unmarshal(rawUser, &user)
 	if err != nil {
 		return false, "", errors.New("can not unmarshal user: " + err.Error())
@@ -80,14 +83,24 @@ func (um *UsersManager) LoginUser(userId uint, password string) (bool, string, e
 	}
 }
 
-func (um *UsersManager) ValidateCookie(cookies []*http.Cookie) (bool, uint, error) {
+func (um *UsersManager) GetForCookie(userId uint) (string, error) {
+	var user User
+	rawUser, err := um.Storage.Get(userId)
+	err = json.Unmarshal(rawUser, &user)
+	if err != nil {
+		return "", errors.New("can not unmarshal user: " + err.Error())
+	}
+	return base64.StdEncoding.EncodeToString(user.Secret), nil
+}
+
+func (um *UsersManager) GetFromCookie(cookies []*http.Cookie) (uint, []byte, error) {
 	var userId uint
 	var secretB64 string
 	for _, cookie := range cookies {
 		if cookie.Name == "uid" {
 			uid, err := strconv.ParseInt(cookie.Value, 10, 64)
 			if err != nil {
-				return false, 0, errors.New("can not parse user id: " + err.Error())
+				return 0, nil, errors.New("can not parse user id: " + err.Error())
 			}
 			userId = uint(uid)
 		} else if cookie.Name == "secret" {
@@ -96,8 +109,17 @@ func (um *UsersManager) ValidateCookie(cookies []*http.Cookie) (bool, uint, erro
 	}
 	secret, err := base64.StdEncoding.DecodeString(secretB64)
 	if err != nil {
-		return false, 0, errors.New("can not parse base64 of secretB64: " + err.Error())
+		return 0, nil, errors.New("can not parse base64 of secretB64: " + err.Error())
 	}
+	return userId, secret, nil
+}
+
+func (um *UsersManager) ValidateCookies(cookies []*http.Cookie) (bool, uint, error) {
+	userId, secret, err := um.GetFromCookie(cookies)
+	if err != nil {
+		return false, 0, errors.New("can not get from cookie: " + err.Error())
+	}
+
 	var user User
 	rawUser, err := um.Storage.Get(userId)
 	err = json.Unmarshal(rawUser, &user)

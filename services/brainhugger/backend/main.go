@@ -36,7 +36,7 @@ func handleRunTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	ok, ownerId, err := usersManager.ValidateCookie(r.Cookies())
+	ok, ownerId, err := usersManager.ValidateCookies(r.Cookies())
 	if err != nil {
 		w.WriteHeader(400)
 		return
@@ -73,7 +73,7 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		return
 	}
-	ok, ownerId, err := usersManager.ValidateCookie(r.Cookies())
+	ok, ownerId, err := usersManager.ValidateCookies(r.Cookies())
 	if err != nil {
 		w.WriteHeader(400)
 		return
@@ -145,8 +145,30 @@ func handleLoginUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
+	ok, _, err := usersManager.ValidateCookies(r.Cookies())
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+
+	if ok {
+		secret, err := usersManager.GetForCookie(uint(userId))
+		if err != nil {
+			w.WriteHeader(400)
+			return
+		}
+		http.SetCookie(w, &http.Cookie{
+			Name: "secret",
+			Value: secret,
+		})
+		http.SetCookie(w, &http.Cookie{
+			Name: "uid",
+			Value: fmt.Sprint(userId),
+		})
+		return
+	}
+
 	ok, cookie, err := usersManager.LoginUser(uint(userId), password)
-	fmt.Println(ok, cookie, err)
 	if err != nil {
 		w.WriteHeader(400)
 		return
