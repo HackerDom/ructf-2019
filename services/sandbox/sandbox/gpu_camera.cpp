@@ -94,7 +94,7 @@ void GpuCamera::Update(float fovy, float aspect, float znear, float zfar, GLuint
 	m_program->BindUniforms();
 	glDispatchCompute(1, 1, 1);
 
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 
