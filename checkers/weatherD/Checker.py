@@ -6,7 +6,9 @@ from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
 
 from Crypto.Cipher import AES
-from sseclient import  SSEClient
+from PIL import Image
+import base64
+
 import string
 import random
 import uuid
@@ -15,11 +17,13 @@ Checker.INFO = "1:2"
 RUSTPORT = 7878
 NotificationApiPort = 5000
 
-tokens_storage = {}
-
 rustClient = RustClient(RUSTPORT, 3)
 notificationApiClient = NotificationApiClient(NotificationApiPort, 3)
 
+IMAGE_WIDTH = 1000
+IMAGE_HEIGHT = 1000
+
+PIXELS_WITH_FLAG = []
 
 def check_result(result, out):
     if result is None:
@@ -51,7 +55,7 @@ def check_service(host: str) -> Verdict:
         return Verdict.DOWN("network error", "network error")
 
     for mess in subscribe_result.iter:
-        decode_result = decode_flag_from_image(mess)
+        decode_result = get_flag_from_base64(mess)
         if decode_result is None:
             continue
 
@@ -75,6 +79,7 @@ def put_flag_into_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
         return a
 
     return '{}:{}'.format(flag_id, token)
+    return Verdict.OK('{}:{}'.format(flag_id, token))
 
 
 
@@ -88,7 +93,7 @@ def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
 
     for mess in subscribe_result.iter:
         a = mess.strip()
-        decode_result = decode_flag_from_image(mess)
+        decode_result = getImageFromBase64(mess)
         if decode_result is None:
             continue
 
@@ -128,7 +133,7 @@ def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
         return Verdict.DOWN("network error", "network error")
 
     for mess in subscribe_result.iter:
-        decode_result = decode_flag_from_image(mess)
+        decode_result = get_flag_from_aes(mess)
         if not decode_result[0]:
             continue
 
@@ -150,9 +155,40 @@ def generate_random_bytes(N=16):
 def decodeAES(key, ciphertext, iv):
     cipher = AES.new(key, AES.MODE_EAX, iv=iv)
     result = cipher.decrypt(ciphertext)
-    print(result)
+    return result
 
-def decode_flag_from_image(u8bytes):
+
+def get_flag_from_aes(key, ciphertext, iv):
+    image = getImageFromBase64(ciphertext)
+    bytes = get_bytes_with_flag(image)
+    message = decode_flag_bytes(bytes)
+    result = decodeAES(key, message, iv)
+    return result
+
+
+def get_flag_from_base64(base64text):
+    image = getImageFromBase64(base64text)
+    bytes = get_bytes_with_flag(image)
+    flag = decode_flag_bytes(bytes)
+    return flag
+
+
+def getImageFromBase64(base64Image) -> Image:
+    bytes = base64.b64decode(base64Image)
+    image = Image.frombytes("RGB", (IMAGE_WIDTH, IMAGE_HEIGHT), bytes)
+    return image
+
+
+def get_bytes_with_flag(image : Image):
+    res = []
+    for coord in PIXELS_WITH_FLAG:
+        r, g, b = image.getpixel(coord)
+        res = res + [r, g, b]
+
+    return res
+
+
+def decode_flag_bytes(u8bytes):
     try:
         nums = []
         i = 0
