@@ -8,5 +8,5 @@ layout(binding = 0) uniform sampler2D tex;
 
 void main()
 {
-	outColor = texture(tex, uv);
+	outColor = texture(tex, uv) * vec4(207.0f, 2.0f, 159.0f, 255.0f) / 255.0f;
 }

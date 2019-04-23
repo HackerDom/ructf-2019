@@ -76,7 +76,7 @@ static uint32_t GFieldSizeX = 256 + kStreetWidth;
 static uint32_t GFieldSizeY = 256 + kStreetWidth;
 #if DEBUG
 static bool GSpectatorMode = false;
-#elif
+#else
 static bool GSpectatorMode = true;
 #endif
 
