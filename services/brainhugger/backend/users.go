@@ -2,31 +2,120 @@ package main
 
 import (
 	"brainhugger/backend/storage"
+	"brainhugger/backend/cbc"
+	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
 )
+
+type User struct {
+	Secret []byte
+	Key []byte
+}
 
 type UsersManager struct {
 	Storage storage.Storage
 }
 
-func (um *UsersManager) AddUser(password string) (uint, error) {
+func (um *UsersManager) AddUser(password string, key []byte) (uint, string, error) {
 	um.Storage.Locker.Lock()
 	defer um.Storage.Locker.Unlock()
 
 	usersCount := um.Storage.GetItemsCount()
-	if err := um.Storage.Set(usersCount, []byte(password)); err != nil {
-		return 0, errors.New("can not add user: " + err.Error())
+
+	plainSecret := fmt.Sprintf("%v|%v", usersCount, password)
+	encryptedSecret, err := cbc.Encrypt(key, []byte(plainSecret))
+
+	if err != nil {
+		return 0, "", errors.New("can not encrypt password: " + err.Error())
+	}
+
+	rawUser, err := json.Marshal(User{Secret: encryptedSecret, Key: key})
+	if err != nil {
+		return 0, "", errors.New("can not marshal user: " + err.Error())
+	}
+	if err := um.Storage.Set(usersCount, rawUser); err != nil {
+		return 0, "", errors.New("can not set storage: " + err.Error())
 	}
 	um.Storage.IncItemsCount()
-	return usersCount, nil
+	return usersCount, base64.StdEncoding.EncodeToString(encryptedSecret), nil
 }
 
-func (um *UsersManager) ValidateUserPassword(userId uint, password string) bool {
-	realPassword, err := um.Storage.Get(userId)
-	if err != nil {
-		return false
+func splitPlainSecret(plainSecret string) (uint, string, error) {
+	idx := strings.Index(plainSecret, "|")
+	if idx == -1 {
+		return 0, "", errors.New("can not find pipe")
 	}
-	return string(realPassword) == password
+	userId, err := strconv.ParseInt(plainSecret[:idx], 10, 64)
+	if err != nil {
+		return 0, "", errors.New("can not parse userId: " + err.Error())
+	}
+	return uint(userId), plainSecret[idx + 1:], nil
+}
+
+func (um *UsersManager) LoginUser(userId uint, password string) (bool, string, error) {
+	var user User
+	rawUser, err := um.Storage.Get(userId)
+	err = json.Unmarshal(rawUser, &user)
+	if err != nil {
+		return false, "", errors.New("can not unmarshal user: " + err.Error())
+	}
+	plainSecret, err := cbc.Decrypt(user.Key, user.Secret)
+	if err != nil {
+		return false, "", errors.New("can not decrypt password: " + err.Error())
+	}
+	userId, realPassword, err := splitPlainSecret(string(plainSecret))
+	if err != nil {
+		return false, "", errors.New("can not split plain secret")
+	}
+	if string(realPassword) == password {
+		return true, base64.StdEncoding.EncodeToString(user.Secret), nil
+	} else {
+		return false, "", nil
+	}
+}
+
+func (um *UsersManager) ValidateCookie(cookies []*http.Cookie) (bool, uint, error) {
+	var userId uint
+	var secretB64 string
+	for _, cookie := range cookies {
+		if cookie.Name == "uid" {
+			uid, err := strconv.ParseInt(cookie.Value, 10, 64)
+			if err != nil {
+				return false, 0, errors.New("can not parse user id: " + err.Error())
+			}
+			userId = uint(uid)
+		} else if cookie.Name == "secret" {
+			secretB64 = cookie.Value
+		}
+	}
+	secret, err := base64.StdEncoding.DecodeString(secretB64)
+	if err != nil {
+		return false, 0, errors.New("can not parse base64 of secretB64: " + err.Error())
+	}
+	var user User
+	rawUser, err := um.Storage.Get(userId)
+	err = json.Unmarshal(rawUser, &user)
+	if err != nil {
+		return false, 0, errors.New("can not unmarshal user: " + err.Error())
+	}
+	plainSecret, err := cbc.Decrypt(user.Key, secret)
+	if err != nil {
+		return false, 0, errors.New("can not decrypt password: " + err.Error())
+	}
+	realUserId, _, err := splitPlainSecret(string(plainSecret))
+	if err != nil {
+		return false, 0, nil
+	}
+	if !bytes.Equal(user.Secret, secret) {
+		return false, 0, nil
+	}
+	return realUserId == userId, userId, nil
 }
 
 func (um *UsersManager) Init(storagePath string, maxUsersCount uint) {

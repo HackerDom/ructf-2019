@@ -1,6 +1,7 @@
 package main
 
 import (
+	"brainhugger/backend/cbc"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +18,6 @@ type NewTask struct {
 	Source string
 	Stdin string
 	Token string
-	OwnerId uint
 }
 
 type NewUser struct {
@@ -36,13 +36,22 @@ func handleRunTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
+	ok, ownerId, err := usersManager.ValidateCookie(r.Cookies())
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	if !ok {
+		w.WriteHeader(403)
+		return
+	}
 	var newTask NewTask
 	err = json.Unmarshal(data, &newTask)
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
-	taskId := taskManager.AddTask(newTask.Source, newTask.Token, []byte(newTask.Stdin), newTask.OwnerId)
+	taskId := taskManager.AddTask(newTask.Source, newTask.Token, []byte(newTask.Stdin), ownerId)
 	if _, err := w.Write([]byte(fmt.Sprintf("{\"taskId\": %v}", taskId))); err != nil {
 		panic(err)
 	}
@@ -64,22 +73,22 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		return
 	}
-	token := r.URL.Query().Get("token")
-	rawOwnerId := r.URL.Query().Get("ownerid")
-	password := r.URL.Query().Get("password")
-	if token == "" || rawOwnerId == "" || password == "" {
-		w.WriteHeader(403)
-		return
-	}
-	ownerId, err := strconv.ParseUint(rawOwnerId, 10, 64)
+	ok, ownerId, err := usersManager.ValidateCookie(r.Cookies())
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
-	if task.Token != token || task.OwnerId != uint(ownerId) || !usersManager.ValidateUserPassword(uint(ownerId), password) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
 		w.WriteHeader(403)
 		return
 	}
+
+	if task.Token != token || task.OwnerId != uint(ownerId) || !ok {
+		w.WriteHeader(403)
+		return
+	}
+
 	taskResponse := TaskResponse{
 		Stdout: task.Result.Stdout,
 		Error:  task.Result.Error,
@@ -109,17 +118,22 @@ func handleRegUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	userId, err := usersManager.AddUser(newUser.Password)
+	userId, cookie, err := usersManager.AddUser(newUser.Password, cbc.GenerateKey())
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
-	if _, err := w.Write([]byte(fmt.Sprintf("{\"userId\": %v}", userId))); err != nil {
-		panic(err)
-	}
+	http.SetCookie(w, &http.Cookie{
+		Name: "secret",
+		Value: cookie,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name: "uid",
+		Value: fmt.Sprint(userId),
+	})
 }
 
-func handleCheckUserPair(w http.ResponseWriter, r *http.Request) {
+func handleLoginUser(w http.ResponseWriter, r *http.Request) {
 	rawUserId := r.URL.Query().Get("userid")
 	password := r.URL.Query().Get("password")
 	if rawUserId == "" || password == "" {
@@ -131,10 +145,26 @@ func handleCheckUserPair(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	ok := usersManager.ValidateUserPassword(uint(userId), password)
-	if _, err := w.Write([]byte(strconv.FormatBool(ok))); err != nil {
-		panic(err)
+	ok, cookie, err := usersManager.LoginUser(uint(userId), password)
+	fmt.Println(ok, cookie, err)
+	if err != nil {
+		w.WriteHeader(400)
+		return
 	}
+	if ok {
+		http.SetCookie(w, &http.Cookie{
+			Name: "secret",
+			Value: cookie,
+		})
+		http.SetCookie(w, &http.Cookie{
+			Name: "uid",
+			Value: fmt.Sprint(userId),
+		})
+	} else {
+		w.WriteHeader(403)
+		return
+	}
+	w.WriteHeader(200)
 }
 
 func main() {
@@ -149,6 +179,6 @@ func main() {
 	http.HandleFunc("/run_task", handleRunTask)
 	http.HandleFunc("/task_info/", handleTaskInfo)
 	http.HandleFunc("/register", handleRegUser)
-	http.HandleFunc("/check", handleCheckUserPair)
+	http.HandleFunc("/check", handleLoginUser)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort), nil))
 }
