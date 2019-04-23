@@ -100,7 +100,7 @@ function renderSelected(mapStateObject, ctx) {
             viewBeacon(mapStateObject["selected"]["beacon"]);
         } else {
             renderRect(coords[0]*size + 1, coords[1]*size + 1, size - 2, selectedCellStyle, ctx);
-            addBeacon(coords[0], coords[1], mapStateObject);
+            addBeacon();
         }
     }
 }
@@ -125,6 +125,22 @@ function renderFullMap(mapStateObject, ctx) {
     renderSelected(mapStateObject, ctx);
 }
 
+function hideSidebarsCards() {
+    let elements = [].slice.call(document.getElementsByClassName("card"));
+    elements.forEach(function(element) {
+        if (!element.classList.contains("hidden")) {
+            element.classList.add('hidden');
+        }
+    });
+}
+
+function showSidebarsCard(id) {
+    let element = document.getElementById(id)
+    if (element.classList.contains("hidden")) {
+        element.classList.remove("hidden");
+    }
+}
+
 function addButtonListeners(mapStateObject, ctx) {
     document.getElementById('button-left').onclick = function() {
         mapStateObject["centerX"] = mapStateObject["centerX"] - delta;
@@ -145,19 +161,36 @@ function addButtonListeners(mapStateObject, ctx) {
 }
 
 function addFormsListener(mapStateObject) {
-    let beaconAddInputElement = document.getElementById("beacon-add-input");
-    let beaconAddSubmitElement = document.getElementById("beacon-add-submit");
-    let beaconAddFormElement = document.getElementById("beacon-add-form");
-    beaconAddFormElement.addEventListener("submit", function(event) {
+    let beaconAddPhotoInputElement = document.getElementById("beacon-add-photo-input");
+    let beaconAddPhotoFormElement = document.getElementById("beacon-add-photo-form");
+    beaconAddPhotoFormElement.addEventListener("submit", function(event) {
         event.preventDefault();
-        if (beaconAddInputElement.files[0].size > 5000000) {
+        if (beaconAddPhotoInputElement.files[0].size > 5000000) {
             showError("File should be less then 5 mg");
             return;
         }
-        var form = new FormData(document.forms.beacon);
+        var form = new FormData(document.forms.beacon-photos);
         let insertedPhoto = addPhoto(mapStateObject["selected"]["beacon"]["id"], form);
         if(insertedPhoto)
             addPhotoRender(insertedPhoto);
+        beaconAddPhotoFormElement.reset();
+    });
+
+    let beaconAddFormElement = document.getElementById("beacon-add-form");
+    beaconAddFormElement.addEventListener("submit", function(event) {
+        event.preventDefault();
+        let x = mapStateObject["selected"]["x"];
+        let y = mapStateObject["selected"]["y"];
+        var form = new FormData(document.forms.beacon);
+        form.set("coord_x", x);
+        form.set("coord_y", y);
+        let insertedBeaconId = addBeaconToServer(form);
+        if(insertedBeaconId) {
+            let beacon = {"id": insertedBeaconId, "coord_x": x, "coord_y": y}
+            mapStateObject["beacons"].push(beacon);
+            mapStateObject["selected"]["beacon"] = beacon;
+            viewBeacon(beacon);
+        }
         beaconAddFormElement.reset();
     });
 }
@@ -228,7 +261,15 @@ function addPhotoRender(photo) {
     beaconPhotosElement.appendChild(imgDiv);
 }
 
+function addBeacon() {
+    hideSidebarsCards();
+    showSidebarsCard("add-beacon");
+}
+
 function viewBeacon(beacon) {
+    hideSidebarsCards();
+    showSidebarsCard("beacon");
+
     let beaconInfo = getBeacon(beacon.id);
     if (!beaconInfo) {
         return;
@@ -236,8 +277,8 @@ function viewBeacon(beacon) {
     let beaconNameElement = document.getElementById("beacon-name");
     beaconNameElement.innerHTML = beaconInfo.name;
 
-    let beaconDescElement = document.getElementById("beacon-desc");
-    beaconDescElement.innerHTML = beaconInfo.description;
+    let beaconCommentElement = document.getElementById("beacon-comment");
+    beaconCommentElement.innerHTML = beaconInfo.Comment;
 
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.innerHTML = "";
@@ -302,14 +343,10 @@ function addPhoto(beaconId, formData) {
     }
 }
 
-function addBeacon(x, y, mapStateObject) {
+function addBeaconToServer(formData) {
     var xhr = new XMLHttpRequest();
-
-    var name = "Name";
-    var comment = "Comment";
-
-    xhr.open("POST", "/Beacon/Add?name=" + name + "&comment=" + comment + "&coord_x=" + x + "&coord_y=" + y, false);
-    xhr.send();
+    xhr.open("POST", "/Beacon/Add", false);
+    xhr.send(formData);
     if (xhr.status != 200) {
         showError("Could not add beacon. Try again.");
     } else {
