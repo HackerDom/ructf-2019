@@ -11,15 +11,47 @@
 - name: create user
   user: name=beacons shell=/bin/false
 
+- name: create mongo user
+  user: name=mongodb shell=/bin/false
+
 - name: copy motd
   copy: src=motd dest=/etc/motd
 
-# example of installing packages
-#- name: install packages
-#  apt: 
-#    #update_cache: yes
-#    name:
-#      - cowsay
+- name: unpack mongo bins
+  unarchive:
+    src: mongo_bins.tar.gz
+    dest: /usr/bin/
+  notify: enable and restart mongo
+
+- name: copy mongo config
+  copy: src="mongod.conf" dest=/etc/
+  notify: enable and restart mongo
+
+- name: copy mongod.service
+  copy: src="mongod.service" dest=/etc/systemd/system
+  notify: enable and restart mongo
+
+- name: create mongo logs dir
+  file:
+    path: /var/log/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+  notify: enable and restart mongo
+
+- name: create mongo data dir
+  file:
+    path: /var/lib/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+  notify: enable and restart mongo
+
+- name: install packages
+  apt: 
+    update_cache: yes
+    name:
+      - python3.6-dev
 
 - name: copy service
   copy: src="beacons.py" dest=/home/beacons/
