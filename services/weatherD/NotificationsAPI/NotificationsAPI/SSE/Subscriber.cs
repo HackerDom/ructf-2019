@@ -10,10 +10,10 @@ namespace NotificationsAPI.SSE
 	internal class Subscriber
 	{
 		private readonly SourceStorage sourceStorage;
-		private readonly SSEClient sseClient;
+		private readonly SseClient sseClient;
 		private readonly Authorizer authorizer;
 
-		public Subscriber(Authorizer authorizer, SourceStorage sourceStorage, SSEClient sseClient)
+		public Subscriber(Authorizer authorizer, SourceStorage sourceStorage, SseClient sseClient)
 		{
 			this.authorizer = authorizer;
 			this.sourceStorage = sourceStorage;

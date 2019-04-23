@@ -40,7 +40,7 @@ namespace NotificationsAPI
 			var ( authorizer, sourceStorage) = new StateRestorer(mongoDbClient).Restore().GetAwaiter().GetResult();
 
 			var addUserInfoHandler = new AddSourceInfoHandler(mongoDbClient, authorizer, sourceStorage, log);
-			var sseClient = new SSEClient();
+			var sseClient = new SseClient();
 			var subscriber = new Subscriber(authorizer, sourceStorage, sseClient);
 			var messagSender = new MessageSender();
 			var sendMessageHandler = new SendMessageHandler(messagSender, mongoDbClient, sourceStorage, authorizer);

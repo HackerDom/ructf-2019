@@ -27,10 +27,14 @@ namespace NotificationsAPI
 			app.Run(async (context) =>
 			{
 				var b = a.HttpContext;
-				Console.WriteLine(b.GetHashCode());
+				string body;
+				using(StreamReader reader = new StreamReader(b.Request.Body, Encoding.UTF8, true, 1024, true))
+				{
+					body = reader.ReadToEnd();
+				}
 
-				var options = b.Request.Query;
-				var notificationApiRequest = NotificationApiRequest.CreateFromQueryCollection(options, b);
+				b.Request.Body.Position = 0;
+				var notificationApiRequest = NotificationApiRequest.CreateFromQueryCollection(body, b);
 				var method = b.Request.Method == "GET" ? HttpMethod.Get : HttpMethod.Post; 
 				Console.WriteLine(b.Request.Method);
 				await handler.HandleAsync(notificationApiRequest, b.Request.Path, method);

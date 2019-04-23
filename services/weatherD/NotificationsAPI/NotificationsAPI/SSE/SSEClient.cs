@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace NotificationsAPI.SSE
 {
-	public class SSEClient
+	public class SseClient
 	{
 		public async Task SendMessageAsync(HttpContext httpContext, byte[] message)
 		{
@@ -16,7 +16,6 @@ namespace NotificationsAPI.SSE
 			}
 			catch(Exception e)
 			{
-
 			}
 		}
 	}
