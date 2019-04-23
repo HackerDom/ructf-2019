@@ -38,7 +38,8 @@ async def add_beacon(request):
                                                 "comment": comment,
                                                 "coord_x": coord_x,
                                                 "coord_y": coord_y,
-                                                "creator": str(user.id)})).inserted_id
+                                                "creator": str(user.id),
+                                                "photos": []})).inserted_id
     print(inserted_id)
     await User.update_one({"_id": user.id}, 
                             {"$push": {"beacons": str(inserted_id)}})
@@ -49,7 +50,7 @@ async def add_beacon(request):
 @auth.login_required
 async def get_beacon(request, beacon_id):
     beacon = await Beacon.find_one(beacon_id)
-    return json({"name": beacon.name, "description": beacon.description, "creator": beacon.creator, "photos": beacon.photos})
+    return json({"name": beacon.name, "comment": beacon.comment, "creator": beacon.creator, "photos": beacon.photos})
 
 
 @beacon_page.route("/GetPhoto/<photo_id>")
