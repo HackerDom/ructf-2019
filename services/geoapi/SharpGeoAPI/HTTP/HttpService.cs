@@ -8,19 +8,22 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using SharpGeoAPI.HTTP.Handlers;
+using SharpGeoAPI.Models;
 
 namespace SharpGeoAPI.HTTP
 {
     class Settings
     {
-        public int ParallelismDegree { get; } = 8;
-        public int Port { get; } = 9007;
+        public int ParallelismDegree { get; set; } = 8;
+        public int Port { get; set; } = 9007;
+
+
     }
 
-    class HttpService
+    class HttpService : IDisposable
     {
         private readonly Settings settings;
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
         private readonly ILog log;
 
         private readonly ConcurrentDictionary<string, IBaseHandler> handlers;
@@ -28,20 +31,17 @@ namespace SharpGeoAPI.HTTP
         private Thread serverThread;
         private HttpListener listener;
 
-        public HttpService(Settings settings, ICollection<IBaseHandler> handlers, IStorage storage, ILog log)
+        public HttpService(Settings settings, ICollection<IBaseHandler> handlers, IAgentStorage agentStorage, ILog log)
         {
             this.handlers = new ConcurrentDictionary<string, IBaseHandler>(handlers.ToDictionary(handler => handler.Key,
                 handler => handler));
 
             this.settings = settings;
-            this.storage = storage;
+            this.agentStorage = agentStorage;
             this.log = log;
-        }
 
-        public void Stop()
-        {
-            serverThread.Abort();
-            listener.Stop();
+            serverThread = new Thread(Listen);
+            serverThread.Start();
         }
 
         private void Listen()
@@ -50,7 +50,7 @@ namespace SharpGeoAPI.HTTP
             listener.Prefixes.Add("http://*:" + settings.Port + "/");
             listener.Start();
             using (var semaphore = new SemaphoreSlim(settings.ParallelismDegree, settings.ParallelismDegree))
-            using (storage)
+            using (agentStorage)
             {
                 {
                     while (true)
@@ -91,10 +91,10 @@ namespace SharpGeoAPI.HTTP
             return $"{method}{context.Request.Url.LocalPath}";
         }
 
-        public void Start()
+        public void Dispose()
         {
-            serverThread = new Thread(Listen);
-            serverThread.Start();
+            serverThread.Abort();
+            listener.Stop();
         }
     }
 }

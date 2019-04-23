@@ -4,22 +4,22 @@ using SharpGeoAPI.Models;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
-    public class PutSeedHandler : BaseHandler
+    public class TerrainHandler : BaseHandler
     {
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
 
-        public PutSeedHandler(IStorage storage) : base("PUT", "seed")
+        public TerrainHandler(IAgentStorage agentStorage) : base("PUT", "terrain")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
-            var content = await context.Request.ReadContent();
+            var content = await context.Request.ReadContentAsync();
 
             var request = content.FromJson<PutSeedRequest>();
 
-            var session = await storage.GetSession(request.SessionId);
+            var session = await agentStorage.GetAgent(request.SessionId);
 
             if (session == null)
             {
@@ -27,13 +27,7 @@ namespace SharpGeoAPI.HTTP.Handlers
                 return;
             }
 
-            if (!session.IsValidSeed(request.Seed))
-            {
-                await context.Response.Send(400, "Seed is not valid");
-                return;
-            }
-
-            await storage.PutSeed(request.SessionId, request.Seed);
+            //await sessionStorage.PutSeed(request.SessionId, request.Seed);
 
             context.Response.Send(200);
 
@@ -42,7 +36,8 @@ namespace SharpGeoAPI.HTTP.Handlers
         private class PutSeedRequest
         {
             public string SessionId { get; set; }
-            public Seed Seed { get; set; }
+            public Vector2 Position { get; set; }
+            public CellType Cell { get; set; }
         }
     }
 }

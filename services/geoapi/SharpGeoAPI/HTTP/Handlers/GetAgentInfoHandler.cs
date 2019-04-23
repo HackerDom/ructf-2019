@@ -4,21 +4,21 @@ using System.Threading.Tasks;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
-    public class GetSeedHandler : BaseHandler
+    public class GetAgentInfoHandler : BaseHandler
     {
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
 
-        public GetSeedHandler(IStorage storage) : base("GET", "seed")
+        public GetAgentInfoHandler(IAgentStorage agentStorage) : base("GET", "agent")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
-            var content = await context.Request.ReadContent();
+            var content = await context.Request.ReadContentAsync();
             var request = content.FromJson<GetSeedRequest>();
 
-            var seed = await storage.GetSeed(request.SessionId, request.SeedName);
+            var seed = await agentStorage.GetSeed(request.SessionId, request.SeedName);
 
             if (seed == null)
             {

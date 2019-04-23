@@ -15,43 +15,41 @@ using SharpGeoAPI.HTTP.Handlers;
 
 namespace SharpGeoAPI
 {
-    public class Yarr
-    {
-        public string azaza;
-
-        public Yarr()
-        {
-            Console.WriteLine("Shit!");
-        }
-    }
 
     class Program
     {
         static void Main(string[] args)
         {
-            var storage = new Storage();
+            var storage = new AgentsStorage();
 
-
-            var server = new HttpService(
-                new Settings(), 
-                new List<IBaseHandler>() {new StartNewSessionHandler()},
+            var server1 = new HttpService(
+                new Settings
+                {
+                    Port = 9008,
+                    ParallelismDegree = 10
+                }, 
+                new List<IBaseHandler>() {new RegisterAgentHandler()},
                 storage,
                 LogManager.GetLogger(typeof(HttpService)));
-            /*var b = JsonConvert.DeserializeObject<object>(@"{
-'$type':'System.Windows.Data.ObjectDataProvider, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35',
-'MethodName':'Start',
-'MethodParameters':{
-    '$type':'System.Collections.ArrayList, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089',
-    '$values':['cmd','/ccalc']
-},
-'ObjectInstance':{'$type':'System.Diagnostics.Process, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'}
-}", new JsonSerializerSettings()
-        {
-            TypeNameHandling = TypeNameHandling.Auto,
-        });
 
-        */
-            var b = JsonConvert.DeserializeObject<List<object>>("[{'$type':'SharpGeoAPI.Yarr, SharpGeoAPI','azaza':null}]", 
+
+            var settings = new Settings
+            {
+                Port = 9007,
+                ParallelismDegree = 10
+            };
+
+            var c = new List<IBaseHandler>() {new RegisterAgentHandler()}; 
+
+
+            var a = JsonConvert.SerializeObject(new HttpService(settings,c, storage,
+                LogManager.GetLogger(typeof(HttpService))), new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All
+            });
+
+
+            var b = JsonConvert.DeserializeObject<List<object>>("[{'$type':'SharpGeoAPI.Chunk, SharpGeoAPI', 'a':'sasdasd'}]", 
             new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.All
@@ -62,10 +60,11 @@ namespace SharpGeoAPI
                 StartInfo = new ProcessStartInfo("cmd", "/ccalc")
             };
 
+
+
             //Console.WriteLine(b.GetType());
 
             //server.Start();
-            Console.ReadLine();
         }
     }
 }
