@@ -1,0 +1,14 @@
+[Unit]
+    Description=Brainhugger service
+
+[Service]
+    ExecStart=/home/brainhugger/go/src/brainhugger/frontend/frontend
+    WorkingDirectory=/home/brainhugger/go/src/brainhugger/frontend
+    User=brainhugger
+    Group=brainhugger
+    Restart=on-failure
+    RestartSec=2s
+    # CPUQuota=400%
+
+[Install]
+    WantedBy=multi-user.target

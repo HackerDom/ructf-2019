@@ -1,0 +1,14 @@
+[Unit]
+    Description=Index service
+
+[Service]
+    ExecStart=/home/index/index.py
+    WorkingDirectory=/home/index/
+    User=index
+    Group=index
+    Restart=on-failure
+    RestartSec=2s
+    # CPUQuota=400%
+
+[Install]
+    WantedBy=multi-user.target

@@ -1,6 +1,0 @@
-{
-    "ServerHost": "0.0.0.0",
-    "ServerPort": 30000,
-    "BackendPort": 8080,
-    "StaticDir": "static"
-}

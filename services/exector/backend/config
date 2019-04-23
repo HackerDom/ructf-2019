@@ -1,9 +1,0 @@
-{
-	"ServerHost": "0.0.0.0",
-	"ServerPort": 8080,
-	"TasksDir": "tasks",
-	"UsersDir": "users",
-	"TokensDir": "tokens",
-	"MaxItemsCount": 40000,
-	"BrainHugExecutorPath": "bhwrapper/bhexecutor/bhexecutor"
-}

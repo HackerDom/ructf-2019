@@ -1,0 +1,59 @@
+- hostname:
+    name: geoapi
+
+# put your authorized key here
+#- name: Set authorized key
+#  authorized_key:
+#    user: root
+#    key: "ssh-rsa xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx name@domain"
+#    state: present
+    
+- name: create user
+  user: name=geoapi shell=/bin/false
+
+- name: copy motd
+  copy: src=motd dest=/etc/motd
+
+# example of installing packages
+#- name: install packages
+#  apt: 
+#    #update_cache: yes
+#    name:
+#      - cowsay
+  
+- name: copy service
+  copy: src="geoapi.py" dest=/home/geoapi/
+  notify: enable and restart services
+
+# example of reusing the files from services folder
+#- name: copy service
+#  copy: src="{{ playbook_dir }}/../services/geoapi/geoapi.py" dest=/home/geoapi/
+#  notify: enable and restart services
+
+# example of copying dirs with many files
+#- name: copy service files
+#  synchronize: 
+#    src: "{{ playbook_dir }}/../services/geoapi/"
+#    dest: /home/geoapi/
+#    rsync_opts:
+#      - "--chmod=D0770"
+#      - "--chmod=F0660"
+#      - "--chown=geoapi:geoapi"
+#  notify: enable and restart services
+#
+
+- name: fix permissions
+  file: name=/home/geoapi owner=geoapi group=geoapi recurse=yes state=directory
+
+- name: make service executable
+  file: path={{item}} mode=0755
+  with_items:
+    - /home/geoapi/geoapi.py
+  notify: enable and restart services
+
+- name: add service files
+  copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
+  notify: enable and restart services
+  with_items:
+    - geoapi
+

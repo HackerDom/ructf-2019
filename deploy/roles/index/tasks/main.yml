@@ -1,0 +1,102 @@
+- hostname:
+    name: index
+
+# put your authorized key here
+- name: Set authorized key
+  authorized_key:
+    user: root
+    key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDRAUpOOZAoG2QAj6N/+vMd1jHaDjuMMjB0h6z9x6IEwGtm3sFC9FF94tIm0mJ1MiDcnK48KCMgda/2b4jPBUDYT6L8J8t91NnPO351+7RV/WgtOL/Z63TXTfPcsM+l58+EwQNU3ITawqyW3Nx0tlXNcYQpG33bnqZ/f4224CvDm1PoL2gtf0iHaKj+7G2Op3L0GHsp+xN1BQ1L90jyBuzunzr00Kjc6VWSMxOtDgEy8zGp0Uz4UVJXwmGjf8zDO/7S69Awl7qpk3GJVA9k7rnEdKI2NU3arHgbLV3kzjVszeUAQjsbzxgwmitAlvDpb9SPnHTGizfN9oIZUpkA8VHi0eub6JTrNteb5ekwjPI1vXk/w8f3A8nsr8zjztZ4eNOvm3LAjlma3+8xQzACjK/XtkBmAdvrKvX+LXTsU77Vvn4XxpDXtpgLSk0ZZtCAN1bKxFs9C1SttJ7f9d8MXWXaqNj6ERkkelvQnWnUNdeOK0ugZDd+gOuP/7q5Lb7Uzo//EnZh/8hnWpDtix6sgje/GYe2UzsneinWMntTp3QLc6EVOqLSuCWZgWJvcv+eycyy8X1RK0cN0QXmUMVlkrBiHYmZ+emfVcyNhfFYrEUyADF9RCUshvdaD/Pzf7FYeLz1tQsKYx86jYOUrV/8N4aM7XYd7cLxy/ruJAPG8nApIw== a.dubrovin@skbkontur.ru"
+    state: present
+    
+- name: create user
+  user: name=index shell=/bin/false
+
+- name: create mongo user
+  user: name=mongodb shell=/bin/false
+
+- name: copy motd
+  copy: src=motd dest=/etc/motd
+
+- name: unpack mongo bins
+  unarchive:
+    src: mongo_bins.tar.gz
+    dest: /usr/bin/
+  notify: enable and restart mongo
+
+- name: copy mongo config
+  copy: src="mongod.conf" dest=/etc/
+  notify: enable and restart mongo
+
+- name: copy mongod.service
+  copy: src="mongod.service" dest=/etc/systemd/system
+  notify: enable and restart mongo
+
+- name: create mongo logs dir
+  file:
+    path: /var/log/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+  notify: enable and restart mongo
+
+- name: create mongo data dir
+  file:
+    path: /var/lib/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+  notify: enable and restart mongo
+
+- name: create dotnet directory
+  file:
+    path: /opt/dotnet
+    state: directory
+
+- name: unpack dotnet-runtime
+  unarchive:
+    src: dotnet-runtime-2.1.2-linux-arm.tar.gz
+    dest: /opt/dotnet/
+
+
+#- name: install packages
+#  apt: 
+#    update_cache: yes
+#    name:
+#      - mongodb
+  
+- name: copy service
+  copy: src="index.py" dest=/home/index/
+  notify: enable and restart services
+
+# example of reusing the files from services folder
+#- name: copy service
+#  copy: src="{{ playbook_dir }}/../services/index/index.py" dest=/home/index/
+#  notify: enable and restart services
+
+# example of copying dirs with many files
+#- name: copy service files
+#  synchronize: 
+#    src: "{{ playbook_dir }}/../services/index/"
+#    dest: /home/index/
+#    rsync_opts:
+#      - "--chmod=D0770"
+#      - "--chmod=F0660"
+#      - "--chown=index:index"
+#  notify: enable and restart services
+#
+
+- name: fix permissions
+  file: name=/home/index owner=index group=index recurse=yes state=directory
+
+- name: make service executable
+  file: path={{item}} mode=0755
+  with_items:
+    - /home/index/index.py
+  notify: enable and restart services
+
+- name: add service files
+  copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
+  notify: enable and restart services
+  with_items:
+    - index
+

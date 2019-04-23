@@ -1,0 +1,7 @@
+*.o
+proxy-dbg
+proxy
+libinterface.so
+proxy.pro
+proxy.pro.user
+

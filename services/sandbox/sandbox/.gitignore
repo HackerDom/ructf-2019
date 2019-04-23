@@ -1,0 +1,10 @@
+.clang-format
+*.o
+sandbox-dbg
+sandbox
+sandbox.pro
+sandbox.pro.user
+sandbox/
+storage.dat
+
+

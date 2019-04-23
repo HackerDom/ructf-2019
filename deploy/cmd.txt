@@ -1,0 +1,3 @@
+Hosts are in: inventory.cfg
+
+Run example: ansible-playbook brainhugger.yaml

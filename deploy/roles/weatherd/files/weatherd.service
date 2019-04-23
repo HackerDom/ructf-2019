@@ -1,0 +1,14 @@
+[Unit]
+    Description=WeatherD service
+
+[Service]
+    ExecStart=/home/weatherd/weatherd.py
+    WorkingDirectory=/home/weatherd/
+    User=weatherd
+    Group=weatherd
+    Restart=on-failure
+    RestartSec=2s
+    # CPUQuota=400%
+
+[Install]
+    WantedBy=multi-user.target
