@@ -75,9 +75,9 @@ static double GDeltaTime;
 static uint32_t GFieldSizeX = 4096 + kStreetWidth;
 static uint32_t GFieldSizeY = 4096 + kStreetWidth;
 #if DEBUG
-static bool GSpectatorMode = false;
+static bool GCameraForceMode = true;
 #else
-static bool GSpectatorMode = true;
+static bool GCameraForceMode = false;
 #endif
 
 
@@ -105,7 +105,7 @@ void ProcessInput(GLFWwindow *window)
 
 #if DEBUG
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		GSpectatorMode = !GSpectatorMode;
+		GCameraForceMode = !GCameraForceMode;
 #endif
 }
 
@@ -276,7 +276,7 @@ int main()
 
 	if (!GGpuCamera.Init(GCamera.GetViewMatrix(), GCamera.m_pos, GCamera.m_dir, GCamera.m_up))
 		return false;
-	GGpuCamera.EnableForceMode(!GSpectatorMode);
+	GGpuCamera.EnableForceMode(GCameraForceMode);
 
 	GLuint dummyVao;
 	glGenVertexArrays(1, &dummyVao);
@@ -318,10 +318,10 @@ int main()
 		float far = 4000.0f;
 		glm::mat4 proj = glm::perspective(fovY, aspect, near, far);
 
-		if (GGpuCamera.IsForceModeEnabled() != !GSpectatorMode)
-			GGpuCamera.EnableForceMode(!GSpectatorMode);
+		if (GGpuCamera.IsForceModeEnabled() != GCameraForceMode)
+			GGpuCamera.EnableForceMode(GCameraForceMode);
 
-		if (!GSpectatorMode)
+		if (GCameraForceMode)
 			GGpuCamera.ForceCameraData(GCamera.m_pos, GCamera.m_dir, GCamera.m_up);
 
 		uint32_t unitsNumber = GUnits.GetUnitsNumber();
