@@ -26,9 +26,9 @@ type NewUser struct {
 }
 
 type TaskResponse struct {
-	Stdout string
-	Status int
-	Error  string
+	Stdoutb64 string
+	Status    int
+	Error     string
 }
 
 type LoginUser struct {
@@ -99,11 +99,10 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-
 	taskResponse := TaskResponse{
-		Stdout: task.Result.Stdout,
-		Error:  task.Result.Error,
-		Status: task.Status,
+		Stdoutb64: base64.StdEncoding.EncodeToString([]byte(task.Result.Stdout)),
+		Error:     task.Result.Error,
+		Status:    task.Status,
 	}
 	rawTaskResponse, err := JsonMarshalWithoutEscaping(taskResponse)
 	if err != nil {

@@ -78,7 +78,7 @@ function checkTask(taskId) {
             let task = JSON.parse(data);
             if (task.Status === 0) {
                 $("#stdout-div").css("display", "block");
-                $("#stdout-out-fld").text(task.Stdout);
+                $("#stdout-out-fld").text(atob(task.Stdoutb64));
                 $("#noTrespassingOuterBarG").css("display", "none");
                 clearInterval(timerId);
             } else if (task.Status === 2) {
