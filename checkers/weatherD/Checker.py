@@ -1,9 +1,13 @@
 from Checkers.infrastructure.actions import Checker
 from Checkers.infrastructure.verdict import Verdict
 from aiohttp_sse_client import client as sse_client
+import asyncio
+
 from RustClient import RustClient
 from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
+
+from aiosseclient import aiosseclient
 
 from Crypto.Cipher import AES
 from PIL import Image
@@ -82,23 +86,21 @@ def put_flag_into_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
     return Verdict.OK('{}:{}'.format(flag_id, token))
 
 
-
-def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
+async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
-    subscribe_result = notificationApiClient.subscribe_on_source(flag_id, token, host)
-    if not subscribe_result.is_success:
-        return Verdict.DOWN("network error", "network error")
+    subscribe_req = notificationApiClient.create_subscribe_on_source_request(flag_id, token, host)
+    async with sse_client.EventSource(subscribe_req) as event_source:
+        try:
+            async for event in event_source:
+                a = event
+                b=1
+        except ConnectionError:
+            return Verdict.DOWN("network error", "network error")
 
-    for mess in subscribe_result.iter:
-        a = mess.strip()
-        decode_result = getImageFromBase64(mess)
-        if decode_result is None:
-            continue
-
-        if flag in decode_result:
-            return Verdict.OK()
+        # if flag in decode_result:
+        #     return Verdict.OK()
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
@@ -122,7 +124,7 @@ def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
 
 
 @Checker.define_get(vuln_num=2)
-def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
+async def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
@@ -244,6 +246,8 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-    name=uuid.uuid4()
-  #  a = put_flag_into_the_service1("localhost", name, "13")
-    print(get_flag_from_the_service1("localhost", "bla:00018894-0000-0000-626c-610000000000", "13"))
+    name= str(uuid.uuid4())
+    a = put_flag_into_the_service1("localhost", name, "13")
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, "13"))
