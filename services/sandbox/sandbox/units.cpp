@@ -111,7 +111,7 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_fieldSizeY = fieldSizeY;
 	m_units.reserve(kMaxUnitsCount);
 
-	FILE* storage = fopen("storage.dat", "r");
+	FILE* storage = fopen("storage.dat", "rb");
 	if(storage)
 	{
 		fseek(storage, 0, SEEK_END);
@@ -252,7 +252,6 @@ Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 	u.posY = (float)disPos(e);
 	u.posZ = (float)(m_fieldSizeY - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
 
-	u.type = kUnitHuman;
 	u.power = (float)dis(e);
 	u.prevDirIdx = 0;
 	u.prevCrossIdx = 0;
@@ -308,7 +307,7 @@ uint32_t Units::AddPendingUnits()
 }
 
 
-void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
+void Units::Simulate(const Texture2D& randomTex)
 {
 	if (!m_simulationProgram)
 		return;
@@ -333,14 +332,14 @@ void Units::Simulate(const Texture2D& target, const Texture2D& randomTex)
 	if (m_units.size())
 	{
 		glUseProgram(m_simulationProgram->GetProgram());
-		m_simulationProgram->SetImage("simulationTex", target, GL_WRITE_ONLY);
 		m_simulationProgram->SetIVec4("unitsCount", glm::ivec4(m_units.size(), 0, 0, 0));
+		m_simulationProgram->SetVec4("fieldSize", glm::vec4((float)m_fieldSizeX, (float)m_fieldSizeY, 0, 0));
 		m_simulationProgram->SetTexture("randomTex", randomTex);
 		m_simulationProgram->SetSSBO("Units", m_ssbo);
 		m_simulationProgram->BindUniforms();
 		glDispatchCompute((m_units.size() + 31) / 32, 1, 1);
 
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 }
 

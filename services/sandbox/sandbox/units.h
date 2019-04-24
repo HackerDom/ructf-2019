@@ -8,13 +8,6 @@
 #include "../uuid.h"
 
 
-enum EUnitType
-{
-	kUnitHuman = 0,
-	kUnitSmith
-};
-
-
 struct Unit
 {
 	uint32_t mind[8];
@@ -22,7 +15,7 @@ struct Unit
 	float posX;
 	float posY;
 	float posZ;
-	uint32_t type;
+	uint32_t padding;
 	float power;
 	uint32_t prevDirIdx;
 	uint32_t prevCrossIdx;
@@ -55,7 +48,7 @@ public:
 
 	uint32_t GetUnitsNumber() const;
 
-	void Simulate(const Texture2D& target, const Texture2D& randomTex);
+	void Simulate(const Texture2D& randomTex);
 	void Draw(const glm::mat4& projMatrix, GLuint cameraDataSsbo);
 
 	GLuint GetSSBO() const;

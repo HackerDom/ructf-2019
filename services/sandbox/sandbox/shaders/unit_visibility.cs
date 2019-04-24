@@ -14,7 +14,7 @@ struct Unit
     float posX;
     float posY;
     float posZ;
-    uint type;
+    uint padding;
     float power;
     uint prevDirIdx;
     uint prevCrossIdx;

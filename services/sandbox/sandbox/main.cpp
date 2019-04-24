@@ -258,19 +258,11 @@ int main()
 	glewInit();
 
 	glDebugMessageCallback(GlDebugCallback, nullptr);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
 	printf("GL Vendor: \"%s\"\n", glGetString(GL_VENDOR));
 	printf("GL Renderer: \"%s\"\n", glGetString(GL_RENDERER));
 	printf("GL Version: \"%s\"\n", glGetString(GL_VERSION));
-
-	Texture2D simulationTex(GFieldSizeX, GFieldSizeY, FORMAT_R32U);
-	GLuint simulationFramebuffer;
-	glGenFramebuffers(1, &simulationFramebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, simulationFramebuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, simulationTex.GetTexture(), 0);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	if (!CheckError("Failed to create framebuffer"))
-		return 1;
 
 	Texture2D randomTex(32, 32, FORMAT_RGBA32F);
 
@@ -310,12 +302,6 @@ int main()
 		ProcessInput(window);
 #endif
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, simulationFramebuffer);
-		glViewport(0, 0, GFieldSizeX, GFieldSizeY);
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
 
@@ -324,8 +310,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		UpdateRandomTexture(randomTex);
-
-		GUnits.Simulate(simulationTex, randomTex);
+		GUnits.Simulate(randomTex);
 
 		const float fovY = glm::radians(45.0f);
 		float aspect = (float)width / (float)height;
