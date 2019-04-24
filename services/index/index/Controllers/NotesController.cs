@@ -37,9 +37,9 @@ namespace index.Controllers
         }
 
         [HttpGet]
-        public ActionResult Get(bool isPrivate)
+        public ActionResult Get(bool isPublic)
         {
-            if (!isPrivate)
+            if (isPublic)
                 return Json(db.Get().Where(n => n.IsPublic).Select(n => n.Text));
 
             if (!IsAdminSession() && IsSessionNotValid())

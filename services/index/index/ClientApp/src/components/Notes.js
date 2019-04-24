@@ -6,7 +6,7 @@ import { actionCreators } from '../store/Notes';
 
 class Notes extends React.Component {
     componentDidMount() {
-        this.props.fetchNotes(this.props.private);
+        this.props.fetchNotes(this.props.isPublic);
     }
 
     render() {

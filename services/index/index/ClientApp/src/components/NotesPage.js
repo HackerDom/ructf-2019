@@ -122,9 +122,9 @@ class NotesPage extends React.Component {
     renderContent() {
         switch (this.state.tab) {
             case 1:
-                return <Notes key="pub" private={false} />;
+                return <Notes key="pub" isPublic={true} />;
             case 2:
-                return <Notes key="priv" private={true} />;
+                return <Notes key="priv" isPublic={false} />;
             case 3:
                 return this.renderForm();
             default:
