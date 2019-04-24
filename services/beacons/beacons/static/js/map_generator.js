@@ -268,14 +268,25 @@ function addCanvasListener(mapStateObject, ctx) {
 
 function addPhotoRender(photo) {
     let imgDiv = document.createElement("div");
+    imgDiv.classList.add("img-photo");
+
+    let imgLabel = document.createElement("div");
+    imgLabel.classList.add("img-label");
+
+    let nameLabel = document.createElement("div");
+    nameLabel.innerHTML = photo["name"];
+    imgLabel.appendChild(nameLabel);
+
+    let deviceLabel = document.createElement("div");
+    imgLabel.appendChild(deviceLabel);
 
     let img = document.createElement("img");
     img.setAttribute("src", "/Beacon/GetPhoto/" + photo["id"]);
-    imgDiv.appendChild(img);
-
-    let imgLabel = document.createElement("label");
-    imgLabel.innerHTML = photo["name"];
+    img.onload = function() {
+        setDeviceModel(img, deviceLabel);
+    }
     imgDiv.appendChild(imgLabel);
+    imgDiv.appendChild(img);
 
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.appendChild(imgDiv);
@@ -318,21 +329,16 @@ function viewLatest() {
     showSidebarsCard("latest");
 }
 
-function getExif() {
-    var img1 = document.getElementById("img1");
-    EXIF.getData(img1, function() {
+function setDeviceModel(imgElement, deviceModelElement) {
+    let a= EXIF.getData(imgElement, function() {
         var make = EXIF.getTag(this, "Make");
         var model = EXIF.getTag(this, "Model");
-        var makeAndModel = document.getElementById("makeAndModel");
-        makeAndModel.innerHTML = `${make} ${model}`;
+        if (make && model) {
+            deviceModelElement.innerHTML = `device: ${make} ${model}`;
+        }
     });
 
-//    var img2 = document.getElementById("img2");
-//    EXIF.getData(img2, function() {
-//        var allMetaData = EXIF.getAllTags(this);
-//        var allMetaDataSpan = document.getElementById("allMetaDataSpan");
-//        allMetaDataSpan.innerHTML = JSON.stringify(allMetaData, null, "\t");
-//    });
+    console.log(a)
 }
 
 function getBeacons(centerX, centerY) {
