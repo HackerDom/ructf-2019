@@ -12,20 +12,17 @@ debug: proxy
 
 release: CXXFLAGS += -O2
 release: OUTPUT = proxy
-release: lib
 release: proxy
 
-lib:
-	g++ -c interface.cpp -fpic -g -O0
-	g++ -shared -o libinterface.so interface.o 
+hash:
 	python3 gen_hash.py
 
-proxy: hash.h
+proxy: hash hash.h
 	g++ $(CXXFLAGS) $(SOURCES) $(LDFLAGS) -o $(OUTPUT)
 
 .PHONY: clean
 clean:
-	rm -f *.o proxy proxy-dbg libinterface.so
+	rm -f *.o proxy proxy-dbg
 
 start:
 	/home/sandbox/proxy
