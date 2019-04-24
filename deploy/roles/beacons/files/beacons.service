@@ -2,7 +2,7 @@
     Description=Beacons service
 
 [Service]
-    ExecStart=/home/beacons/beacons.py
+    ExecStart=/usr/bin/python3.6 /home/beacons/main.py
     WorkingDirectory=/home/beacons/
     User=beacons
     Group=beacons

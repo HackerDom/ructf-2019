@@ -52,27 +52,28 @@
     update_cache: yes
     name:
       - python3.6-dev
+      - python3-pip
+      - python-setuptools
+      - python3-setuptools
+      - python3-pymongo
+      - python3-motor
+      - python3-jinja2
+      - python3-uvloop
 
-- name: copy service
-  copy: src="beacons.py" dest=/home/beacons/
+- name: copy service files
+  synchronize: 
+    src: "{{ playbook_dir }}/../services/beacons/"
+    dest: /home/beacons/
+    rsync_opts:
+      - "--chmod=D0770"
+      - "--chmod=F0660"
+      - "--chown=beacons:beacons"
   notify: enable and restart services
 
-# example of reusing the files from services folder
-#- name: copy service
-#  copy: src="{{ playbook_dir }}/../services/beacons/beacons.py" dest=/home/beacons/
-#  notify: enable and restart services
+- pip:
+    requirements: /home/beacons/requirements.txt
+    executable: pip3
 
-# example of copying dirs with many files
-#- name: copy service files
-#  synchronize: 
-#    src: "{{ playbook_dir }}/../services/beacons/"
-#    dest: /home/beacons/
-#    rsync_opts:
-#      - "--chmod=D0770"
-#      - "--chmod=F0660"
-#      - "--chown=beacons:beacons"
-#  notify: enable and restart services
-#
 
 - name: fix permissions
   file: name=/home/beacons owner=beacons group=beacons recurse=yes state=directory
@@ -80,7 +81,7 @@
 - name: make service executable
   file: path={{item}} mode=0755
   with_items:
-    - /home/beacons/beacons.py
+    - /home/beacons/main.py
   notify: enable and restart services
 
 - name: add service files
