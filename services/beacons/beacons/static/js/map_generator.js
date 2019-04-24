@@ -165,6 +165,13 @@ function addButtonListeners(mapStateObject, ctx) {
         mapStateObject["selected"] = undefined;
         viewProfile();
     };
+    document.getElementById("go-to-latest").onclick = function() {
+        if (mapStateObject["selected"]) {
+            undoSelected(mapStateObject, ctx);
+        }
+        mapStateObject["selected"] = undefined;
+        viewLatest();
+    };
 }
 
 function addFormsListener(mapStateObject) {
@@ -196,6 +203,12 @@ function addFormsListener(mapStateObject) {
             let beacon = {"id": insertedBeaconId, "coord_x": x, "coord_y": y}
             mapStateObject["beacons"].push(beacon);
             mapStateObject["selected"]["beacon"] = beacon;
+
+            let coords = shiftCoords(mapStateObject["centerX"], mapStateObject["centerY"],
+                                 width/2, height/2,
+                                 mapStateObject["selected"]["x"], mapStateObject["selected"]["y"]);
+            renderRect(coords[0]*size + 1, coords[1]*size + 1, size - 2, selectedBeaconStyle, ctx);
+
             viewBeacon(beacon);
         }
         beaconAddFormElement.reset();
@@ -298,6 +311,11 @@ function viewBeacon(beacon) {
 function viewProfile() {
     hideSidebarsCards();
     showSidebarsCard("profile");
+}
+
+function viewLatest() {
+    hideSidebarsCards();
+    showSidebarsCard("latest");
 }
 
 function getExif() {
