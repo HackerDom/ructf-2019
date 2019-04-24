@@ -8,7 +8,7 @@ namespace index.Controllers
     {
         protected const string LoginKey = "login";
 
-        protected bool IsSessionValid()
+        protected bool IsSessionNotValid()
         {
             return !Request.Cookies.TryGetValue("sid", out var sid) ||
                    !Request.Cookies.TryGetValue("login", out var login) ||

@@ -17,7 +17,7 @@ namespace index.Controllers
         [HttpPost]
         public ActionResult UploadZip()
         {
-            if (IsSessionValid())
+            if (IsSessionNotValid())
                 return StatusCode(403);
 
             var files = Request.Form.Files;
@@ -50,7 +50,7 @@ namespace index.Controllers
         [HttpGet]
         public ActionResult FindFile(string fileName)
         {
-            if (IsSessionValid())
+            if (IsSessionNotValid())
                 return StatusCode(403);
             Request.Cookies.TryGetValue(LoginKey, out var login);
 
