@@ -29,8 +29,10 @@
 		<Content Remove="$(SpaRoot)**" />
 		<Content Include="ClientApp\public\favicon.png" />
 		<Content Include="ClientApp\src\components\Login.js" />
+		<Content Include="ClientApp\src\components\Notes.js" />
 		<Content Include="ClientApp\src\components\Search.js" />
 		<Content Include="ClientApp\src\components\Upload.js" />
+		<Content Include="ClientApp\src\store\Notes.js" />
 		<None Remove="$(SpaRoot)**" />
 		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
 	</ItemGroup>

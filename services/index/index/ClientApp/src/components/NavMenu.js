@@ -28,6 +28,9 @@ class NavMenu extends React.Component {
                     <Container>
                         <NavbarBrand tag={Link} to="/">index</NavbarBrand>
                         <Nav className="ml-auto" navbar>
+                            <NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/notes">Notes</NavLink>
+                            </NavItem>
                             {isLoggedIn &&
                             <React.Fragment>
                                 <NavItem>
