@@ -23,10 +23,8 @@ auth = Auth(app)
 from beacons.controllers.login import login_page
 from beacons.controllers.map import map_page
 from beacons.controllers.beacon import beacon_page
-from beacons.controllers.create_quest import create_quest
 
 app.blueprint(login_page)
 app.blueprint(map_page)
 app.blueprint(beacon_page)
-app.blueprint(create_quest)
 

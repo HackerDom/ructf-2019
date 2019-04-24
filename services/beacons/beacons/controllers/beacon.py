@@ -17,7 +17,8 @@ beacon_page = Blueprint("beacon", url_prefix="/Beacon")
     
 def get_random_id():
     return ''.join(choices(string.hexdigits, k=24))
-
+  
+    
 
 @beacon_page.route("/Add", methods=["POST"])
 @auth.login_required
@@ -26,7 +27,6 @@ async def add_beacon(request):
     user = await User.find_one(request_user.id)
 
     name = request.form.get("name")
-    print('NAME:', name)
     comment = request.form.get("comment")
 
     if not re.match(r"[\w_]+", name):
@@ -36,6 +36,7 @@ async def add_beacon(request):
     
     coord_x = int(request.form.get("coord_x"))
     coord_y = int(request.form.get("coord_y"))
+    is_private = True if request.form.get("isPrivate") == 'on' else False
     
     if await Beacon.find_one({"coord_x": coord_x, "coord_y": coord_y}):
         return json({"error": "Beacon exists"})
@@ -46,18 +47,27 @@ async def add_beacon(request):
                                                      "coord_x": coord_x,
                                                      "coord_y": coord_y,
                                                      "creator": str(user.id),
-                                                     "photos": []},
+                                                     "photos": [],
+                                                     "is_private": is_private},
                                             "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
                    ).upserted_id
 
     await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
     return json({"upserted_id": str(upserted_id)})
 
-
+    
 @beacon_page.route("/<beacon_id>")
 @auth.login_required
 async def get_beacon(request, beacon_id):
+    if not re.match(r"^[\da-fA-F]{24}$", beacon_id):
+        return json({"error": "Incorrect beacon id"})
+    
+    user = await User.find_one(auth.current_user(request).id)
     beacon = await Beacon.find_one(beacon_id)
+    
+    if beacon.is_private and beacon_id not in user.beacons:
+        return json({"name": "Hidden", "comment": "Hidden", "creator": beacon.creator, "photos": []})
+    
     return json({"name": beacon.name, "comment": beacon.comment, "creator": beacon.creator, "photos": beacon.photos})
 
 
@@ -70,7 +80,13 @@ async def get_photo(request, photo_id):
 
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
 # @auth.login_required
-async def add_photo(request, beacon_id):
+async def add_photo(request, beacon_id):   
+    user = await User.find_one(auth.current_user(request).id)
+    beacon = await Beacon.find_one(beacon_id)
+    
+    if beacon.is_private and beacon_id not in user.beacons:
+        return json({"error": "You have no rights on adding photo"})
+
     photo = request.files.get("photo")
 
     if not re.match(r"image\/jpg|image\/jpeg|image\/tiff", photo.type):
