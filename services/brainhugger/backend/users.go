@@ -59,6 +59,9 @@ func splitPlainSecret(plainSecret string) (uint, string, error) {
 }
 
 func (um *UsersManager) LoginUser(userId uint, password string) (bool, string, error) {
+	if userId >= um.Storage.GetItemsCount() {
+		return false, "", nil
+	}
 	var user User
 	rawUser, err := um.Storage.Get(userId)
 	if err != nil {
