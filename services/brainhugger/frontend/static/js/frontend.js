@@ -41,7 +41,7 @@ function clearCookies() {
 function runTask() {
     let data = JSON.stringify({
         "source": $("#src-fld").val(),
-        "stdin": $("#stdin-fld").val(),
+        "stdinb64": btoa($("#stdin-fld").val()),
         "token": token,
     });
     $("#noTrespassingOuterBarG").css("display", "block");

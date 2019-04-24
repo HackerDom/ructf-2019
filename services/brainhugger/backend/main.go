@@ -2,6 +2,7 @@ package main
 
 import (
 	"brainhugger/backend/cbc"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -15,9 +16,9 @@ var usersManager UsersManager
 const configPath = "config"
 
 type NewTask struct {
-	Source string
-	Stdin string
-	Token string
+	Source   string
+	StdinB64 string
+	Token    string
 }
 
 type NewUser struct {
@@ -27,11 +28,11 @@ type NewUser struct {
 type TaskResponse struct {
 	Stdout string
 	Status int
-	Error string
+	Error  string
 }
 
 type LoginUser struct {
-	UserId uint
+	UserId   uint
 	Password string
 }
 
@@ -56,7 +57,12 @@ func handleRunTask(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	taskId := taskManager.AddTask(newTask.Source, newTask.Token, []byte(newTask.Stdin), ownerId)
+	stdin, err := base64.StdEncoding.DecodeString(newTask.StdinB64)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	taskId := taskManager.AddTask(newTask.Source, newTask.Token, stdin, ownerId)
 	if _, err := w.Write([]byte(fmt.Sprintf("{\"taskId\": %v}", taskId))); err != nil {
 		panic(err)
 	}
