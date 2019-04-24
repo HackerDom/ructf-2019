@@ -21,7 +21,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var request = content.FromJson<PutSeedRequest>();
 
-            var session = await agentStorage.GetAgent(request.SessionId);
+            var session = agentStorage.GetAgent(request.SessionId);
 
             if (session == null)
             {

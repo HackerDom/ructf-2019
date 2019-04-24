@@ -1,5 +1,8 @@
 ﻿using System.Threading.Tasks;
-using LiteDB;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+using SharpGeoAPI.HTTP;
 using SharpGeoAPI.Models;
 using SharpGeoAPI.Models.Geo;
 
@@ -7,35 +10,29 @@ namespace SharpGeoAPI.Storages
 {
     class AgentsStorage : IAgentStorage
     {
-        private LiteDatabase db;
-        protected readonly LiteCollection<Agent> sessions;
+        private readonly IMongoCollection<Agent> agents;
 
-        public AgentsStorage()
+        
+        public AgentsStorage(Settings settings, string dbCollection)
         {
-            db = new LiteDatabase(DBNames.DBName);
-            sessions = db.GetCollection<Agent>(DBNames.SessionCollection);
+            var client = new MongoClient(settings.MongoDBConnectionString);
+            var database = client.GetDatabase(settings.MongoDBName);
+            agents = database.GetCollection<Agent>(settings.CollectionName);
         }
 
-        public async Task<Agent> GetAgent(string sessionId)
+        public Agent GetAgent(string agentId)
         {
-            return sessions.FindById(sessionId);
+            return agents.Find(agent => agent.AgentId == agentId).FirstOrDefault();
         }
 
-        public async Task AddAgent(Agent agent)
+        public void AddAgent(Agent agent)
         {
-            sessions.Insert(agent.AgentId, agent);
+            agents.InsertOne(agent);
         }
 
-      
-        public void Dispose()
+        public void RemoveAgent(Agent agentToDelete)
         {
-            db.Dispose();
-        }
-
-        private class DBNames
-        {
-            public static string SessionCollection => "SessionsCollection";
-            public static string DBName => "Seeds.db";
+            agents.DeleteOne(a => a.AgentId == agentToDelete.AgentId);
         }
     }
 

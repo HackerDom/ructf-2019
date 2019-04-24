@@ -4,9 +4,9 @@ using SharpGeoAPI.Models;
 
 namespace SharpGeoAPI.Storages
 {
-    public interface IAgentStorage : IDisposable
+    public interface IAgentStorage
     {
-        Task<Agent> GetAgent(string sessionId);
-        Task AddAgent(Agent agent);
+        Agent GetAgent(string agentId);
+        void AddAgent(Agent agent);
     }
 }

@@ -30,7 +30,7 @@ namespace SharpGeoAPI.HTTP.Handlers
                 Position = GetStartPosition()
             };
 
-            await agentStorage.AddAgent(agent);
+            agentStorage.AddAgent(agent);
 
             await context.Response.OutputStream.WriteAsync(agent.ToJson().ToBytes());
             context.Response.Close();

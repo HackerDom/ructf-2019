@@ -22,7 +22,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var moveRequest = content.FromJson<MoveRequest>();
 
-            var agent = await agentStorage.GetAgent(moveRequest.AgentId);
+            var agent = agentStorage.GetAgent(moveRequest.AgentId);
 
             if (agent == null)
             {

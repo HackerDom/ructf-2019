@@ -17,7 +17,9 @@ namespace SharpGeoAPI.HTTP
     {
         public int ParallelismDegree { get; set; } = 8;
         public int Port { get; set; } = 9007;
-
+        public string MongoDBConnectionString = "mongodb://localhost:27017";
+        public string CollectionName = "geoAPIDB";
+        public string MongoDBName = "AgentsDB";
 
     }
 

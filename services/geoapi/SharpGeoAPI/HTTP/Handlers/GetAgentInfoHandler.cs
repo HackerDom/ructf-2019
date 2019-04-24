@@ -19,7 +19,7 @@ namespace SharpGeoAPI.HTTP.Handlers
             var content = await context.Request.ReadContentAsync();
             var request = content.FromJson<GetAgentInfoRequest>();
 
-            var seed = await agentStorage.GetAgent(request.AgentId);
+            var seed = agentStorage.GetAgent(request.AgentId);
 
             if (seed == null)
             {

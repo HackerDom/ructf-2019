@@ -4,6 +4,4 @@
     {
         public string ChunksFolder;
     }
-
-
 }
