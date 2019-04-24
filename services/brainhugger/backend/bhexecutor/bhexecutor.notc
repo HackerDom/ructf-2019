@@ -11,7 +11,7 @@
 const unsigned int MEMORY_SIZE = 1024;
 const unsigned int MAX_INPUT_LEN = 1024;
 const unsigned int MAX_OUTPUT_LEN = 1024;
-const unsigned int MAX_OPERATION = 50000;
+const unsigned int MAX_OPERATION = 60000;
 
 static inline int disable_aslr() {
     unsigned long pers_value = PER_LINUX | ADDR_NO_RANDOMIZE;
