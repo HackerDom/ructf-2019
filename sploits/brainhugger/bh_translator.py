@@ -19,11 +19,3 @@ def translate(source: bytes):
         result.append('.')
         lastc = c
     return ''.join(result)
-
-
-def main():
-    print(translate(b'Hello world!'))
-
-
-if __name__ == '__main__':
-    main()
