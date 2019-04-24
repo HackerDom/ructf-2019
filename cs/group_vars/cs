@@ -2,10 +2,11 @@ cs_user: cs
 cs_dir:  /home/cs/checksystem
 
 pg_cs_user: cs
-pg_cs_pass: id4Nuj9tha
+pg_cs_pass: Zf60znhtRSSWiO8SjNXB
 pg_cs_db: cs
-pg_cs_host: 10.10.10.10
-pg_cs_port: 5433
+#pg_cs_host: 10.10.10.10
+pg_cs_host: 10.10.5.224
+pg_cs_port: 5432
 pg_max_connections: 1024
 pg_shared_buffers: 2GB
 pg_work_mem: 512MB
@@ -30,15 +31,15 @@ cs_nginx_upstream_keepalive: 32
 cs_nginx_listen: 80
 
 cs_base_url: https://ructf.org/
-cs_admin_auth: root:Joh4either
-cs_ctf_name: RuCTF 2018
-cs_flags_secret: Eiciexoo4x
+cs_admin_auth: root:8OTpSJjhE1qz
+cs_ctf_name: RuCTF 2019
+cs_flags_secret: YbOdr61LGV
 cs_round_length: 60
 cs_flag_life_time: 15
-cs_time_start: 2018-04-15 14:00:00
-cs_time_stop: 2018-04-15 22:00:00
-cs_time_break_start: 2018-04-15 13:00:00
-cs_time_break_end: 2018-04-15 13:30:00
+cs_time_start: 2019-04-24 14:00:00
+cs_time_stop: 2019-04-29 22:00:00
+cs_time_break_start: 2019-04-24 15:00:00
+cs_time_break_end: 2019-04-24 15:30:00
 
 teams: |
   {name => 'SharLike',                         network => '10.60.1.0/24',  host => '10.60.1.1',  token => '5682601f-f424-4148-ab45-9b6bea3ec94d', logo => '/data/logos/sharlike.jpg'},

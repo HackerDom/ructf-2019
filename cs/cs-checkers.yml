@@ -1,10 +1,6 @@
 - hosts: cs-checker
   tasks:
 
-    - name: thinkerer build
-      connection: local
-      shell: chdir=../checkers/thinkerer ./get_checker.sh
-
     - name: sync catalog
       synchronize: src="../checkers" dest="{{cs_dir}}"
 
@@ -15,16 +11,17 @@
         group: "{{cs_user}}"
         recurse: yes
 
-    - name: install sys deps
-      apt: name=python3-pip state=latest
+  # In 2019 we use anaconda python
+  #    - name: install sys deps
+  #    apt: name=python3-pip state=latest
 
-    - name: python deps
-      pip: name={{item}} executable=pip3
-      with_items:
-        - requests
-        - ws4py
-        - mimesis
-        - Faker
-        - beautifulsoup4
-        - pycryptodome
-        - aiohttp
+  #  - name: python deps
+  #    pip: name={{item}} executable=pip3
+  #    with_items:
+  #      - requests
+  #      - ws4py
+  #      - mimesis
+  #      - Faker
+  #      - beautifulsoup4
+  #      - pycryptodome
+  #      - aiohttp
