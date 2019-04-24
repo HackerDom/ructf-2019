@@ -30,11 +30,11 @@ namespace NotificationsApi.Handlers
 	    //    await mongoDbClient.InsertUser(request.SourceName, token, request.Password, request.IsPublic);
 
 	        if(request.IsPublic)
-		        authorizer.RegisterPublic(request.SourceName, request.Password);
+		        authorizer.RegisterPublic(request.source, request.password);
 	        else
-		        authorizer.RegisterPrivate(request.SourceName, token, request.Password);
+		        authorizer.RegisterPrivate(request.source, token, request.password);
 
-	        sourceStorage.Add(request.SourceName);
+	        sourceStorage.Add(request.source);
 	        request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
 			await request.HttpContext.Response.WriteAsync(token);
 	        await request.HttpContext.Response.Body.FlushAsync();

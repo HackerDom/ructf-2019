@@ -7,8 +7,6 @@ from RustClient import RustClient
 from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
 
-from aiosseclient import aiosseclient
-
 from Crypto.Cipher import AES
 from PIL import Image
 import base64
@@ -96,9 +94,13 @@ async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verd
             async for event in event_source:
                 a = event
                 b=1
-        except ConnectionError:
+        except Exception as e:
             return Verdict.DOWN("network error", "network error")
 
+        # subscribe_result = notificationApiClient.subscribe_on_source(flag_id, token, host)
+        # for x in subscribe_result:
+        #     a = x
+        #     b = 1
         # if flag in decode_result:
         #     return Verdict.OK()
 
@@ -247,7 +249,7 @@ def to_u32(i):
 
 if __name__ == '__main__':
     name= str(uuid.uuid4())
-    a = put_flag_into_the_service1("localhost", name, "13")
+    a = put_flag_into_the_service1("10.33.54.127", name, "13")
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, "13"))

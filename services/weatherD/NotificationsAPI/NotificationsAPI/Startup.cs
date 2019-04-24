@@ -31,12 +31,11 @@ namespace NotificationsAPI
 				using(StreamReader reader = new StreamReader(b.Request.Body, Encoding.UTF8, true, 1024, true))
 				{
 					body = reader.ReadToEnd();
+                    Console.WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {body}");
 				}
 
-				b.Request.Body.Position = 0;
-				var notificationApiRequest = NotificationApiRequest.CreateFromBody(body, b);
-				var method = string.Equals(b.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) ? HttpMethod.Get : HttpMethod.Post; 
-				Console.WriteLine(b.Request.Method);
+				var method = string.Equals(b.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) ? HttpMethod.Get : HttpMethod.Post;
+			    var notificationApiRequest = method == HttpMethod.Post ? NotificationApiRequest.CreateFromBody(body, b) : NotificationApiRequest.CreateFromQueryCollection(b.Request.Query, b);
 				await handler.HandleAsync(notificationApiRequest, b.Request.Path, method);
 			});
 		}

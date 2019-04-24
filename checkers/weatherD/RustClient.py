@@ -34,7 +34,7 @@ class RustClient:
         for i in range(retries):
             try:
                 return urlopen(req, timeout=self.timeout)
-            except (HTTPError, URLError):
+            except Exception as e:
                 continue
 
         return None

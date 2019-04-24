@@ -25,13 +25,13 @@ namespace NotificationsApi.Handlers
 	    }
 		public async Task HandleAsync(NotificationApiRequest request)
 		{
-			if(!authorizer.CanPush(request.SourceName, request.Password))
+			if(!authorizer.CanPush(request.source, request.password))
 			{
 				request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 				return;
 			}
 
-			if(sourceStorage.TryGetInfo(request.SourceName, out var info))
+			if(sourceStorage.TryGetInfo(request.source, out var info))
 			{
 				var message = new Message(request.Base64Message, DateTime.UtcNow + TTL);
 				//await mongoClient.InsertMessage(request.SourceName, message);

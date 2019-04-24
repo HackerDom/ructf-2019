@@ -21,17 +21,6 @@ namespace NotificationsAPI
 {
 	class Program
 	{
-		static unsafe Guid g(string s)
-		{
-			var b = Encoding.ASCII.GetBytes(s);
-			fixed(byte* c = b)
-				return *(Guid*)c;
-		}
-		static unsafe string g(Guid s)
-		{
-			return new string(s.ToByteArray().Select(x => (char)x).ToArray());
-		}
-
 		static void Main(string[] args)
 		{
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
