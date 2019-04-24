@@ -24,7 +24,7 @@ var Status2String = map[int]string {
 }
 
 type TaskResult struct {
-	Stdout string
+	Stdout []byte
 	Error string
 }
 
@@ -96,7 +96,7 @@ func (tm *TasksManager) ProcessTask(taskId uint, source, token string, stdin []b
 		task.Result.Error = err.Error()
 	} else {
 		task.Status = DONE
-		task.Result.Stdout = string(stdout)
+		task.Result.Stdout = stdout
 	}
 	tm.SaveTask(taskId, &task)
 }
