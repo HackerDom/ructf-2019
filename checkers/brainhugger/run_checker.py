@@ -4,6 +4,9 @@ from time import sleep
 from generators import generate_string
 
 
+HOST = "localhost"
+
+
 def check_ret_code(popen):
     if popen.returncode != 101:
         print(popen.stdout.read().decode())
@@ -19,11 +22,12 @@ def check():
     popen.wait()
     if check_ret_code(popen):
         print("FAIL")
+    return False
 
 
 def put(flag, vuln):
     print("PUT FLAG={} VULN={}".format(flag, vuln), end=' ')
-    popen = Popen(["./checker.py", "put",  "localhost", "flag_id", flag, str(vuln)], stderr=PIPE, stdout=PIPE)
+    popen = Popen(["./checker.py", "put",  HOST, "flag_id", flag, str(vuln)], stderr=PIPE, stdout=PIPE)
     popen.wait()
     if check_ret_code(popen):
         print("FAIL")
@@ -34,7 +38,7 @@ def put(flag, vuln):
 
 def get(flag_id, flag, vuln):
     print("GET FLAG_ID={} FLAG={} VULN={}".format(flag_id, flag, vuln), end=' ')
-    popen = Popen(["./checker.py", "get",  "localhost", flag_id, flag, str(vuln)], stderr=PIPE, stdout=PIPE)
+    popen = Popen(["./checker.py", "get",  HOST, flag_id, flag, str(vuln)], stderr=PIPE, stdout=PIPE)
     popen.wait()
     if check_ret_code(popen):
         print("FAIL")
@@ -49,12 +53,14 @@ def run():
         try:
             sleep(1)
             print("Cycle:", cycle)
-            check()
+            if check() is None:
+                continue
             flag = generate_string(32)
             for vuln in range(1, 3):
                 flag_id = put(flag, vuln)
-                if flag_id is not None:
-                    get(flag_id, flag, vuln)
+                if flag_id is None:
+                    continue
+                get(flag_id, flag, vuln)
             cycle += 1
             print()
         except KeyboardInterrupt:

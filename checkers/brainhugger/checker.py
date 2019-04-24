@@ -1,6 +1,7 @@
 #!/usr/bin/python3
+import binascii
 import time
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from http.cookiejar import CookieJar
 from sys import argv, stderr
 import json
@@ -9,13 +10,16 @@ import traceback
 import requests
 import urllib3
 
-from generators import generate_headers, generate_string, generate_mega_task, generate_simple_task
+from generators import generate_headers, generate_string, generate_mega_task, generate_simple_task,\
+    generate_long_output_task
 
 REGISTER_URL = "http://{hostport}/register"
 LOGIN_URL = "http://{hostport}/login"
 RUN_TASK_URL = "http://{hostport}/run_task"
 TASK_INFO_URL = "http://{hostport}/task_info/{task_id}?token={token}"
-
+TIMEOUT = 10
+CHECK_TRIES_COUNT = 10
+RETRY_SLEEP = 1
 OK, CORRUPT, MUMBLE, DOWN, CHECKER_ERROR = 101, 102, 103, 104, 110
 PORT = 8080
 
@@ -63,30 +67,41 @@ def get_data_from_cookies(cookies):
 
 def register(hostport, password):
     url = REGISTER_URL.format(hostport=hostport)
-    r = requests.post(url, json={
-        "password": password,
-    })
+    r = requests.post(
+        url,
+        json={"password": password},
+        headers=generate_headers(),
+        timeout=TIMEOUT,
+    )
     r.raise_for_status()
     return r.cookies
 
 
 def login(hostport, password, uid):
     url = LOGIN_URL.format(hostport=hostport)
-    r = requests.post(url, json={
-        "userId": uid,
-        "password": password
-    })
+    r = requests.post(
+        url,
+        json={"userId": uid, "password": password},
+        headers=generate_headers(),
+        timeout=TIMEOUT,
+    )
     r.raise_for_status()
     return r.cookies
 
 
 def run_task(hostport: str, cookies: CookieJar, source: str, stdin: bytes, token: str):
     url = RUN_TASK_URL.format(hostport=hostport)
-    r = requests.post(url, cookies=cookies, json={
-        "source": source,
-        "stdinb64": b64encode(stdin).decode(),
-        "token": token,
-    })
+    r = requests.post(
+        url,
+        cookies=cookies,
+        json={
+            "source": source,
+            "stdinb64": b64encode(stdin).decode(),
+            "token": token,
+        },
+        headers=generate_headers(),
+        timeout=TIMEOUT,
+    )
     r.raise_for_status()
     data = json.loads(r.content)
     if "taskId" not in data:
@@ -99,20 +114,26 @@ def run_task(hostport: str, cookies: CookieJar, source: str, stdin: bytes, token
 
 def get_task_info(hostport, cookies, task_id, token):
     url = TASK_INFO_URL.format(hostport=hostport, task_id=task_id, token=token)
-    r = requests.get(url, cookies=cookies)
+    r = requests.get(
+        url,
+        cookies=cookies,
+        headers=generate_headers(),
+        timeout=TIMEOUT,
+    )
     r.raise_for_status()
     data = json.loads(r.content)
-    if "Stdout" not in data or "Status" not in data or "Error" not in data:
+    if "Stdoutb64" not in data or "Status" not in data or "Error" not in data:
         exit_with(MUMBLE, "task info response has no required field(s): {}".format(data))
-    stdout = data["Stdout"]
+    stdoutb64 = data["Stdoutb64"]
+    stdout = b64decode(stdoutb64)
     status = data["Status"]
     error = data["Error"]
-    if not isinstance(stdout, str) or not isinstance(status, int) or not isinstance(error, str):
+    if not isinstance(stdout, bytes) or not isinstance(status, int) or not isinstance(error, str):
         exit_with(MUMBLE, "at least field in task info response has wrong type: {}".format(data))
     return stdout, status, error
 
 
-def check(hostname):
+def check_with_task(hostname, task_func):
     hostport = get_hostport(hostname)
     password = generate_string(5)
     token = generate_string(5)
@@ -121,23 +142,30 @@ def check(hostname):
     another_cookies = login(hostport, password, uid)
     if another_cookies != cookies:
         exit_with(MUMBLE, "different cookies with same uid and password: {} != {}".format(cookies, another_cookies))
-    source, stdin, output = generate_mega_task()
+    # source, stdin, output = generate_long_output_task()
+    # source, stdin, output = generate_mega_task()
+    source, stdin, output = task_func()
     task_id = run_task(hostport, cookies, source, stdin, token)
-    stdout = ""
+    stdout = b""
     status = 1
     error = ""
-    for try_index in range(3):
+    for try_index in range(CHECK_TRIES_COUNT):
         stdout, status, error = get_task_info(hostport, cookies, task_id, token)
         if status != 1:
             break
-        time.sleep(1)
+        time.sleep(RETRY_SLEEP)
     if status == 1:
         exit_with(MUMBLE, "can not get task info, too long answer")
     elif status == 2:
         exit_with(MUMBLE, "error while task running: {}".format(error))
     if output != stdout:
-        exit_with(MUMBLE, "wrong output, expected='{}', real='{}'".format(output, stdout))
+        exit_with(MUMBLE, "wrong output:\n\nexpected='{}'\n\nreal='{}'\n".format(output, stdout))
     exit(OK)
+
+
+def check(hostname):
+    check_with_task(hostname, generate_mega_task)
+    check_with_task(hostname, generate_long_output_task)
 
 
 def put_first(hostname, flag_id, flag):
@@ -204,8 +232,10 @@ COMMANDS = {'check': check, 'put': put, 'get': get, 'info': info}
 def main():
     try:
         COMMANDS.get(argv[1], not_found)(*argv[2:])
-    except (requests.exceptions.ConnectionError, urllib3.exceptions.NewConnectionError,
-            ConnectionRefusedError, requests.exceptions.HTTPError, json.decoder.JSONDecodeError):
+    except (requests.exceptions.ConnectionError, ConnectionRefusedError, urllib3.exceptions.NewConnectionError,
+            urllib3.exceptions.ReadTimeoutError, requests.exceptions.ReadTimeout):
+        exit_with(DOWN, "service is down: '{}'".format(argv[1:]), print_traceback=True)
+    except (requests.exceptions.HTTPError, json.decoder.JSONDecodeError, ValueError, binascii.Error):
         exit_with(MUMBLE, "known exception while doing command: '{}'".format(argv[1:]), print_traceback=True)
     except Exception:
         traceback.print_exc()
