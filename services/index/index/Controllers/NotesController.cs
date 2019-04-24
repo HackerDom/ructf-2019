@@ -1,3 +1,4 @@
+using System.Threading;
 using index.db.Models;
 using index.db.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -38,6 +39,7 @@ namespace index.Controllers
         [HttpGet]
         public ActionResult Get()
         {
+            Thread.Sleep(10000);
             if (!IsAdminSession() || IsSessionNotValid())
                 return StatusCode(403);
 

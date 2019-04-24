@@ -34,6 +34,7 @@ namespace index
             services.AddSingleton<IServiceBase<User>, UserService>();
             services.AddSingleton<IServiceBase<Node>, NodesService>();
             services.AddSingleton<IServiceBase<IndexEntity>, IndexEntityService>();
+            services.AddSingleton<IServiceBase<Note>, NotesService>();
 
             services.AddSingleton<IIndexHelper, IndexHelper>();
         }
