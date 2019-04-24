@@ -7,9 +7,6 @@
 #    user: root
 #    key: "ssh-rsa xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx name@domain"
 #    state: present
-    
-- name: create user
-  user: name=sandbox shell=/bin/false
 
 - name: copy motd
   copy: src=motd dest=/etc/motd
@@ -21,39 +18,58 @@
 #    name:
 #      - cowsay
 
-- name: copy service
-  copy: src="sandbox.py" dest=/home/sandbox/
-  notify: enable and restart services
+- name: create autostart dir
+  file: 
+    path: /home/user/.config/autostart/
+    state: directory
+    owner: user
+    group: user
 
 # example of reusing the files from services folder
-#- name: copy service
-#  copy: src="{{ playbook_dir }}/../services/sandbox/sandbox.py" dest=/home/sandbox/
-#  notify: enable and restart services
+- name: copy service
+  copy: src="sandbox.desktop" dest=/home/user/.config/autostart/sandbox.desktop owner=user group=user
+  notify: enable and restart services
 
 # example of copying dirs with many files
-#- name: copy service files
-#  synchronize: 
-#    src: "{{ playbook_dir }}/../services/sandbox/"
-#    dest: /home/sandbox/
-#    rsync_opts:
-#      - "--chmod=D0770"
-#      - "--chmod=F0660"
-#      - "--chown=sandbox:sandbox"
-#  notify: enable and restart services
-#
+- name: copy service files
+  synchronize: 
+    src: "{{ playbook_dir }}/../services/sandbox/"
+    dest: /home/user/sandbox/
+    rsync_opts:
+      - "--chmod=D0770"
+      - "--chmod=F0660"
+      - "--chown=user:user"
+      - "--exclude=proxy/interface.cpp"
+      - "--exclude=build_so.sh"
+  notify: enable and restart services
+
 
 - name: fix permissions
-  file: name=/home/sandbox owner=sandbox group=sandbox recurse=yes state=directory
+  file: name=/home/user/sandbox owner=user group=user recurse=yes state=directory
 
-- name: make service executable
-  file: path={{item}} mode=0755
-  with_items:
-    - /home/sandbox/sandbox.py
-  notify: enable and restart services
+- name: build sandbox executable
+  command: make -j8
+  args:
+    chdir: /home/user/sandbox/sandbox
+    creates: /home/user/sandbox/sandbox/sandbox
 
-- name: add service files
-  copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
-  notify: enable and restart services
-  with_items:
-    - sandbox
+- name: build proxy executable
+  command: make
+  args:
+    chdir: /home/user/sandbox/proxy
+    creates: /home/user/sandbox/proxy/proxy
+
+- name: build docker image
+  docker_image:
+    path: /home/user/sandbox/proxy
+    name: proxy
+
+- name: start container
+  docker_container:
+    name: proxy
+    image: proxy
+    network_mode: host
+    restart: yes
+    restart_policy: on-failure
+
 

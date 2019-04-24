@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Exec=/home/user/sandbox/sandbox/sandbox
+Path=/home/user/sandbox/sandbox/
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Sandbox
+Name=Sandbox
+Comment[en_US]=
+Comment=
