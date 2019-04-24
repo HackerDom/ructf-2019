@@ -173,15 +173,20 @@ registerButton.click(
 
 loginButton.click(
     function () {
-        let userId = idField.val();
+        let userId = parseInt(idField.val());
         let password = passwordField.val();
-        if (userId === "" || password === "") {
+        if (userId === 0 || password === "") {
             alert("Empty user id and/or password.");
             return;
         }
+        let data = JSON.stringify({
+            "userId": userId,
+            "password": password,
+        });
         $.ajax({
-            type: "GET",
-            url: "/check?userid=" + userId + "&password=" + password,
+            type: "POST",
+            url: "/login",
+            data: data,
             success: function (data, status, obj) {
                 setInterface(Mode.work);
             },

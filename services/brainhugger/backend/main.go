@@ -30,6 +30,11 @@ type TaskResponse struct {
 	Error string
 }
 
+type LoginUser struct {
+	UserId uint
+	Password string
+}
+
 func handleRunTask(w http.ResponseWriter, r *http.Request) {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -134,41 +139,45 @@ func handleRegUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLoginUser(w http.ResponseWriter, r *http.Request) {
-	rawUserId := r.URL.Query().Get("userid")
-	password := r.URL.Query().Get("password")
-	if rawUserId == "" || password == "" {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	var loginUser LoginUser
+	err = json.Unmarshal(data, &loginUser)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	if loginUser.UserId == 0 || loginUser.Password == "" {
 		w.WriteHeader(403)
 		return
 	}
-	userId, err := strconv.ParseUint(rawUserId, 10, 64)
-	if err != nil {
-		w.WriteHeader(400)
-		return
-	}
-	ok, _, err := usersManager.ValidateCookies(r.Cookies())
-	if err != nil {
-		w.WriteHeader(400)
-		return
-	}
-
-	if ok {
-		secret, err := usersManager.GetForCookie(uint(userId))
+	if len(r.Cookies()) != 0 {
+		ok, _, err := usersManager.ValidateCookies(r.Cookies())
 		if err != nil {
 			w.WriteHeader(400)
 			return
 		}
-		http.SetCookie(w, &http.Cookie{
-			Name: "secret",
-			Value: secret,
-		})
-		http.SetCookie(w, &http.Cookie{
-			Name: "uid",
-			Value: fmt.Sprint(userId),
-		})
-		return
+		if ok {
+			secret, err := usersManager.GetForCookie(loginUser.UserId)
+			if err != nil {
+				w.WriteHeader(400)
+				return
+			}
+			http.SetCookie(w, &http.Cookie{
+				Name:  "secret",
+				Value: secret,
+			})
+			http.SetCookie(w, &http.Cookie{
+				Name:  "uid",
+				Value: fmt.Sprint(loginUser.UserId),
+			})
+			return
+		}
 	}
-
-	ok, cookie, err := usersManager.LoginUser(uint(userId), password)
+	ok, cookie, err := usersManager.LoginUser(loginUser.UserId, loginUser.Password)
 	if err != nil {
 		w.WriteHeader(400)
 		return
@@ -180,7 +189,7 @@ func handleLoginUser(w http.ResponseWriter, r *http.Request) {
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name: "uid",
-			Value: fmt.Sprint(userId),
+			Value: fmt.Sprint(loginUser.UserId),
 		})
 	} else {
 		w.WriteHeader(403)
@@ -201,6 +210,6 @@ func main() {
 	http.HandleFunc("/run_task", handleRunTask)
 	http.HandleFunc("/task_info/", handleTaskInfo)
 	http.HandleFunc("/register", handleRegUser)
-	http.HandleFunc("/check", handleLoginUser)
+	http.HandleFunc("/login", handleLoginUser)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort), nil))
 }
