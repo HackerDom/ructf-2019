@@ -100,7 +100,7 @@ func handleTaskInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	taskResponse := TaskResponse{
-		Stdoutb64: base64.StdEncoding.EncodeToString([]byte(task.Result.Stdout)),
+		Stdoutb64: base64.StdEncoding.EncodeToString(task.Result.Stdout),
 		Error:     task.Result.Error,
 		Status:    task.Status,
 	}
