@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using SharpGeoAPI.Models.Geo;
 
 namespace SharpGeoAPI.Models
 {

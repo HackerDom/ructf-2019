@@ -24,7 +24,6 @@ namespace SharpGeoAPI
             response.StatusCode = statusCode;
         }
 
-
         public static string ToJson<T>(this T source)
         {
             return JsonConvert.SerializeObject(source);

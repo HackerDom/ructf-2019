@@ -3,6 +3,8 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using SharpGeoAPI.Models;
+using SharpGeoAPI.Models.Geo;
+using SharpGeoAPI.Storages;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
@@ -19,12 +21,12 @@ namespace SharpGeoAPI.HTTP.Handlers
         {
             var content = await context.Request.ReadContentAsync();
 
-            var request = content.FromJson<AgentRegistrationRequest>();
+            var agentKey = content.FromJson<string>();
 
             var agent = new Agent
             {
                 AgentId = CreateNewAgentId(),
-                AgentKey = request.AgentKey,
+                AgentKey = agentKey,
                 Position = GetStartPosition()
             };
 
@@ -39,11 +41,5 @@ namespace SharpGeoAPI.HTTP.Handlers
         private string CreateNewAgentId() => Guid.NewGuid().ToString();
 
         private Vector2 GetStartPosition() => throw new NotImplementedException();
-
-        private class AgentRegistrationRequest
-        {
-            public string AgentKey { get; set; }
-        }
-
     }
 }

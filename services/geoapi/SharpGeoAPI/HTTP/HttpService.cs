@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using log4net;
 using SharpGeoAPI.HTTP.Handlers;
 using SharpGeoAPI.Models;
+using SharpGeoAPI.Storages;
 
 namespace SharpGeoAPI.HTTP
 {

@@ -1,14 +1,16 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using SharpGeoAPI.Models;
+using SharpGeoAPI.Models.Geo;
+using SharpGeoAPI.Storages;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
-    public class TerrainHandler : BaseHandler
+    public class AgentActionHandler : BaseHandler
     {
         private readonly IAgentStorage agentStorage;
 
-        public TerrainHandler(IAgentStorage agentStorage) : base("PUT", "terrain")
+        public AgentActionHandler(IAgentStorage agentStorage) : base("PUT", "action")
         {
             this.agentStorage = agentStorage;
         }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using LiteDB;
 using SharpGeoAPI.Models;
+using SharpGeoAPI.Models.Geo;
 
-namespace SharpGeoAPI
+namespace SharpGeoAPI.Storages
 {
     class AgentsStorage : IAgentStorage
     {
@@ -41,10 +39,4 @@ namespace SharpGeoAPI
         }
     }
 
-    public interface IChunkStorage
-    {
-        Chunk GetChunkFor(Vector2 pos);
-    }
-
-    public class Map
 }

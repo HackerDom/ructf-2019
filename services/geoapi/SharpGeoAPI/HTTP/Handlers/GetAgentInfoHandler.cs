@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using SharpGeoAPI.Storages;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
@@ -16,9 +17,9 @@ namespace SharpGeoAPI.HTTP.Handlers
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
             var content = await context.Request.ReadContentAsync();
-            var request = content.FromJson<GetSeedRequest>();
+            var request = content.FromJson<GetAgentInfoRequest>();
 
-            var seed = await agentStorage.GetSeed(request.SessionId, request.SeedName);
+            var seed = await agentStorage.GetAgent(request.AgentId);
 
             if (seed == null)
             {
@@ -29,10 +30,9 @@ namespace SharpGeoAPI.HTTP.Handlers
         }
 
 
-        private class GetSeedRequest
+        private class GetAgentInfoRequest
         {
-            public string SessionId { get; set; }
-            public string SeedName { get; set; }
+            public string AgentId { get; set; }
         }
     }
 }

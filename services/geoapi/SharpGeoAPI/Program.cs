@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Reflection.Emit;
-using LiteDB;
-using System.ServiceModel;
-using log4net;
-using log4net.Core;
-using Newtonsoft.Json;
-using SharpGeoAPI.HTTP;
-using SharpGeoAPI.HTTP.Handlers;
+using SharpGeoAPI.Storages;
 
 namespace SharpGeoAPI
 {
@@ -22,49 +11,21 @@ namespace SharpGeoAPI
         {
             var storage = new AgentsStorage();
 
-            var server1 = new HttpService(
+            /*var server1 = new HttpService(
                 new Settings
                 {
                     Port = 9008,
                     ParallelismDegree = 10
                 }, 
-                new List<IBaseHandler>() {new RegisterAgentHandler()},
+                new List<IBaseHandler>() {new RegisterAgentHandler(storage)},
                 storage,
                 LogManager.GetLogger(typeof(HttpService)));
 
+    */
+            // var path = Path.Combine("C:\\Users\\d.lukshto\\source\\ructf-2019\\ructf-2019\\services\\geoapi\\SharpGeoAPI\\bin\\Debug\\netcoreapp2.2", "/a", "/b", "", "\\asdasd.txt");
 
-            var settings = new Settings
-            {
-                Port = 9007,
-                ParallelismDegree = 10
-            };
-
-            var c = new List<IBaseHandler>() {new RegisterAgentHandler()}; 
-
-
-            var a = JsonConvert.SerializeObject(new HttpService(settings,c, storage,
-                LogManager.GetLogger(typeof(HttpService))), new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.All
-            });
-
-
-            var b = JsonConvert.DeserializeObject<List<object>>("[{'$type':'SharpGeoAPI.Chunk, SharpGeoAPI', 'a':'sasdasd'}]", 
-            new JsonSerializerSettings()
-            {
-                TypeNameHandling = TypeNameHandling.All
-            });
-
-            new Process()
-            {
-                StartInfo = new ProcessStartInfo("cmd", "/ccalc")
-            };
-
-
-
-            //Console.WriteLine(b.GetType());
-
-            //server.Start();
+            // Console.WriteLine(path);
+            // Console.WriteLine(File.Exists(path));
         }
     }
 }

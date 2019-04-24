@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using SharpGeoAPI.HTTP.Handlers;
 using SharpGeoAPI.Models;
 
-namespace SharpGeoAPI
+namespace SharpGeoAPI.Storages
 {
     public interface IAgentStorage : IDisposable
     {
