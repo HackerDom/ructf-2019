@@ -1,6 +1,6 @@
 from Checkers.infrastructure.actions import Checker
 from Checkers.infrastructure.verdict import Verdict
-
+from aiohttp_sse_client import client as sse_client
 from RustClient import RustClient
 from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
@@ -128,17 +128,23 @@ def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     flag_id = parts[0]
     key = parts[2]
     iv = parts[3]
-    subscribe_result = notificationApiClient.subscribe_on_source(flag_id, token, host)
-    if not subscribe_result.is_success:
-        return Verdict.DOWN("network error", "network error")
 
-    for mess in subscribe_result.iter:
-        decode_result = get_flag_from_aes(mess)
-        if not decode_result[0]:
-            continue
+    subscribe_req = notificationApiClient.create_subscribe_on_source_request(flag_id, token, host)
+    async with sse_client.EventSource(subscribe_req) as event_source:
+        try:
+            async for event in event_source:
+                print(event)
+        except ConnectionError:
+            return Verdict.DOWN("network error", "network error")
 
-        if flag in decode_result[1]:
-            return Verdict.OK()
+
+    # for mess in subscribe_result.iter:
+    #     decode_result = get_flag_from_aes(mess)
+    #     if not decode_result[0]:
+    #         continue
+    #
+    #     if flag in decode_result[1]:
+    #         return Verdict.OK()
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
