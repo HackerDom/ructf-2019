@@ -21,11 +21,7 @@ namespace index.Controllers
         [HttpGet("validate")]
         public JsonResult ValidateSession()
         {
-            if (IsSessionNotValid())
-                return Json(null);
-
-            Request.Cookies.TryGetValue(LoginKey, out var login);
-            return Json(login);
+            return Json(IsSessionNotValid() ? null : GetLogin());
         }
 
         [HttpPost("register")]

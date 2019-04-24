@@ -30,10 +30,9 @@ namespace index.Controllers
             if (file.FileName.Contains("/"))
                 return ThrowError("no slashes in file name");
 
-            Request.Cookies.TryGetValue(LoginKey, out var login);
             try
             {
-                indexHelper.AddToIndex(login, file);
+                indexHelper.AddToIndex(GetLogin(), file);
             }
             catch (IndexImportException e)
             {
@@ -52,9 +51,8 @@ namespace index.Controllers
         {
             if (IsSessionNotValid())
                 return StatusCode(403);
-            Request.Cookies.TryGetValue(LoginKey, out var login);
 
-            var dirs = indexHelper.FindFile(fileName, login);
+            var dirs = indexHelper.FindFile(fileName, GetLogin());
             if (dirs == null || !dirs.Any())
                 ThrowError("Can't find anything");
 
