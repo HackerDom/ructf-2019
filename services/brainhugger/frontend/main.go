@@ -23,7 +23,8 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 			url := fmt.Sprintf("http://%v:%v%v", config.ServerHost, config.BackendPort, request.URL.String())
 			req, err := http.NewRequest(request.Method, url, request.Body)
 			if err != nil {
-				panic(err)
+				log.Println("request creating error: ", err.Error())
+				return
 			}
 			for _, cookie := range request.Cookies() {
 				req.AddCookie(cookie)
@@ -31,14 +32,16 @@ func RunTaskWrapper(writer http.ResponseWriter, request *http.Request) {
 			client := &http.Client{}
 			resp, err := client.Do(req)
 			if err != nil {
-				panic(err)
+				log.Println("request error: ", err.Error())
+				return
 			}
 			for _, cookie := range resp.Cookies() {
 				http.SetCookie(writer, cookie)
 			}
 			writer.WriteHeader(resp.StatusCode)
 			if _, err = io.Copy(writer, resp.Body); err != nil {
-				panic(err)
+				log.Println("response error: ", err.Error())
+				return
 			}
 		}
 	}

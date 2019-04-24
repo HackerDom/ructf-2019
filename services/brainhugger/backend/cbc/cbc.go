@@ -66,6 +66,9 @@ func Encrypt(key []byte, block []byte) ([]byte, error) {
 }
 
 func Decrypt(key []byte, block []byte) ([]byte, error) {
+	if len(block) == 0 {
+		return nil, errors.New("empty block")
+	}
 	if len(block) % 16 != 0 {
 		return nil, errors.New("invalid block size")
 	}
