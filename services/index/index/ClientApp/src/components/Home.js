@@ -11,6 +11,7 @@ const Home = props => (
             <Link to="/login">create account</Link> and after<br />
             you can <Link to="/upload">add</Link> new zip archives to index<br />
             or <Link to="/search">search</Link> and observe already indexed content
+            also you can left <Link to="/notespage">notes</Link> to save some data
         </p>
     </div>
 );
