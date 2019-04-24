@@ -23,7 +23,7 @@ namespace index.Controllers
             if (IsSessionNotValid())
                 return StatusCode(403);
 
-            if (note.Note.Length > 100)
+            if (note.Note.Length > 500)
                 return ThrowError("Too long");
 
             db.Create(
