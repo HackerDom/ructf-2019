@@ -22,7 +22,7 @@ export const reducer = (state, action) => {
 
     switch (action.type) {
         case startRequest:
-            return { ...state, fetching: true };
+            return { ...state, fetching: true, notes: [] };
         case successRequest:
             return { ...state, fetching: false, notes: action.notes };
         case endRequest:

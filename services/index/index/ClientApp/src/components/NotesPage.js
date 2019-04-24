@@ -96,27 +96,29 @@ class NotesPage extends React.Component {
     }
 
     renderForm() {
-        return <Form onSubmit={this.submitForm} style={{ marginTop: '20px' }}>
-            <FormGroup row>
-                <Col sm={8}>
-                    <Input type="textarea"
-                           placeholder="Write new note here"
-                           name="note"
-                           id="note"
-                           onChange={this.handleFormChange} />
-                </Col>
-            </FormGroup>
-            <FormGroup check>
-                <Label check>
-                    <Input type="checkbox" name="public" id="public" onChange={this.handleFormChange} />{' '}Public
-                </Label>
-            </FormGroup>
-            <FormGroup>
-                <Button>{this.state.fetching && <Spinner size="sm" color="dark" />} post</Button>
-            </FormGroup>
-            {this.state.error && <Col sm={5}><Alert color="danger">{this.state.error}</Alert></Col>}
-            {this.state.success && <Col sm={5}><Alert color="success">Uploaded</Alert></Col>}
-        </Form>;
+        return this.user
+            ? <Form onSubmit={this.submitForm} style={{ marginTop: '20px' }}>
+                <FormGroup row>
+                    <Col sm={8}>
+                        <Input type="textarea"
+                               placeholder="Write new note here"
+                               name="note"
+                               id="note"
+                               onChange={this.handleFormChange} />
+                    </Col>
+                </FormGroup>
+                <FormGroup check>
+                    <Label check>
+                        <Input type="checkbox" name="public" id="public" onChange={this.handleFormChange} />{' '}Public
+                    </Label>
+                </FormGroup>
+                <FormGroup>
+                    <Button>{this.state.fetching && <Spinner size="sm" color="dark" />} post</Button>
+                </FormGroup>
+                {this.state.error && <Col sm={5}><Alert color="danger">{this.state.error}</Alert></Col>}
+                {this.state.success && <Col sm={5}><Alert color="success">Uploaded</Alert></Col>}
+            </Form>
+            : <Alert color="warning">You need to login</Alert> ;
     }
 
     renderContent() {

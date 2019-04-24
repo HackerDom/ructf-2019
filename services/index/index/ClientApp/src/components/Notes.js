@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { ListGroup, ListGroupItem, Spinner } from 'reactstrap';
+import { ListGroup, ListGroupItem, Spinner, Alert } from 'reactstrap';
 import { bindActionCreators } from 'redux';
 import { actionCreators } from '../store/Notes';
 
@@ -13,7 +13,9 @@ class Notes extends React.Component {
         if (this.props.fetching)
             return <Spinner color="secondary" />;
 
-        return <ListGroup>{this.props.notes.map(n => <ListGroupItem>{n}</ListGroupItem>)}</ListGroup>;
+        return this.props.notes.length !== 0
+            ? <ListGroup>{this.props.notes.map(n => <ListGroupItem>{n}</ListGroupItem>)}</ListGroup>
+            : <Alert color="light">No notes yes</Alert>;
     }
 }
 
