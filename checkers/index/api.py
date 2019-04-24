@@ -39,7 +39,7 @@ class Api:
 
     def create_note(self, note_text, is_public):
         self._jitter()
-        return self.session.post(self._url('/notes'), data={'Note': note_text, 'IsPublic': is_public})
+        return self.session.post(self._url('/notes'), json={'Note': note_text, 'IsPublic': is_public})
 
     def get_notes(self, is_public):
         self._jitter()

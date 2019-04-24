@@ -38,7 +38,7 @@ def check_service(host: str) -> Verdict:
 
 
 @Checker.define_put(vuln_num=1)
-def put_zip(host: str, flag_id: str, flag: str) -> Verdict:
+def put_zip_flag(host: str, flag_id: str, flag: str) -> Verdict:
     try:
         with build_session() as session:
             api = Api(host, session)
@@ -79,7 +79,7 @@ def get_zip_flag(host: str, flag_id: str, flag: str) -> Verdict:
 
 
 @Checker.define_put(vuln_num=2)
-def put_zip(host: str, flag_id: str, flag: str) -> Verdict:
+def put_note_flag(host: str, flag_id: str, flag: str) -> Verdict:
     try:
         with build_session() as session:
             api = Api(host, session)
@@ -99,7 +99,7 @@ def put_zip(host: str, flag_id: str, flag: str) -> Verdict:
 
 
 @Checker.define_get(vuln_num=2)
-def get_zip_flag(host: str, flag_id: str, flag: str) -> Verdict:
+def get_note_flag(host: str, flag_id: str, flag: str) -> Verdict:
     try:
         with build_session() as session:
             api = Api(host, session)
@@ -120,7 +120,4 @@ def get_zip_flag(host: str, flag_id: str, flag: str) -> Verdict:
 
 
 if __name__ == '__main__':
-    # Checker.run()
-    service = check_service("10.33.64.130:8080")
-    print(service._code)
-    print(service._private_message)
+    Checker.run()
