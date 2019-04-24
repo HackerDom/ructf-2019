@@ -7,11 +7,11 @@ namespace SharpGeoAPI.HTTP.Handlers
 {
     public class GetAgentInfoHandler : BaseHandler
     {
-        private readonly IAgentStorage agentStorage;
+        private readonly IStorage storage;
 
-        public GetAgentInfoHandler(IAgentStorage agentStorage) : base("GET", "agent")
+        public GetAgentInfoHandler(IStorage storage) : base("GET", "agent")
         {
-            this.agentStorage = agentStorage;
+            this.storage = storage;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
@@ -19,12 +19,14 @@ namespace SharpGeoAPI.HTTP.Handlers
             var content = await context.Request.ReadContentAsync();
             var request = content.FromJson<GetAgentInfoRequest>();
 
-            var seed = agentStorage.GetAgent(request.AgentId);
+            var seed = storage.GetAgent(request.AgentId);
 
             if (seed == null)
             {
                 await context.Response.Send(404, seed.ToJson());
             }
+
+            storage.GetAgent(request.AgentId);
 
             context.Response.Close();
         }

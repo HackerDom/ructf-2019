@@ -1,19 +1,14 @@
-﻿using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
+﻿using MongoDB.Driver;
 using SharpGeoAPI.HTTP;
 using SharpGeoAPI.Models;
-using SharpGeoAPI.Models.Geo;
 
 namespace SharpGeoAPI.Storages
 {
-    class AgentsStorage : IAgentStorage
+    class Storage : IStorage
     {
         private readonly IMongoCollection<Agent> agents;
 
-        
-        public AgentsStorage(Settings settings, string dbCollection)
+        public Storage(Settings settings)
         {
             var client = new MongoClient(settings.MongoDBConnectionString);
             var database = client.GetDatabase(settings.MongoDBName);
@@ -30,10 +25,14 @@ namespace SharpGeoAPI.Storages
             agents.InsertOne(agent);
         }
 
+        public void UpdateAgent(Agent agent)
+        {
+            agents.ReplaceOne(origin => origin.AgentId == agent.AgentId, agent);
+        }
+
         public void RemoveAgent(Agent agentToDelete)
         {
-            agents.DeleteOne(a => a.AgentId == agentToDelete.AgentId);
+            agents.DeleteOne(origin => origin.AgentId == agentToDelete.AgentId);
         }
     }
-
 }

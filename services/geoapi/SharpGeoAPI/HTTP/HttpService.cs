@@ -26,7 +26,7 @@ namespace SharpGeoAPI.HTTP
     class HttpService : IDisposable
     {
         private readonly Settings settings;
-        private readonly IAgentStorage agentStorage;
+        private readonly IStorage storage;
         private readonly ILog log;
 
         private readonly ConcurrentDictionary<string, IBaseHandler> handlers;
@@ -34,13 +34,13 @@ namespace SharpGeoAPI.HTTP
         private Thread serverThread;
         private HttpListener listener;
 
-        public HttpService(Settings settings, ICollection<IBaseHandler> handlers, IAgentStorage agentStorage, ILog log)
+        public HttpService(Settings settings, ICollection<IBaseHandler> handlers, IStorage storage, ILog log)
         {
             this.handlers = new ConcurrentDictionary<string, IBaseHandler>(handlers.ToDictionary(handler => handler.Key,
                 handler => handler));
 
             this.settings = settings;
-            this.agentStorage = agentStorage;
+            this.storage = storage;
             this.log = log;
 
             serverThread = new Thread(Listen);
@@ -53,14 +53,11 @@ namespace SharpGeoAPI.HTTP
             listener.Prefixes.Add("http://*:" + settings.Port + "/");
             listener.Start();
             using (var semaphore = new SemaphoreSlim(settings.ParallelismDegree, settings.ParallelismDegree))
-            using (agentStorage)
             {
+                while (true)
                 {
-                    while (true)
-                    {
-                        var context = listener.GetContext();
-                        Task.Run(() => ProcessRequest(semaphore, context));
-                    }
+                    var context = listener.GetContext();
+                    Task.Run(() => ProcessRequest(semaphore, context));
                 }
             }
         }

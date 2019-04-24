@@ -8,11 +8,11 @@ namespace SharpGeoAPI.HTTP.Handlers
 {
     public class AgentActionHandler : BaseHandler
     {
-        private readonly IAgentStorage agentStorage;
+        private readonly IStorage storage;
 
-        public AgentActionHandler(IAgentStorage agentStorage) : base("PUT", "action")
+        public AgentActionHandler(IStorage storage) : base("PUT", "action")
         {
-            this.agentStorage = agentStorage;
+            this.storage = storage;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
@@ -21,7 +21,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var request = content.FromJson<PutSeedRequest>();
 
-            var session = agentStorage.GetAgent(request.SessionId);
+            var session = storage.GetAgent(request.SessionId);
 
             if (session == null)
             {
@@ -38,7 +38,6 @@ namespace SharpGeoAPI.HTTP.Handlers
         private class PutSeedRequest
         {
             public string SessionId { get; set; }
-            public Vector2 Position { get; set; }
             public CellType Cell { get; set; }
         }
     }

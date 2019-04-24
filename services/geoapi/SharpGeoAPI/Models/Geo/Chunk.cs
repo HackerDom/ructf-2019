@@ -14,14 +14,14 @@
 
         public byte[] Cells;
 
-        public void Set(int x, int y, CellType cell)
+        public void Set(Vector2 point, CellType cell)
         {
-            Cells[CoordsToIndex(x, y)] = (byte) cell;
+            Cells[CoordsToIndex(point.X, point.Y)] = (byte) cell;
         }
 
-        public CellType Get(int x, int y)
+        public CellType Get(Vector2 point)
         {
-            return (CellType)Cells[CoordsToIndex(x, y)];
+            return (CellType)Cells[CoordsToIndex(point.X, point.Y)];
         }
 
         private int CoordsToIndex(int x, int y)

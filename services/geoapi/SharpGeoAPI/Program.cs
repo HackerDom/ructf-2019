@@ -9,7 +9,7 @@ namespace SharpGeoAPI
     {
         static void Main(string[] args)
         {
-            var storage = new AgentsStorage();
+            var storage = new Storage();
 
             /*var server1 = new HttpService(
                 new Settings

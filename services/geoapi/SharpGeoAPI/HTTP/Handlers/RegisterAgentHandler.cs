@@ -10,11 +10,11 @@ namespace SharpGeoAPI.HTTP.Handlers
 {
     public class RegisterAgentHandler : BaseHandler
     {
-        private readonly IAgentStorage agentStorage;
+        private readonly IStorage storage;
 
-        public RegisterAgentHandler(IAgentStorage agentStorage) : base("POST", "agent")
+        public RegisterAgentHandler(IStorage storage) : base("POST", "agent")
         {
-            this.agentStorage = agentStorage;
+            this.storage = storage;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
@@ -27,19 +27,15 @@ namespace SharpGeoAPI.HTTP.Handlers
             {
                 AgentId = CreateNewAgentId(),
                 AgentKey = agentKey,
-                Position = GetStartPosition()
             };
 
-            agentStorage.AddAgent(agent);
+            storage.AddAgent(agent);
 
             await context.Response.OutputStream.WriteAsync(agent.ToJson().ToBytes());
             context.Response.Close();
         }
 
 
-        //TODO: remove this shit
-        private string CreateNewAgentId() => Guid.NewGuid().ToString();
-
-        private Vector2 GetStartPosition() => throw new NotImplementedException();
+        private string CreateNewAgentId() => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
     }
 }

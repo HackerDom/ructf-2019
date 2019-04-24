@@ -14,6 +14,7 @@ namespace SharpGeoAPI.Models
 
         public string AgentKey { get; set; }
 
-        public Vector2 Position { get; set; }
+        public string ChunkName { get; set; }
+
     }
 }

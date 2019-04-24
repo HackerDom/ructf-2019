@@ -4,7 +4,7 @@ using SharpGeoAPI.Models;
 
 namespace SharpGeoAPI.Storages
 {
-    public interface IAgentStorage
+    public interface IStorage
     {
         Agent GetAgent(string agentId);
         void AddAgent(Agent agent);

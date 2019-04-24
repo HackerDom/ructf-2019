@@ -2,7 +2,7 @@
 {
     public interface IChunk
     {
-        void Set(int x, int y, CellType cell);
-        CellType Get(int x, int y);
+        void Set(Vector2 point, CellType cell);
+        CellType Get(Vector2 point);
     }
 }

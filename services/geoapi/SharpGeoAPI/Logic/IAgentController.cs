@@ -4,6 +4,6 @@ namespace SharpGeoAPI.Storages
 {
     public interface IAgentController
     {
-        string MoveAgent(string agentId, MoveType moveType);
+        void ChangeTileType(string agentId, Vector2 position, CellType cellType);
     }
 }
