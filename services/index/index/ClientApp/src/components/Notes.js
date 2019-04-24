@@ -8,15 +8,12 @@ class Notes extends React.Component {
     componentDidMount() {
         this.props.fetchNotes(this.props.private);
     }
-    componentDidUpdate() {
-        this.props.fetchNotes(this.props.private);
-    }
 
     render() {
         if (this.props.fetching)
             return <Spinner color="secondary" />;
 
-        return <ListGroup>{this.props.notes.map(n => <ListGroupItem>{n.Text}</ListGroupItem>)}</ListGroup>;
+        return <ListGroup>{this.props.notes.map(n => <ListGroupItem>{n}</ListGroupItem>)}</ListGroup>;
     }
 }
 

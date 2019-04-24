@@ -1,4 +1,4 @@
-using System.Threading;
+using System.Linq;
 using index.db.Models;
 using index.db.Services;
 using Microsoft.AspNetCore.Hosting;
@@ -37,13 +37,19 @@ namespace index.Controllers
         }
 
         [HttpGet]
-        public ActionResult Get()
+        public ActionResult Get(bool isPrivate)
         {
-            Thread.Sleep(10000);
-            if (!IsAdminSession() || IsSessionNotValid())
+            if (!isPrivate)
+                return Json(db.Get().Where(n => n.IsPublic).Select(n => n.Text));
+
+            if (!IsAdminSession() && IsSessionNotValid())
                 return StatusCode(403);
 
-            return StatusCode(202);
+            var login = GetLogin();
+
+            return Json(db.Get()
+                .Where(n => !n.IsPublic && (n.OwnerName == login || IsAdminSession()))
+                .Select(n => n.Text));
         }
 
         private bool IsAdminSession() =>

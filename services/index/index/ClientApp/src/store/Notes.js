@@ -4,9 +4,9 @@ const endRequest = 'FETCH_NOTES_END';
 const initialState = { notes: [], fetching: false };
 
 export const actionCreators = {
-    fetchNotes: p => async (dispatch) => {
+    fetchNotes: isPrivate => async (dispatch) => {
         dispatch({ type: startRequest });
-        await fetch(`api/notes?private=${p}`).then(
+        await fetch(`api/notes?isPrivate=${isPrivate}`).then(
             async resp => {
                 if (resp.ok)
                     return await resp.json();
