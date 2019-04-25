@@ -2,6 +2,7 @@ from sanic import Sanic
 from sanic_auth import Auth
 from sanic_jinja2 import SanicJinja2
 from sanic_motor import BaseModel
+from sessions import Sessions
 
 app = Sanic(__name__)
 
@@ -18,7 +19,7 @@ async def add_session(request):
     request['session'] = session
 
 app.config.AUTH_LOGIN_URL = '/Signin'
-auth = Auth(app)
+auth = Sessions(app)
 
 from beacons.controllers.login import login_page
 from beacons.controllers.map import map_page

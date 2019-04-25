@@ -1,5 +1,6 @@
 from sanic.response import redirect
 from sanic import Blueprint
+from sanic import response
 from beacons import jinja
 from beacons import auth
 from beacons.repositories.user import User
@@ -16,8 +17,7 @@ async def login(request):
         password = request.form.get("password")
         user = await User.find_one({"name": username})
         if user and check_password(user, password):
-            auth.login_user(request, user)
-            return redirect("/")
+            return auth.login_user(request, user)
         else:
             return {"message": "Incorrect username or password"}
     return {"message": ""}
@@ -44,9 +44,7 @@ async def signin(request):
             return {"message": "Password should contains only letters, numbers or _"}
         inserted_id = (await User.insert_one({"name": username, "password": password, "beacons": []})).inserted_id
         user = auth.load_user({"uid": inserted_id, "name": username})
-        print(user)
-        auth.login_user(request, user)
-        return redirect("/")
+        return auth.login_user(request, user)
     return {"message": ""}
 
 
