@@ -76,7 +76,7 @@ bool InitInterface(TInterfaceCallback callback)
 		return false;
 	}
 
-	listen(GListenSocket, 1);
+	listen(GListenSocket, 128);
 
 	GThread = std::thread(NetworkThread);
 
