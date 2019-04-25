@@ -362,15 +362,13 @@ function viewLatest(mapStateObject, ctx) {
 }
 
 function setDeviceModel(imgElement, deviceModelElement) {
-    let a= EXIF.getData(imgElement, function() {
+    EXIF.getData(imgElement, function() {
         var make = EXIF.getTag(this, "Make");
         var model = EXIF.getTag(this, "Model");
         if (make && model) {
             deviceModelElement.innerHTML = `device: ${make} ${model}`;
         }
     });
-
-    console.log(a)
 }
 
 function getBeacons(centerX, centerY) {
@@ -429,7 +427,7 @@ function addBeaconToServer(formData) {
 
 function getLatest() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "Photo/GetLatest", false);
+    xhr.open("GET", "/Photo/GetLatest", false);
     xhr.send();
     if (xhr.status != 200) {
         showError("Could not get latest photos. Try again.");
