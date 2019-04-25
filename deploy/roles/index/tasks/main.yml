@@ -17,6 +17,9 @@
 - name: copy motd
   copy: src=motd dest=/etc/motd
 
+- name: copy environment
+  copy: src=environment dest=/etc/environment
+
 - name: unpack mongo bins
   unarchive:
     src: mongo_bins.tar.gz
@@ -54,9 +57,16 @@
 
 - name: unpack dotnet-runtime
   unarchive:
-    src: dotnet-runtime-2.1.2-linux-arm.tar.gz
+    src: aspnetcore-runtime-2.2.4-linux-arm.tar.gz
     dest: /opt/dotnet/
+    owner: root
+    group: root
 
+- name: create dotnet link
+  file:
+    src: /opt/dotnet/dotnet
+    dest: /usr/bin/dotnet
+    state: link
 
 #- name: install packages
 #  apt: 
