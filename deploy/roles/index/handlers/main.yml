@@ -5,3 +5,12 @@
 
 - name: enable and restart mongo
   systemd: name=mongod enabled=yes state=restarted daemon_reload=yes
+
+- name: rename pub to index
+  file:
+    state: absent
+    path: "/home/index/"
+  notify: rename pub to index 2
+
+- name: rename pub to index 2
+  command: mv --no-target-directory /home/pub /home/index

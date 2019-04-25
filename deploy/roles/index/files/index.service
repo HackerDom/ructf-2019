@@ -2,12 +2,13 @@
     Description=Index service
 
 [Service]
-    ExecStart=/home/index/index.py
+    ExecStart=/home/index/run.sh
     WorkingDirectory=/home/index/
     User=index
     Group=index
     Restart=on-failure
     RestartSec=2s
+    Environment=ASPNETCORE_ENVIRONMENT=Staging
     # CPUQuota=400%
 
 [Install]
