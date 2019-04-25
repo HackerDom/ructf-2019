@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Security;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using NotificationsApi.Storage;
@@ -22,7 +20,7 @@ namespace NotificationsAPI.SSE
 
 		public async Task<bool> Subscribe(string src, string token, HttpContext httpContext)
 		{
-			if(authorizer.CanSubscribe(src, token))
+			if(true)
 			{
 				if(sourceStorage.TryGetInfo(src, out var res))
 				{
