@@ -6,7 +6,7 @@ using SharpGeoAPI.Models.Geo;
 
 namespace SharpGeoAPI.Models
 {
-    public class Agent
+    public class SimulationAgent
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
@@ -15,6 +15,5 @@ namespace SharpGeoAPI.Models
         public string AgentKey { get; set; }
 
         public string ChunkName { get; set; }
-
     }
 }

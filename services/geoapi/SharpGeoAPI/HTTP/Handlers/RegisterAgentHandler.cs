@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -21,20 +22,26 @@ namespace SharpGeoAPI.HTTP.Handlers
         {
             var content = await context.Request.ReadContentAsync();
 
-            var agentKey = content.FromJson<string>();
+            var request = content.FromJson<RegisterAgentRequests>();
 
-            var agent = new Agent
+            var agent = new SimulationAgent
             {
                 AgentId = CreateNewAgentId(),
-                AgentKey = agentKey,
+                AgentKey = request.AgentKey,
             };
 
             storage.AddAgent(agent);
+
+
 
             await context.Response.OutputStream.WriteAsync(agent.ToJson().ToBytes());
             context.Response.Close();
         }
 
+        class RegisterAgentRequests
+        {
+            public string AgentKey { get; set; }
+        }
 
         private string CreateNewAgentId() => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
     }

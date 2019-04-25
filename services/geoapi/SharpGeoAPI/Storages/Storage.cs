@@ -6,33 +6,35 @@ namespace SharpGeoAPI.Storages
 {
     class Storage : IStorage
     {
-        private readonly IMongoCollection<Agent> agents;
+        private readonly IMongoCollection<SimulationAgent> agents;
 
         public Storage(Settings settings)
         {
             var client = new MongoClient(settings.MongoDBConnectionString);
             var database = client.GetDatabase(settings.MongoDBName);
-            agents = database.GetCollection<Agent>(settings.CollectionName);
+            agents = database.GetCollection<SimulationAgent>(settings.CollectionName);
         }
 
-        public Agent GetAgent(string agentId)
+        public SimulationAgent GetAgent(string agentId)
         {
             return agents.Find(agent => agent.AgentId == agentId).FirstOrDefault();
         }
 
-        public void AddAgent(Agent agent)
+        public void AddAgent(SimulationAgent simulationAgent)
         {
-            agents.InsertOne(agent);
+            agents.InsertOne(simulationAgent);
         }
 
-        public void UpdateAgent(Agent agent)
+        public void UpdateAgent(SimulationAgent simulationAgent)
         {
-            agents.ReplaceOne(origin => origin.AgentId == agent.AgentId, agent);
+            agents.ReplaceOne(origin => origin.AgentId == simulationAgent.AgentId, simulationAgent);
         }
 
-        public void RemoveAgent(Agent agentToDelete)
+        public void RemoveAgent(SimulationAgent simulationAgentToDelete)
         {
-            agents.DeleteOne(origin => origin.AgentId == agentToDelete.AgentId);
+            agents.DeleteOne(origin => origin.AgentId == simulationAgentToDelete.AgentId);
         }
+
+
     }
 }

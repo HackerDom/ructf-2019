@@ -17,24 +17,18 @@ namespace SharpGeoAPI.HTTP.Handlers
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
             var content = await context.Request.ReadContentAsync();
-            var request = content.FromJson<GetAgentInfoRequest>();
+            var agentId = content.FromJson<string>();
 
-            var seed = storage.GetAgent(request.AgentId);
+            var agent = storage.GetAgent(agentId);
 
-            if (seed == null)
+            if (agent == null)
             {
-                await context.Response.Send(404, seed.ToJson());
+                await context.Response.Send(404, agent.ToJson());
             }
 
-            storage.GetAgent(request.AgentId);
+            await context.Response.Send(200, agent.ToJson());
 
             context.Response.Close();
-        }
-
-
-        private class GetAgentInfoRequest
-        {
-            public string AgentId { get; set; }
         }
     }
 }

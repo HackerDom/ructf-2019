@@ -2,8 +2,8 @@
 {
     public enum CellType
     {
-        Earth,
-        Water,
-        Lava
+        Earth = 0,
+        Water = 1,
+        Lava = 2
     }
 }

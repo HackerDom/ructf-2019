@@ -2,6 +2,11 @@
 {
     public class Chunk : IChunk
     {
+        public Chunk(byte[] cells)
+        {
+            this.Cells = cells;
+        }
+
         public Chunk(int width, int height)
         {
             this.width = width;
@@ -9,10 +14,17 @@
             Cells = new byte[width * height];
         }
 
+        public Chunk(int width, int height, byte[] cells)
+        {
+            this.width = width;
+            this.height = height;
+            this.Cells = cells;
+        }
+
         private readonly int width;
         private readonly int height;
 
-        public byte[] Cells;
+        public readonly byte[] Cells;
 
         public void Set(Vector2 point, CellType cell)
         {
@@ -28,11 +40,5 @@
         {
             return y * width + x;
         }
-    }
-
-    public interface IAgentsManager
-    {
-        void HandleMoveAction(Agent agent, Vector2 position);
-        void HandleTerraformAction(Agent agent, Vector2 position, CellType cell);
     }
 }
