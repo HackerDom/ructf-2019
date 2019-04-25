@@ -92,17 +92,10 @@ async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verd
     async with sse_client.EventSource(subscribe_req) as event_source:
         try:
             async for event in event_source:
-                a = event
-                b=1
+                if flag in get_flag_from_base64(event.data):
+                    return Verdict.OK()
         except Exception as e:
             return Verdict.DOWN("network error", "network error")
-
-        # subscribe_result = notificationApiClient.subscribe_on_source(flag_id, token, host)
-        # for x in subscribe_result:
-        #     a = x
-        #     b = 1
-        # if flag in decode_result:
-        #     return Verdict.OK()
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
@@ -162,26 +155,31 @@ def generate_random_bytes(N=16):
     return hexlify(a).upper().decode("utf-8")
 
 
+def get_flag_from_aes(key, ciphertext, iv):
+    try:
+        image = getImageFromBase64(ciphertext)
+        bytes = get_bytes_with_flag(image)
+        message = decode_flag_bytes(bytes)
+        result = decodeAES(key, message, iv)
+        return result
+    except Exception as e:
+        return None
+
+
+def get_flag_from_base64(base64text):
+    try:
+        image = getImageFromBase64(base64text)
+        bytes = get_bytes_with_flag(image)
+        flag = decode_flag_bytes(bytes)
+        return flag
+    except Exception as e:
+        return None
+
+
 def decodeAES(key, ciphertext, iv):
     cipher = AES.new(key, AES.MODE_EAX, iv=iv)
     result = cipher.decrypt(ciphertext)
     return result
-
-
-def get_flag_from_aes(key, ciphertext, iv):
-    image = getImageFromBase64(ciphertext)
-    bytes = get_bytes_with_flag(image)
-    message = decode_flag_bytes(bytes)
-    result = decodeAES(key, message, iv)
-    return result
-
-
-def get_flag_from_base64(base64text):
-    image = getImageFromBase64(base64text)
-    bytes = get_bytes_with_flag(image)
-    flag = decode_flag_bytes(bytes)
-    return flag
-
 
 def getImageFromBase64(base64Image) -> Image:
     bytes = base64.b64decode(base64Image)
@@ -248,8 +246,10 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
+    flag = generate_random_string(32)
+    print(flag)
     name= str(uuid.uuid4())
-    a = put_flag_into_the_service1("10.33.54.127", name, "13")
+    a = put_flag_into_the_service1("10.33.54.127", name, flag)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, "13"))
+    loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, flag))
