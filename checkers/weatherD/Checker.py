@@ -25,7 +25,7 @@ notificationApiClient = NotificationApiClient(NotificationApiPort, 3)
 IMAGE_WIDTH = 1000
 IMAGE_HEIGHT = 1000
 
-PIXELS_WITH_FLAG = []
+PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (374, 636), (982, 570), (1042, 497), (1055, 420)]
 
 def check_result(result, out):
     if result is None:
@@ -92,7 +92,8 @@ async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verd
     async with sse_client.EventSource(subscribe_req) as event_source:
         try:
             async for event in event_source:
-                if flag in get_flag_from_base64(event.data):
+                decode_result = get_flag_from_base64(event.data)
+                if flag in decode_result:
                     return Verdict.OK()
         except Exception as e:
             return Verdict.DOWN("network error", "network error")
