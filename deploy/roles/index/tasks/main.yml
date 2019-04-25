@@ -1,7 +1,6 @@
 - hostname:
     name: index
 
-# put your authorized key here
 - name: Set authorized key
   authorized_key:
     user: root
@@ -9,7 +8,7 @@
     state: present
     
 - name: create user
-  user: name=index shell=/bin/false create_home=false
+  user: name=index shell=/bin/false
 
 - name: create mongo user
   user: name=mongodb shell=/bin/false
@@ -68,37 +67,15 @@
     dest: /usr/bin/dotnet
     state: link
 
-#- name: install packages
-#  apt: 
-#    update_cache: yes
-#    name:
-#      - mongodb
 
 - name: unpack service
   unarchive:
     src: publish.zip
-    dest: /home/
+    dest: /home/index/
     owner: index
     group: index
-  notify: rename pub to index
+  notify: enable and restart services
 
-
-# example of reusing the files from services folder
-#- name: copy service
-#  copy: src="{{ playbook_dir }}/../services/index/index.py" dest=/home/index/
-#  notify: enable and restart services
-
-# example of copying dirs with many files
-#- name: copy service files
-#  synchronize: 
-#    src: "{{ playbook_dir }}/../services/index/"
-#    dest: /home/index/
-#    rsync_opts:
-#      - "--chmod=D0770"
-#      - "--chmod=F0660"
-#      - "--chown=index:index"
-#  notify: enable and restart services
-#
 
 - name: fix permissions
   file: name=/home/index owner=index group=index recurse=yes state=directory
