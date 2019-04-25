@@ -26,7 +26,7 @@
     group: user
 
 # example of reusing the files from services folder
-- name: copy service
+- name: copy autostart config
   copy: src="sandbox.desktop" dest=/home/user/.config/autostart/sandbox.desktop owner=user group=user
   notify: enable and restart services
 
@@ -60,9 +60,7 @@
     creates: /home/user/sandbox/proxy/proxy
 
 - name: build docker image
-  docker_image:
-    path: /home/user/sandbox/proxy
-    name: proxy
+  command: docker build --tag=proxy /home/user/sandbox/proxy
 
 - name: start container
   docker_container:
