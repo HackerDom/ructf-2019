@@ -104,7 +104,7 @@ void NetworkThread()
 	std::map<int, Socket> socketsMap;
 	std::vector<pollfd> pollFds;
 	std::vector<int> socketsToAdd;
-	std::vector<size_t> idxToRemove;
+	std::vector<size_t> sockToRemove;
 
 	pollfd pollFd;
 	pollFd.fd = GListenSocket;
@@ -134,7 +134,7 @@ void NetworkThread()
 					if(timeout)
 					{
 						printf("Sock %d timeout\n", pollFd.fd);
-						idxToRemove.push_back(i);
+						sockToRemove.push_back(pollFd.fd);
 					}
 				}
 				continue;
@@ -176,7 +176,7 @@ void NetworkThread()
 					if(bytes < 0)
 						perror("recv");
 
-					idxToRemove.push_back(i);
+					sockToRemove.push_back(pollFd.fd);
 				}
 				else
 				{
@@ -190,7 +190,7 @@ void NetworkThread()
 							memcpy(&sock.header, buf, sizeof(CommandHeader));
 							if(sock.header.cmd >= kCommandsCount)
 							{
-								idxToRemove.push_back(i);
+								sockToRemove.push_back(pollFd.fd);
 							}
 							else
 							{
@@ -218,22 +218,28 @@ void NetworkThread()
 			}
 		}
 
-		for(size_t idx : idxToRemove)
+		for(int sock : sockToRemove)
 		{
-			if(idx == 0)
+			if(sock == GListenSocket)
 			{
 				printf("Trying to remove listening socket\n");
 				exit(1);
 			}
 
-			int sock = pollFds[idx].fd;
 			socketsMap.erase(sock);
-			if(pollFds.size() != 2 && idx != pollFds.size() - 1)
-				pollFds[idx] = pollFds.back();
-			pollFds.pop_back();
+			for(size_t i = 1; i < pollFds.size(); i++)
+			{
+				if(pollFds[i].fd != sock)
+					continue;
+
+				if(i != pollFds.size() - 1)
+					pollFds[i] = pollFds.back();
+				pollFds.pop_back();
+				break;
+			}
 			close(sock);
 		}
-		idxToRemove.clear();
+		sockToRemove.clear();
 
 		for(int sock : socketsToAdd)
 		{
