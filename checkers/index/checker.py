@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from api import Api
 from infrastructure.actions import Checker
 from infrastructure.verdict import Verdict

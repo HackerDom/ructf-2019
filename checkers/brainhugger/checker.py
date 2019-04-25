@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import binascii
 import time
 from base64 import b64encode, b64decode
