@@ -27,7 +27,9 @@ async def login(request):
 @auth.login_required
 def logout(request):
     auth.logout_user(request)
-    return redirect("/Signin")
+    resp = redirect("/Signin")
+    del resp.cookies['session']
+    return resp
 
 
 @login_page.route("/Signup", methods=["GET", "POST"])
