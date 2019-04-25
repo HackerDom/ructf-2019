@@ -24,7 +24,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var request = content.FromJson<RegisterAgentRequests>();
 
-            var agent = new SimulationAgent
+            var agent = new AgentSession
             {
                 AgentId = CreateNewAgentId(),
                 AgentKey = request.AgentKey,

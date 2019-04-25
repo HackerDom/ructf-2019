@@ -15,15 +15,15 @@ namespace SharpGeoAPI.HTTP.Handlers
     public class AgentActionHandler : BaseHandler
     {
         private readonly IStorage storage;
-        private readonly Settings settings;
-        private readonly ConcurrentDictionary<string, ActionHandler> handlers = new ConcurrentDictionary<string, ActionHandler>();
-        private readonly ConcurrentDictionary<string, ConcurrentQueue<ActionRequest>> actionBatches = new ConcurrentDictionary<string, ConcurrentQueue<ActionRequest>>();
+        private readonly IChunkManager chunkManager;
+        private readonly ISettings settings;
 
-        public AgentActionHandler(IStorage storage, Settings settings) : base("PUT", "action")
+
+        public AgentActionHandler(IStorage storage, IChunkManager chunkManager, ISettings settings) : base("PUT", "action")
         {
             this.storage = storage;
+            this.chunkManager = chunkManager;
             this.settings = settings;
-            //Task.Run(RemoveExpiredHandlers);
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
@@ -32,49 +32,28 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var request = content.FromJson<ActionRequest>();
 
-            var agent = storage.GetAgent(request.SessionId);
+            var session = storage.GetAgent(request.SessionId);
 
-            if (agent == null)
+            if (session == null)
             {
                 await context.Response.Send(404, "Can't find session");
                 return;
             }
 
-            var handler = handlers.GetOrAdd(agent.AgentKey, new ActionHandler(settings));
-
-            if (!handler.TryAddAction(async () => await HandleAction(request)))
-            {
-                context.Response.Send(423);
-            }
-
             context.Response.Send(200);
         }
 
-        private Task HandleAction(ActionRequest actionRequest)
+        private async Task HandleAction(ActionRequest actionRequest, AgentSession session)
         {
-            throw new NotImplementedException();
+            await UpdateTile(actionRequest, session);
         }
 
-        private async Task RemoveExpiredHandlers()
+        private async Task UpdateTile(ActionRequest actionRequest, AgentSession session)
         {
-            while (true)
-            {
-                try
-                {
-                    var expired =  handlers.Where(pair => pair.Value.IsExpired).ToList();
-                    await Task.WhenAll(expired.Select(pair => pair.Value.Stop().ContinueWith(task =>
-                    {
-                        handlers.TryRemove(pair.Key, out _);
-                    })).ToArray());
-                }
-                catch (Exception e)
-                {
-
-                }
-            }
+            var chunk = chunkManager.GetChunk(session.AgentName);
+            chunk.TrySet(new Vector2(0, 0), actionRequest.Cell);
+            await chunk.Update();
         }
-
-
 
         private class ActionRequest
         {
@@ -83,3 +62,4 @@ namespace SharpGeoAPI.HTTP.Handlers
         }
     }
 }
+ 

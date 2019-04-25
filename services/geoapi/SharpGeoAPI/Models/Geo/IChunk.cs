@@ -1,8 +1,10 @@
-﻿namespace SharpGeoAPI.Models.Geo
+﻿using System.Threading.Tasks;
+
+namespace SharpGeoAPI.Models.Geo
 {
     public interface IChunk
     {
-        void Set(Vector2 point, CellType cell);
-        CellType Get(Vector2 point);
+        bool TrySet(Vector2 point, CellType cell);
+        Task Update();
     }
 }
