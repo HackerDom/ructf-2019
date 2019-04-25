@@ -141,7 +141,7 @@ void main()
             Unit unit = units[UnitIdxToFollow.x];
             vec3 unitPos = vec3(unit.posX, unit.posY, unit.posZ);
             cameraDir = normalize(unitPos - cameraPos);
-            cameraPos = (unitPos - cameraDir * 10.0f);
+            cameraPos = (unitPos - cameraDir * 5.0f);
         }
     }
 

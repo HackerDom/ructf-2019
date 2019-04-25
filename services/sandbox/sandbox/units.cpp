@@ -248,9 +248,11 @@ Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 	memcpy(u.mind, mind, 32);
 	u.index = ~0u;
 
-	u.posX = (float)(m_fieldSizeX - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
+	uint32_t crossesPerX = m_fieldSizeX / (kStreetWidth + kBuildingSize);
+	uint32_t crossesPerY = m_fieldSizeY / (kStreetWidth + kBuildingSize);
+	u.posX = (rand() % crossesPerX) * (kStreetWidth + kBuildingSize) + (float)kStreetWidth * 0.5 + (float)dis(e);
 	u.posY = (float)disPos(e);
-	u.posZ = (float)(m_fieldSizeY - kStreetWidth) * 0.5f + (float)kStreetWidth * 0.5 + (float)dis(e);
+	u.posZ = rand() % crossesPerY * (kStreetWidth + kBuildingSize) + (float)kStreetWidth * 0.5 + (float)dis(e);
 
 	u.power = (float)dis(e);
 	u.prevDirIdx = 0;
