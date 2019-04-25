@@ -12,5 +12,5 @@ def build_session() -> Session:
     s.headers = {'User-Agent': Randomizer.user_agent()}
     return s
 
-def wait():
-    time.sleep(random.randrange(1000, 5000) / 1000)
+def wait(max_time = 3000):
+    time.sleep(random.randrange(1000, max_time) / 1000)
