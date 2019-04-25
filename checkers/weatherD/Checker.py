@@ -1,16 +1,11 @@
 from Checkers.infrastructure.actions import Checker
 from Checkers.infrastructure.verdict import Verdict
-from aiohttp_sse_client import client as sse_client
-import asyncio
 
 from RustClient import RustClient
 from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
 
 from Crypto.Cipher import AES
-from PIL import Image
-import base64
-
 import string
 import random
 import uuid
@@ -19,13 +14,11 @@ Checker.INFO = "1:2"
 RUSTPORT = 7878
 NotificationApiPort = 5000
 
-rustClient = RustClient(RUSTPORT, 3)
-notificationApiClient = NotificationApiClient(NotificationApiPort, 3)
+tokens_storage = {}
 
-IMAGE_WIDTH = 1000
-IMAGE_HEIGHT = 1000
+rustClient = RustClient(RUSTPORT, 300)
+notificationApiClient = NotificationApiClient(NotificationApiPort, 300)
 
-PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (374, 636), (982, 570), (1042, 497), (1055, 420)]
 
 def check_result(result, out):
     if result is None:
@@ -57,7 +50,7 @@ def check_service(host: str) -> Verdict:
         return Verdict.DOWN("network error", "network error")
 
     for mess in subscribe_result.iter:
-        decode_result = get_flag_from_base64(mess)
+        decode_result = decode_flag_from_image(mess)
         if decode_result is None:
             continue
 
@@ -66,37 +59,39 @@ def check_service(host: str) -> Verdict:
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
-def put_flag_into_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
+@Checker.define_put(vuln_num=1)
+def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
-    result = rustClient.create_source(flag_id, password, False, False, '', '', host)
+    result = rustClient.create_source(flag_id, password, False, False, '', host)
     a = None
     if not check_result(result, a):
         return a
 
     token = result.result
-    print(token)
     push_result = rustClient.push_to_source(flag_id, password, flag, host)
     a = None
     if not check_result(push_result, a):
         return a
 
-    return '{}:{}'.format(flag_id, token)
-    return Verdict.OK('{}:{}'.format(flag_id, token))
+    return Verdict.OK('{}:{}'.format(flag, token))
 
 
-async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
+@Checker.define_get(vuln_num=1)
+def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
-    subscribe_req = notificationApiClient.create_subscribe_on_source_request(flag_id, token, host)
-    async with sse_client.EventSource(subscribe_req) as event_source:
-        try:
-            async for event in event_source:
-                decode_result = get_flag_from_base64(event.data)
-                if flag in decode_result:
-                    return Verdict.OK()
-        except Exception as e:
-            return Verdict.DOWN("network error", "network error")
+    subscribe_result = notificationApiClient.subscribe_on_source(flag_id, token, host)
+    if not subscribe_result.is_success:
+        return Verdict.DOWN("network error", "network error")
+
+    for mess in subscribe_result.iter:
+        decode_result = decode_flag_from_image(mess)
+        if decode_result is None:
+            continue
+
+        if flag in decode_result:
+            return Verdict.OK()
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
@@ -120,29 +115,23 @@ def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
 
 
 @Checker.define_get(vuln_num=2)
-async def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
+def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
     key = parts[2]
     iv = parts[3]
+    subscribe_result = notificationApiClient.subscribe_on_source(flag_id, token, host)
+    if not subscribe_result.is_success:
+        return Verdict.DOWN("network error", "network error")
 
-    subscribe_req = notificationApiClient.create_subscribe_on_source_request(flag_id, token, host)
-    async with sse_client.EventSource(subscribe_req) as event_source:
-        try:
-            async for event in event_source:
-                print(event)
-        except ConnectionError:
-            return Verdict.DOWN("network error", "network error")
+    for mess in subscribe_result.iter:
+        decode_result = decode_flag_from_image(mess)
+        if not decode_result[0]:
+            continue
 
-
-    # for mess in subscribe_result.iter:
-    #     decode_result = get_flag_from_aes(mess)
-    #     if not decode_result[0]:
-    #         continue
-    #
-    #     if flag in decode_result[1]:
-    #         return Verdict.OK()
+        if flag in decode_result[1]:
+            return Verdict.OK()
 
     return Verdict.CORRUPT("flag not found", "flag not found")
 
@@ -156,48 +145,12 @@ def generate_random_bytes(N=16):
     return hexlify(a).upper().decode("utf-8")
 
 
-def get_flag_from_aes(key, ciphertext, iv):
-    try:
-        image = getImageFromBase64(ciphertext)
-        bytes = get_bytes_with_flag(image)
-        message = decode_flag_bytes(bytes)
-        result = decodeAES(key, message, iv)
-        return result
-    except Exception as e:
-        return None
-
-
-def get_flag_from_base64(base64text):
-    try:
-        image = getImageFromBase64(base64text)
-        bytes = get_bytes_with_flag(image)
-        flag = decode_flag_bytes(bytes)
-        return flag
-    except Exception as e:
-        return None
-
-
 def decodeAES(key, ciphertext, iv):
     cipher = AES.new(key, AES.MODE_EAX, iv=iv)
     result = cipher.decrypt(ciphertext)
-    return result
+    print(result)
 
-def getImageFromBase64(base64Image) -> Image:
-    bytes = base64.b64decode(base64Image)
-    image = Image.frombytes("RGB", (IMAGE_WIDTH, IMAGE_HEIGHT), bytes)
-    return image
-
-
-def get_bytes_with_flag(image : Image):
-    res = []
-    for coord in PIXELS_WITH_FLAG:
-        r, g, b = image.getpixel(coord)
-        res = res + [r, g, b]
-
-    return res
-
-
-def decode_flag_bytes(u8bytes):
+def decode_flag_from_image(u8bytes):
     try:
         nums = []
         i = 0
@@ -247,10 +200,4 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-    flag = generate_random_string(32)
-    print(flag)
-    name= str(uuid.uuid4())
-    a = put_flag_into_the_service1("10.33.54.127", name, flag)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, flag))
+    put_flag_into_the_service("localhost", "flag_id", "13")
