@@ -155,7 +155,7 @@ func handleLoginUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	if loginUser.UserId == 0 || loginUser.Password == "" {
+	if loginUser.UserId == 0 && loginUser.Password == "" {
 		w.WriteHeader(403)
 		return
 	}

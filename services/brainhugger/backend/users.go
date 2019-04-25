@@ -88,6 +88,10 @@ func (um *UsersManager) LoginUser(userId uint, password string) (bool, string, e
 func (um *UsersManager) GetForCookie(userId uint) (string, error) {
 	var user User
 	rawUser, err := um.Storage.Get(userId)
+	if err != nil {
+		return "", errors.New("can not get user from storage: " + err.Error())
+	}
+	fmt.Println("user", rawUser)
 	err = json.Unmarshal(rawUser, &user)
 	if err != nil {
 		return "", errors.New("can not unmarshal user: " + err.Error())
