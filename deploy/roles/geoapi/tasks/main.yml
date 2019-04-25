@@ -11,8 +11,59 @@
 - name: create user
   user: name=geoapi shell=/bin/false
 
+- name: create mongo user
+  user: name=mongodb shell=/bin/false
+
 - name: copy motd
   copy: src=motd dest=/etc/motd
+
+- name: unpack mongo bins
+  unarchive:
+    src: mongo_bins.tar.gz
+    dest: /usr/bin/
+  notify: enable and restart mongo
+
+- name: copy mongo config
+  copy: src="mongod.conf" dest=/etc/
+  notify: enable and restart mongo
+
+- name: copy mongod.service
+  copy: src="mongod.service" dest=/etc/systemd/system
+  notify: enable and restart mongo
+
+- name: create mongo logs dir
+  file:
+    path: /var/log/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+  notify: enable and restart mongo
+
+- name: create mongo data dir
+  file:
+    path: /var/lib/mongodb
+    state: directory
+    owner: mongodb
+    group: mongodb
+  notify: enable and restart mongo
+
+- name: create dotnet directory
+  file:
+    path: /opt/dotnet_runtime
+    state: directory
+
+- name: unpack dotnet_runtime
+  unarchive:
+    src: dotnet-runtime-2.1.2-linux-arm.tar.gz
+    dest: /opt/dotnet_runtime/
+    owner: root
+    group: root
+
+- name: create dotnet link
+  file:
+    src: /opt/dotnet_runtime/dotnet
+    dest: /usr/bin/dotnet
+    state: link
 
 # example of installing packages
 #- name: install packages
@@ -21,9 +72,9 @@
 #    name:
 #      - cowsay
   
-- name: copy service
-  copy: src="geoapi.py" dest=/home/geoapi/
-  notify: enable and restart services
+# - name: copy service
+#   copy: src="geoapi.py" dest=/home/geoapi/
+#   notify: enable and restart services
 
 # example of reusing the files from services folder
 #- name: copy service
@@ -45,15 +96,15 @@
 - name: fix permissions
   file: name=/home/geoapi owner=geoapi group=geoapi recurse=yes state=directory
 
-- name: make service executable
-  file: path={{item}} mode=0755
-  with_items:
-    - /home/geoapi/geoapi.py
-  notify: enable and restart services
+# - name: make service executable
+#   file: path={{item}} mode=0755
+#   with_items:
+#     - /home/geoapi/geoapi.py
+#   notify: enable and restart services
 
-- name: add service files
-  copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
-  notify: enable and restart services
-  with_items:
-    - geoapi
+# - name: add service files
+#   copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
+#   notify: enable and restart services
+#   with_items:
+#     - geoapi
 
