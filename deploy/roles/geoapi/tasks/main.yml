@@ -54,16 +54,16 @@
 
 - name: unpack dotnet_runtime
   unarchive:
-    src: dotnet-runtime-2.1.2-linux-arm.tar.gz
+    src: dotnet-runtime-2.2.4-linux-arm.tar.gz
     dest: /opt/dotnet_runtime/
     owner: root
     group: root
 
-- name: create dotnet link
-  file:
-    src: /opt/dotnet_runtime/dotnet
-    dest: /usr/bin/dotnet
-    state: link
+#- name: create dotnet link
+#  file:
+#    src: /opt/dotnet_runtime/dotnet
+#    dest: /usr/bin/dotnet
+#    state: link
 
 # example of installing packages
 #- name: install packages
