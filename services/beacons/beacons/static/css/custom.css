@@ -22,6 +22,8 @@
 }
 
 body {
+    background-color: #DDA0DD;
+    color: #4B0082;
 }
 
 .hidden {
@@ -42,10 +44,45 @@ body {
 .vertical-button {
     background-color: #E485B7;
     width: 20px;
-    padding: 0px;
     vertical-align: center;
+    padding-top: 25%;
 }
 
 img {
     max-width: 60px;
+}
+
+.img-big {
+    display: none;
+}
+
+.img-little:hover ~ .img-big {
+    transform: scale(7);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    position: absolute;
+    left: 50%;
+    vertical-align: center;
+}
+
+.img-label {
+    width: 200px;
+    float: right;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+    color: #4B0082;
+    opacity: 0;
+
+    transition: opacity .5s ease-out 0s;
+}
+
+
+.img-little:hover ~ .img-label {
+    display: block;
+    position: relative;
+    opacity: 1;
+
+    transition: opacity .5s ease-out 1s;
 }
