@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/cs/miniconda3/bin/python3
 
 from api import Api
 from infrastructure.actions import Checker
