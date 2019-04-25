@@ -23,9 +23,6 @@ type UsersManager struct {
 }
 
 func (um *UsersManager) AddUser(password string, key []byte) (uint, string, error) {
-	um.Storage.Locker.Lock()
-	defer um.Storage.Locker.Unlock()
-
 	usersCount := um.Storage.GetItemsCount()
 
 	plainSecret := fmt.Sprintf("%v|%v", usersCount, password)
@@ -60,8 +57,10 @@ func splitPlainSecret(plainSecret string) (uint, string, error) {
 
 func (um *UsersManager) LoginUser(userId uint, password string) (bool, string, error) {
 	if userId >= um.Storage.GetItemsCount() {
+		um.Storage.Locker.Unlock()
 		return false, "", nil
 	}
+
 	var user User
 	rawUser, err := um.Storage.Get(userId)
 	if err != nil {

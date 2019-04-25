@@ -68,7 +68,11 @@ func (storage *Storage) createCounterFileIfNotExists() bool {
 	}
 }
 
-func (storage *Storage) GetItemsCount() uint {
+func (storage *Storage) getItemsCount(noBlock bool) uint {
+	if !noBlock {
+		storage.Locker.Lock()
+		defer storage.Locker.Unlock()
+	}
 	if storage.createCounterFileIfNotExists() {
 		return 0
 	} else {
@@ -84,8 +88,14 @@ func (storage *Storage) GetItemsCount() uint {
 	}
 }
 
+func (storage *Storage) GetItemsCount() uint {
+	return storage.getItemsCount(false)
+}
+
 func (storage *Storage) IncItemsCount() {
-	itemsCount := storage.GetItemsCount() + 1
+	storage.Locker.Lock()
+	defer storage.Locker.Unlock()
+	itemsCount := storage.getItemsCount(true) + 1
 	err := ioutil.WriteFile(storage.CounterFilename, []byte(fmt.Sprint(itemsCount)), 0777)
 	if err != nil {
 		panic(err)

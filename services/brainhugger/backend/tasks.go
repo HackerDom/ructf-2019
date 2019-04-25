@@ -74,9 +74,6 @@ func (tm *TasksManager) ExecuteTask(source string, stdin []byte) ([]byte, error)
 }
 
 func (tm *TasksManager) AddTask(source, token string, stdin []byte, ownerId uint) uint {
-	tm.TaskStorage.Locker.Lock()
-	defer tm.TaskStorage.Locker.Unlock()
-
 	taskId := tm.TaskStorage.GetItemsCount()
 	go tm.ProcessTask(taskId, source, token, stdin, ownerId)
 	tm.TaskStorage.IncItemsCount()
