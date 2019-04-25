@@ -1,3 +1,13 @@
+html{
+    height: 100%;
+    font-family: 'Audiowide', cursive;
+}
+body{
+    /*background: linear-gradient(to bottom, #6E00C8, #48007C, #2A0241, #1D042C, #0D0612, #070709);*/
+    background-color: black;
+    height: 100%;
+}
+
 hr {
     height: 4px;
     margin-left: 15px;
@@ -124,13 +134,25 @@ hr {
     display: none;
 }
 
+#login-btn,
 #register-btn {
+    background-color: #fdfd00;
+    border-color: #fdfd00;
+    color: black;
+    display: block;
+}
+#login-btn:hover,
+#register-btn:hover {
+    background-color: #FFAF3D;
+    border-color: #FFAF3D;
+    color: black;
+    display: block;
+}
+
+#register-btn  {
     display: none;
 }
 
-#login-btn {
-    display: block;
-}
 
 #register-label {
     display: none;
@@ -138,6 +160,7 @@ hr {
 
 #reg-link {
     cursor: pointer;
+    color: #7964fc;
 }
 
 #reg-head {
@@ -146,9 +169,28 @@ hr {
 
 #login-link {
     cursor: pointer;
+    color: #7964fc;
 }
 
 #error-msg {
     color: red;
     font-size: 30px;
+}
+
+
+
+#login-form{
+    color: #2700cd;
+    font-family: 'Audiowide', cursive;
+    position: relative;
+    display: block;
+    width: 600px;
+    /*background-color: #01a590;*/
+    background-color: black;
+    border: 2px solid #a200f9;
+    top: 30%;
+    text-align: center;
+    justify-content: center;
+    border-radius: 25px;
+    box-shadow: 0 0 30px #a200f9;
 }

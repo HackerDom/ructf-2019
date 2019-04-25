@@ -8,74 +8,74 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link href="/static/css/style.css" rel="stylesheet" id="bootstrap-css">
-
+    <link href="https://fonts.googleapis.com/css?family=Audiowide" rel="stylesheet">
     <title>BrainHugger</title>
 </head>
 <body>
 
 
 <div class="container" id="work-page">
-    <div class="row">
-        <div class="col-sm-10">
-            <h3 id="prompt-header">Hello! Execute your BrainHug code here!</h3>
-        </div>
-    </div>
-        <div class="form-group row">
-            <label for="src-fld" class="col-sm-2">Source code</label>
-            <div class="col-sm-10">
-                <textarea class="form-control" id="src-fld" placeholder="++++++++++[>+++++++>++++++++++>+++<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.">++++++++++[>+++++++>++++++++++>+++<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.</textarea>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="stdin-fld" class="col-sm-2">stdin</label>
-            <div class="col-sm-10">
-                <input type="text" class="form-control" id="stdin-fld">
-            </div>
-        </div>
+    <!--<div class="row">-->
+        <!--<div class="col-sm-10">-->
+            <!--<h3 id="prompt-header">Hello! Execute your BrainHug code here!</h3>-->
+        <!--</div>-->
+    <!--</div>-->
+        <!--<div class="form-group row">-->
+            <!--<label for="src-fld" class="col-sm-2">Source code</label>-->
+            <!--<div class="col-sm-10">-->
+                <!--<textarea class="form-control" id="src-fld" placeholder="++++++++++[>+++++++>++++++++++>+++<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.&#45;&#45;&#45;&#45;&#45;&#45;.&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;.>+.">++++++++++[>+++++++>++++++++++>+++<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.&#45;&#45;&#45;&#45;&#45;&#45;.&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;.>+.</textarea>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="form-group row">-->
+            <!--<label for="stdin-fld" class="col-sm-2">stdin</label>-->
+            <!--<div class="col-sm-10">-->
+                <!--<input type="text" class="form-control" id="stdin-fld">-->
+            <!--</div>-->
+        <!--</div>-->
 
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-1">
-                <button type="button" class="btn btn-primary" id="run-btn">Execute</button>
-            </div>
-            <div class="col-sm-2">
-                <div id="noTrespassingOuterBarG">
-                    <div id="noTrespassingFrontBarG" class="noTrespassingAnimationG">
-                        <div class="noTrespassingBarLineG"></div>
-                        <div class="noTrespassingBarLineG"></div>
-                        <div class="noTrespassingBarLineG"></div>
-                        <div class="noTrespassingBarLineG"></div>
-                        <div class="noTrespassingBarLineG"></div>
-                        <div class="noTrespassingBarLineG"></div>
-                        <div class="noTrespassingBarLineG"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!--<div class="container">-->
+        <!--<div class="row">-->
+            <!--<div class="col-sm-1">-->
+                <!--<button type="button" class="btn btn-primary" id="run-btn">Execute</button>-->
+            <!--</div>-->
+            <!--<div class="col-sm-2">-->
+                <!--<div id="noTrespassingOuterBarG">-->
+                    <!--<div id="noTrespassingFrontBarG" class="noTrespassingAnimationG">-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                        <!--<div class="noTrespassingBarLineG"></div>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
 
-    <div style="display: none;" id="stdout-div">
-        <hr class="hr-primary" />
-        <div class="container">
-            <h2>Stdout</h2>
-            <p id="stdout-out-fld"></p>
-        </div>
-    </div>
+    <!--<div style="display: none;" id="stdout-div">-->
+        <!--<hr class="hr-primary" />-->
+        <!--<div class="container">-->
+            <!--<h2>Stdout</h2>-->
+            <!--<p id="stdout-out-fld"></p>-->
+        <!--</div>-->
+    <!--</div>-->
 
-    <div style="display: none;" id="error-div">
-        <hr class="hr-danger" />
-        <div class="container">
-            <h2>Fail</h2>
-            <p id="error-out-fld"></p>
-        </div>
-    </div>
+    <!--<div style="display: none;" id="error-div">-->
+        <!--<hr class="hr-danger" />-->
+        <!--<div class="container">-->
+            <!--<h2>Fail</h2>-->
+            <!--<p id="error-out-fld"></p>-->
+        <!--</div>-->
+    <!--</div>-->
 
 </div>
 
 <div class="container" id="login-form">
     <div class="row">
-        <div class="col-sm-3"></div>
-        <div class="col-sm-6">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-8">
             <div class="login-form">
                 <form>
                     <h2 class="text-center" id="login-head">Log in or <a id="reg-link">register</a>!</h2>
@@ -83,7 +83,7 @@
                     <p id="register-label">For registration, a password is all you need.</p>
                     <p id="login-label">Input your id and password for logging in.</p>
                     <div class="form-group">
-                        <input type="number" class="form-control" placeholder="Id" required="required" id="id-fld">
+                        <input type="text" class="form-control" placeholder="Id" required="required" id="id-fld">
                     </div>
                     <div class="form-group">
                         <input type="password" class="form-control" placeholder="Password" required="required" id="password-fld">
