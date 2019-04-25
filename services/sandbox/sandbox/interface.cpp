@@ -118,7 +118,7 @@ void NetworkThread()
 		if(ret < 0)
 		{
 			perror("poll");
-			return;
+			exit(1);
 		}
 		if(ret == 0)
 			continue;
@@ -142,7 +142,7 @@ void NetworkThread()
 			if(pollFd.revents != POLLIN)
 			{
 				printf("Invalid revents\n");
-				return;
+				exit(1);
 			}
 
 			if(pollFd.fd == GListenSocket)
@@ -222,13 +222,13 @@ void NetworkThread()
 		{
 			if(idx == 0)
 			{
-				printf("Something wrong\n");
-				return;
+				printf("Trying to remove listening socket\n");
+				exit(1);
 			}
 
 			int sock = pollFds[idx].fd;
 			socketsMap.erase(sock);
-			if(pollFds.size() != 2)
+			if(pollFds.size() != 2 && idx != pollFds.size() - 1)
 				pollFds[idx] = pollFds.back();
 			pollFds.pop_back();
 			close(sock);
