@@ -72,8 +72,8 @@ teams: |
 
 services: |
   {name => 'BrainHugger',  path => 'checkers/brainhugger/checker.py', timeout => 10, tcp_port => 8080},
-  {name => 'index',  path => 'checkers/index/checker.py', timeout => 10, tcp_port => 5000},
-  {name => 'sandbox',   path => 'checkers/sandbox/checker.py', timeout => 10, tcp_port => 16780},
+  {name => 'index',  path => 'checkers/index/checker.py', timeout => 10},
+  {name => 'sandbox',   path => 'checkers/sandbox/checker.py', timeout => 10},
 # {name => 'weatherD',  path => 'checkers/weatherD/checker.py', timeout => 10},
 
 #  {name => 'LifeSim',   path => 'checkers/lifesim/lifesim.checker.py', timeout => 10, tcp_port => 8084},

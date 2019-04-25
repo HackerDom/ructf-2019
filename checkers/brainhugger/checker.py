@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/cs/miniconda3/bin/python3
 import binascii
 import time
 from base64 import b64encode, b64decode
