@@ -170,11 +170,11 @@ function addButtonListeners(mapStateObject, ctx) {
             undoSelected(mapStateObject, ctx);
         }
         mapStateObject["selected"] = undefined;
-        viewLatest();
+        viewLatest(mapStateObject, ctx);
     };
 }
 
-function addFormsListener(mapStateObject) {
+function addFormsListener(mapStateObject, ctx) {
     let beaconAddPhotoInputElement = document.getElementById("beacon-add-photo-input");
     let beaconAddPhotoFormElement = document.getElementById("beacon-add-photo-form");
     beaconAddPhotoFormElement.addEventListener("submit", function(event) {
@@ -207,6 +207,7 @@ function addFormsListener(mapStateObject) {
             let coords = shiftCoords(mapStateObject["centerX"], mapStateObject["centerY"],
                                  width/2, height/2,
                                  mapStateObject["selected"]["x"], mapStateObject["selected"]["y"]);
+
             renderRect(coords[0]*size + 1, coords[1]*size + 1, size - 2, selectedBeaconStyle, ctx);
 
             viewBeacon(beacon);
@@ -281,7 +282,7 @@ function addPhotoRender(photo) {
     imgLabel.appendChild(deviceLabel);
 
     let img = document.createElement("img");
-    img.setAttribute("src", "/Beacon/GetPhoto/" + photo["id"]);
+    img.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
     img.onload = function() {
         setDeviceModel(img, deviceLabel);
     }
@@ -324,9 +325,40 @@ function viewProfile() {
     showSidebarsCard("profile");
 }
 
-function viewLatest() {
+function viewLatest(mapStateObject, ctx) {
+    let latestPhotosElement = document.getElementById("latest-photos");
+    latestPhotosElement.innerHTML = "";
     hideSidebarsCards();
     showSidebarsCard("latest");
+
+    let latest = getLatest();
+    latest.forEach(function(photo) {
+        let imgDiv = document.createElement("div");
+
+        let idLabel = document.createElement("label");
+        idLabel.innerHTML = photo["id"];
+        idLabel.classList.add("hidden");
+        imgDiv.appendChild(idLabel);
+
+        let buttonGoToBeacon = document.createElement("button");
+        buttonGoToBeacon.addEventListener('click', function(event) {
+            let beacon = getBeacon(photo["beaconId"]);
+            let selected = {"id": photo["beaconId"], "coord_x": beacon.x, "coord_y": beacon.y}
+
+            mapStateObject["beacons"] = [];
+            mapStateObject["selected"] = {"x": beacon.x, "y": beacon.y, "beacon": selected};
+            mapStateObject["centerX"] = beacon.x;
+            mapStateObject["centerY"] = beacon.y;
+            renderFullMap(mapStateObject, ctx);
+        });
+
+        let img = document.createElement("img");
+        img.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
+        imgDiv.appendChild(img);
+        imgDiv.appendChild(buttonGoToBeacon);
+
+        latestPhotosElement.appendChild(imgDiv);
+    });
 }
 
 function setDeviceModel(imgElement, deviceModelElement) {
@@ -395,6 +427,17 @@ function addBeaconToServer(formData) {
     }
 }
 
+function getLatest() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "Photo/GetLatest", false);
+    xhr.send();
+    if (xhr.status != 200) {
+        showError("Could not get latest photos. Try again.");
+    } else {
+        return JSON.parse(xhr.responseText)["latest_photos"];
+    }
+}
+
 let errorTimer = undefined;
 
 function showError(text) {
@@ -423,5 +466,5 @@ function init(centerXStr, centerYStr){
 	let centerCoords = [centerX, centerY];
     addButtonListeners(mapStateObject, ctx);
     addCanvasListener(mapStateObject, ctx)
-    addFormsListener(mapStateObject);
+    addFormsListener(mapStateObject, ctx);
 }

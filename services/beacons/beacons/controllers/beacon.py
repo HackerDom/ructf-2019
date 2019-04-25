@@ -1,5 +1,4 @@
 from sanic.response import json
-from sanic.response import raw
 from sanic import Blueprint
 from beacons import jinja
 from beacons import auth
@@ -18,7 +17,6 @@ beacon_page = Blueprint("beacon", url_prefix="/Beacon")
 def get_random_id():
     return ''.join(choices(string.hexdigits, k=24))
   
-    
 
 @beacon_page.route("/Add", methods=["POST"])
 @auth.login_required
@@ -41,7 +39,7 @@ async def add_beacon(request):
     if await Beacon.find_one({"coord_x": coord_x, "coord_y": coord_y}):
         return json({"error": "Beacon exists"})
     
-    upserted_id  = (await Beacon.update_one({"_id": ObjectId(get_random_id())}, {
+    upserted_id = (await Beacon.update_one({"_id": ObjectId(get_random_id())}, {
                                             "$set": {"name": name,
                                                      "comment": comment,
                                                      "coord_x": coord_x,
@@ -49,7 +47,7 @@ async def add_beacon(request):
                                                      "creator": str(user.id),
                                                      "photos": [],
                                                      "is_private": is_private},
-                                            "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
+                                                     "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
                    ).upserted_id
 
     await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
@@ -68,18 +66,28 @@ async def get_beacon(request, beacon_id):
     if beacon.is_private and beacon_id not in user.beacons:
         return json({"name": "Hidden", "comment": "Hidden", "creator": beacon.creator, "photos": []})
     
-    return json({"name": beacon.name, "comment": beacon.comment, "creator": beacon.creator, "photos": beacon.photos})
+    return json({"name": beacon.name, "comment": beacon.comment,
+                 "x": beacon.coord_x, "y": beacon.coord_y,
+                 "creator": beacon.creator, "photos": beacon.photos})
 
 
-@beacon_page.route("/GetPhoto/<photo_id>")
-# @auth.login_required
-async def get_photo(request, photo_id):
-    photo = await Photo.find_one(photo_id)
-    return raw(photo.photo)
+@beacon_page.route("/<beacon_id>/Coords")
+@auth.login_required
+async def get_beacon_coords(request, beacon_id):
+    if not re.match(r"^[\da-fA-F]{24}$", beacon_id):
+        return json({"error": "Incorrect beacon id"})
+
+    user = await User.find_one(auth.current_user(request).id)
+    beacon = await Beacon.find_one(beacon_id)
+
+    if beacon.is_private and beacon_id not in user.beacons:
+        return json({"name": "Hidden", "comment": "Hidden", "creator": beacon.creator, "photos": []})
+
+    return json({"coord_x": beacon.coord_x, "coord_y": beacon.coord_y})
 
 
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
-# @auth.login_required
+@auth.login_required
 async def add_photo(request, beacon_id):   
     user = await User.find_one(auth.current_user(request).id)
     beacon = await Beacon.find_one(beacon_id)
@@ -92,13 +100,12 @@ async def add_photo(request, beacon_id):
     if not re.match(r"image\/jpg|image\/jpeg|image\/tiff", photo.type):
         return json({"error": "File should be *.jpeg or *.tiff"})
     if not re.match(r"[\w_!?.,]+", photo.name):
-        print(photo.type)
         return json({"error": "Incorrect symbol in filename"})
     if len(photo.body) > 10000000:
         return json({"error": "File should be less then 5 mg"})
     
     upserted_id = (await Photo.update_one({"_id": ObjectId(get_random_id())}, {
-                                                            "$set": {"photo": photo.body, "beaconId": beacon_id},
+                                                            "$set": {"photo": photo.body, "beaconId": beacon_id, "is_private": beacon.is_private},
                                                             "$currentDate": {"createDate": {"$type": "timestamp"}}},
                                                             upsert=True)).upserted_id
 

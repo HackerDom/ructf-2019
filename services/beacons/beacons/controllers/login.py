@@ -15,7 +15,6 @@ async def login(request):
         username = request.form.get("username")
         password = request.form.get("password")
         user = await User.find_one({"name": username})
-        print(user)
         if user and check_password(user, password):
             auth.login_user(request, user)
             return redirect("/")
