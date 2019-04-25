@@ -163,7 +163,7 @@ function addButtonListeners(mapStateObject, ctx) {
             undoSelected(mapStateObject, ctx);
         }
         mapStateObject["selected"] = undefined;
-        viewProfile();
+        viewProfile(mapStateObject, ctx);
     };
     document.getElementById("go-to-latest").onclick = function() {
         if (mapStateObject["selected"]) {
@@ -282,12 +282,19 @@ function addPhotoRender(photo) {
     imgLabel.appendChild(deviceLabel);
 
     let img = document.createElement("img");
+    img.classList.add("img-little");
     img.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
+
+    let imgB = document.createElement("img");
+    imgB.classList.add("img-big");
+    imgB.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
+
     img.onload = function() {
         setDeviceModel(img, deviceLabel);
     }
-    imgDiv.appendChild(imgLabel);
     imgDiv.appendChild(img);
+    imgDiv.appendChild(imgLabel);
+    imgDiv.appendChild(imgB);
 
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.appendChild(imgDiv);
@@ -320,9 +327,34 @@ function viewBeacon(beacon) {
     });
 }
 
-function viewProfile() {
+function viewProfile(mapStateObject, ctx) {
     hideSidebarsCards();
     showSidebarsCard("profile");
+    let profileBeaconsElement = document.getElementById("profile-beacons");
+    profileBeaconsElement.innerHTML = "";
+
+    let userBeacons = getUserBeacons();
+    userBeacons.forEach(function(beacon) {
+        let beaconDiv = document.createElement("div");
+
+        let buttonGoToBeacon = document.createElement("button");
+        buttonGoToBeacon.addEventListener('click', function(event) {
+            let selected = {"id": beacon.id, "coord_x": beacon.x, "coord_y": beacon.y}
+
+            mapStateObject["beacons"] = [];
+            mapStateObject["selected"] = {"x": beacon.x, "y": beacon.y, "beacon": selected};
+            mapStateObject["centerX"] = beacon.x;
+            mapStateObject["centerY"] = beacon.y;
+            renderFullMap(mapStateObject, ctx);
+        });
+
+        let beaconNameDiv = document.createElement("div");
+        beaconNameDiv.innerHTML = beacon.name;
+        beaconDiv.appendChild(beaconNameDiv);
+        beaconDiv.appendChild(buttonGoToBeacon);
+
+        profileBeaconsElement.appendChild(beaconDiv);
+    });
 }
 
 function viewLatest(mapStateObject, ctx) {
@@ -334,11 +366,6 @@ function viewLatest(mapStateObject, ctx) {
     let latest = getLatest();
     latest.forEach(function(photo) {
         let imgDiv = document.createElement("div");
-
-        let idLabel = document.createElement("label");
-        idLabel.innerHTML = photo["id"];
-        idLabel.classList.add("hidden");
-        imgDiv.appendChild(idLabel);
 
         let buttonGoToBeacon = document.createElement("button");
         buttonGoToBeacon.addEventListener('click', function(event) {
@@ -436,6 +463,17 @@ function getLatest() {
     }
 }
 
+function getUserBeacons() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/Beacon/GetUserBeacons", false);
+    xhr.send();
+    if (xhr.status != 200) {
+        showError("Could not get beacons. Try again.");
+    } else {
+        return JSON.parse(xhr.responseText)["beacons"];
+    }
+}
+
 let errorTimer = undefined;
 
 function showError(text) {
@@ -465,4 +503,5 @@ function init(centerXStr, centerYStr){
     addButtonListeners(mapStateObject, ctx);
     addCanvasListener(mapStateObject, ctx)
     addFormsListener(mapStateObject, ctx);
+    viewProfile(mapStateObject, ctx);
 }

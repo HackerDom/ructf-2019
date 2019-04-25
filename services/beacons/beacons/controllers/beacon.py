@@ -1,6 +1,5 @@
 from sanic.response import json
 from sanic import Blueprint
-from beacons import jinja
 from beacons import auth
 from beacons.repositories.user import User
 from beacons.repositories.beacon import Beacon
@@ -71,27 +70,12 @@ async def get_beacon(request, beacon_id):
                  "creator": beacon.creator, "photos": beacon.photos})
 
 
-@beacon_page.route("/<beacon_id>/Coords")
-@auth.login_required
-async def get_beacon_coords(request, beacon_id):
-    if not re.match(r"^[\da-fA-F]{24}$", beacon_id):
-        return json({"error": "Incorrect beacon id"})
-
-    user = await User.find_one(auth.current_user(request).id)
-    beacon = await Beacon.find_one(beacon_id)
-
-    if beacon.is_private and beacon_id not in user.beacons:
-        return json({"name": "Hidden", "comment": "Hidden", "creator": beacon.creator, "photos": []})
-
-    return json({"coord_x": beacon.coord_x, "coord_y": beacon.coord_y})
-
-
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
 @auth.login_required
 async def add_photo(request, beacon_id):   
     user = await User.find_one(auth.current_user(request).id)
     beacon = await Beacon.find_one(beacon_id)
-    
+
     if beacon.is_private and beacon_id not in user.beacons:
         return json({"error": "You have no rights on adding photo"})
 
@@ -103,7 +87,7 @@ async def add_photo(request, beacon_id):
         return json({"error": "Incorrect symbol in filename"})
     if len(photo.body) > 10000000:
         return json({"error": "File should be less then 5 mg"})
-    
+
     upserted_id = (await Photo.update_one({"_id": ObjectId(get_random_id())}, {
                                                             "$set": {"photo": photo.body, "beaconId": beacon_id, "is_private": beacon.is_private},
                                                             "$currentDate": {"createDate": {"$type": "timestamp"}}},
@@ -113,3 +97,18 @@ async def add_photo(request, beacon_id):
                             {"$push": {"photos": {"id": str(upserted_id), "name": photo.name}}})
 
     return json({"id": str(upserted_id), "name": photo.name})
+
+
+@beacon_page.route("/GetUserBeacons")
+@auth.login_required
+async def get_user_beacons(request):
+    user = await User.find_one(auth.current_user(request).id)
+
+    user_beacons_ids = [ObjectId(beacon) for beacon in user.beacons]
+    beacons = await Beacon.find(filter={"_id": {"$in": user_beacons_ids}},
+                                sort=[("createDate", -1)],
+                                limit=50)
+
+    return json({"beacons": [{"id": str(beacon.id), "name": beacon.name,
+                              "x": beacon.coord_x, "y": beacon.coord_y}
+                             for beacon in beacons.objects]})
