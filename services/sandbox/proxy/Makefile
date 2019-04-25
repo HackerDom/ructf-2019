@@ -7,7 +7,6 @@ all: release
 
 debug: CXXFLAGS += -O0 -DDEBUG=1
 debug: OUTPUT = proxy-dbg
-debug: lib
 debug: proxy
 
 release: CXXFLAGS += -O2
