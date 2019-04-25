@@ -1,11 +1,13 @@
 html{
     height: 100%;
+    width: 100%;
     font-family: 'Audiowide', cursive;
 }
 body{
     /*background: linear-gradient(to bottom, #6E00C8, #48007C, #2A0241, #1D042C, #0D0612, #070709);*/
     background-color: black;
     height: 100%;
+    width: 100%;
 }
 
 hr {
@@ -147,6 +149,16 @@ hr {
     border-color: #FFAF3D;
     color: black;
     display: block;
+}
+
+#brainhugger{
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    vertical-align: bottom;
+    background: linear-gradient(to bottom, #6E00C8, #48007C, #2A0241, #1D042C, #0D0612, #070709);
+    height: 100%;
+    width: 100%;
 }
 
 #register-btn  {
