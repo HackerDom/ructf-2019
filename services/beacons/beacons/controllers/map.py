@@ -55,8 +55,8 @@ def get_borders(center_coord_x, center_coord_y):
 
 
 async def get_beacons_in_area(top, right, bottom, left, request):
-    beacons = await Beacon.find(request, {"coord_x": {"$lt": right, "$gt": left},
-                                          "coord_y": {"$lt": top, "$gt": bottom}})
+    beacons = await Beacon.find(filter={"coord_x": {"$lt": right, "$gt": left},
+                                 "coord_y": {"$lt": top, "$gt": bottom}})
 
     return beacons.objects
 
