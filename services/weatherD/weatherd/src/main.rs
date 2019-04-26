@@ -24,6 +24,7 @@ extern crate tokio_core;
 
 extern crate xml;
 
+
 //use gotham::router::builder::*;
 
 //use futures::{stream, Future, Stream};
@@ -52,15 +53,20 @@ use gotham::router::builder::{build_simple_router, DrawRoutes};
 
 //use futures::*;
 //use gotham::helpers::http::*;
+//
+
 
 
 pub use self::weather_state::WeatherState;
 
 use self::create_source_handler::CreateSourceHandler;
 use self::push_message_handler::PushMessageHandler;
-use crate::get_list_ofsources_handler::GetListOfSourcesHandler;
+use self::get_list_of_sources_handler::GetListOfSourcesHandler;
 
 mod create_source_query_string_extractor;
+mod push_message_query_string_extractor;
+mod get_list_of_sources_handler;
+mod constants;
 
 //use create_source_query_string_extractor::CreateSourceQueryStringExtractor;
 
@@ -85,7 +91,8 @@ use std::str::FromStr;
 
 use crate::create_image::create_pixels;
 use std::num::Wrapping;
-use crate::create_source_query_string_extractor::{PushMessageQueryStringExtractor, CreateSourceQueryStringExtractor};
+use crate::create_source_query_string_extractor::CreateSourceQueryStringExtractor;
+use crate::push_message_query_string_extractor::PushMessageQueryStringExtractor;
 use std::path::Path;
 //use failure::Fail;
 use std::io::prelude::*;
@@ -109,12 +116,26 @@ use hex::{FromHex};
 use openssl::symm::{Cipher, Crypter};
 use rustc_serialize::hex::ToHex;
 
+mod image_generator;
+
 static START: Once = ONCE_INIT;
 
+
+use std::io::prelude::*;
+
+mod create_source_dto;
+
+#[macro_use]pub mod w_macro;
 
 fn main()
 {
     println!("startd");
+
+    START.call_once(|| {
+        magick_wand_genesis();
+    });
+
+    log_error!(format!("Cannot parse population for populated place "));
 
 
 
@@ -124,12 +145,10 @@ fn main()
         return build_simple_router(|route| {
             route
                 .post("/create_source")
-                .with_query_string_extractor::<CreateSourceQueryStringExtractor>()
                 .to_new_handler(CreateSourceHandler::new(&weather_state));
 
             route
                 .post("/push_message")
-                .with_query_string_extractor::<PushMessageQueryStringExtractor>()
                 .to_new_handler(PushMessageHandler::new(&weather_state));
 
             route
@@ -142,3 +161,5 @@ fn main()
     println!("Listening for requests at http://{}", addr);
     gotham::start(addr, router());
 }
+
+

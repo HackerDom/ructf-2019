@@ -18,11 +18,11 @@ pub fn encode(s : &str) -> Vec<u8>{
     let mut i = 0;
     let mut number : u128 = 0;
 
-    for x in s.chars().into_iter() {
+    for x in s.to_string().to_lowercase().chars().into_iter() {
         i += 1;
         let n = convert_char(x) as u128;
 
-        number *= 36;
+        number *= 37;
         number += n;
 
         if i == 16 {
@@ -39,7 +39,7 @@ pub fn encode(s : &str) -> Vec<u8>{
     for x in vec.into_iter() {
         let mut xx = x;
 
-        for _ in 1..=11 {
+        for _ in 1..=12 {
             result.push(xx as u8);
             xx = xx >> 8;
         }
@@ -59,7 +59,7 @@ pub fn decode(vec : Vec<u8> ) -> String {
         num = num << 8;
         num += v as u128;
 
-        if i == 11 {
+        if i == 12 {
             i = 0;
             nums.push(num);
             num = 0;
@@ -71,19 +71,19 @@ pub fn decode(vec : Vec<u8> ) -> String {
     for x in nums.into_iter() {
         let mut r: u128 = x;
 
-        for _ in 1..=16 {
-            let num = (r % 36) as u32;
+        for _ in 1..=17 {
+            let num = (r % 37) as u32;
             result.push(deconvert_char(num));
-            r = r / 36;
+            r = r / 37;
         }
     }
 
     let mut result2: Vec<char> = Vec::new();
 
     for x in 0..32 {
-        if x != 14 && x != 15 {
+//        if x != 14 && x != 15 {
             result2.push(result[x]);
-        }
+//        }
     }
 
     let result3: String = result2.into_iter().rev().collect();
@@ -103,6 +103,10 @@ fn convert_char(c : char) -> u32 {
         return c as u32  - 'a' as u32  + 10;
     }
 
+    if c == '='{
+        return 36;
+    }
+
     panic!("unexpected number");
 }
 
@@ -112,8 +116,12 @@ fn deconvert_char(n : u32) -> char{
        return  (n as u8 + '0' as u8) as char;
     }
 
-    if n >=10 && n <=36{
+    if n >=10 && n <36{
         return  ((n - 10) as u8 + 'a' as u8) as char;
+    }
+
+    if n==36{
+        return '='
     }
 
     panic!("unexpected number {}", n);
