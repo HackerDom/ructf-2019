@@ -34,8 +34,6 @@ namespace NotificationsAPI
 			//Thread.Sleep(TimeSpan.FromSeconds(15));
 			//var b = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
 			var (authorizer, sourceStorage) = new StateRestorer(mongoDbClient).Restore().GetAwaiter().GetResult();
-			sourceStorage.Add("123");
-			authorizer.RegisterPublic("123", "123");
 
 			var addUserInfoHandler = new AddSourceInfoHandler(mongoDbClient, authorizer, sourceStorage, log);
 			var sseClient = new SseClient();
@@ -68,8 +66,8 @@ namespace NotificationsAPI
 				.UseStartup<Startup>()
 				.ConfigureKestrel((context, options) =>
 				{
-					options.Listen(new IPAddress(new byte[] { 10, 33, 54, 120 }), 5000);
-
+					//options.Listen(new IPAddress(new byte[] { 10, 33, 54, 120 }), 5000);
+					options.Listen(IPAddress.Loopback, 5000);
 				})
 				.Build();
 

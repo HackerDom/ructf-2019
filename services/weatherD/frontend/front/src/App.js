@@ -3,9 +3,29 @@ import logo from "./logo.svg";
 import Input from "./components/Input";
 import "./App.css";
 import { Formik, Form, Field } from "formik";
-import debounce from "lodash.debounce"
 
 const host = window.location.host;
+const notificationsApiHost = "127.0.0.1:5000"
+const rustHost = "10.33.54.127:7878"
+let news = []
+
+function getSources()
+{
+  fetch(`http://10.33.54.127:7878/get_sources_list`, {
+    method: "GET",
+    mode: "no-cors",
+  })
+  .then(async response => {
+    console.log(response)
+    return await response.text()
+  })
+  .then(body => {
+    console.log(body);
+    console.log(123123123123)
+    news = body.split('\n');
+    console.log(news);
+  });
+}
 
 class App extends Component {
   constructor(props) {
@@ -13,7 +33,8 @@ class App extends Component {
   }
 
   render() {
-    const news = ["1", "2", "3", "efsd fkjngljdng"];
+    //getSources();
+    news = ["1", "2"]
     const articles = ["4", "5", "6", "32132"];
     return (
         <div className="wrapper">
@@ -22,11 +43,12 @@ class App extends Component {
             <div className="add_src_popup" id="add_src_popup">
               <button className="popup_close" onClick={() => document.getElementById("add_src_popup").style.visibility = "hidden"}>x</button>
             
-              <Formik  onSubmit={this.submitNewMessage}>
+              <Formik  onSubmit={this.createSource}>
             {() => (
               <Form className={"App-form"}>
                 <Field name="name" component={Input} />
                 <Field name="password" type="password" component={Input} />
+                <Field name="isPublic" component={Input} type="checkbox"/>
                 <button className="App-btn" type="submit">
                   create
                 </button>
@@ -38,14 +60,12 @@ class App extends Component {
             <button id="push_to_source" onClick={()=> this.onSubscribeClick("push_to_src_popup")}>Push to source</button>
             <div className="push_to_src_popup" id="push_to_src_popup">
               <button className="popup_close" onClick={() => document.getElementById("push_to_src_popup").style.visibility = "hidden"}>x</button>
-              <Formik onSubmit={this.submitNewMessage}>
+              <Formik onSubmit={this.pushMessage}>
             {() => (
               <Form className={"App-form"}>
                 <Field name="name" component={Input} />
-                <Field name="isPublic" component={Input} type="checkbox"/>
-                <Field name="use encryption" component={Input} type="checkbox"/>
                 <Field name="password" type="password" component={Input} />
-                <Field name="encryption key" component={Input} />
+                <Field name="message" component={Input} />
                 <button className="App-btn" type="submit">
                   push
                 </button>
@@ -62,7 +82,7 @@ class App extends Component {
 
                     <div className="popup" id={"popup" + i}>
                     <button className="popup_close" onClick={() => document.getElementById("popup" + i).style.visibility = "hidden"}>x</button>
-                    <Formik onSubmit={() => this.submitNewMessage(t)}>
+                    <Formik onSubmit={(v) => this.subscribeOnMessage(t, v)}>
                     {() => (
                     <Form className={"Subscribe-form"}>
                     <span>{"Source:  " + t}</span>
@@ -105,21 +125,35 @@ onSubscribeClick = id =>
   popup.style.visibility = "visible";
 }
 
+createSource = (t, values) =>
+fetch(`http://${rustHost}/create_source`, {
+  method: "post",
+  mode: "no-cors",
+  body: JSON.stringify({
+    name: t,
+    token: values.token,
+    isPublic: values.isPublic,
+  })
+});
 
+subscribeOnMessage  = (t, values) =>
+  fetch(`http://${notificationsApiHost}/subscribe?source=${t}&token=${values.token}`, {
+  method: "GET",
+  mode: "no-cors",
+});
 
-  submitNewMessage = values =>
-    fetch(`http://${host}/db/${values.ch}`, {
+pushMessage = values =>
+    fetch(`http://${rustHost}/push_message`, {
       method: "post",
       mode: "no-cors",
       body: JSON.stringify({
-        dpm: values.DpM,
-        frequency: values.freq,
-        text: values.text.toUpperCase(),
-        need_base32: false,
-        is_private: false,
+        name: values.name,
         password: values.password,
+        message: values.message,
       })
     });
-}
+  };
+
+
 
 export default App;

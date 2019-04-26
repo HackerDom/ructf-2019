@@ -1,7 +1,4 @@
-from urllib.request import urlopen, Request
-from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from SseClient import SSEClient
+from urllib.request import urlopen
 
 class NotificationApiClient:
     def __init__(self, port, timeout):
@@ -10,16 +7,18 @@ class NotificationApiClient:
 
     def create_subscribe_on_source_request(self, source_name, token, ip):
         url = "http://{0}:{1}/subscribe?source={2}&token={3}".format(ip, self.port, source_name, token)
-        print(url)
         return url
 
     def subscribe_on_source(self, source_name, token, ip):
-        url = "http://{0}:{1}/subscribe?source={2}&token={3}".format(ip, self.port, source_name, token)
-
-        try:
-            messages = SSEClient(url)
-        except Exception as e:
-            return None
+        req = self.create_subscribe_on_source_request(source_name, token, ip)
+        return self.do_request(req)
 
 
-        return messages
+    def do_request(self, req, retries=3):
+        for i in range(retries):
+            try:
+                return urlopen(req, timeout=1000)
+            except Exception as e:
+                continue
+
+        return None
