@@ -19,11 +19,11 @@
                     <a href="/Logout" class="link-button">Change user</a>
                     <div class="desc">Here are your beacons:</div>
                     <div id="profile-beacons" class="profile-beacons"></div>
-                    <div id="invite-button" class="">I have invite code</div>
+                    <div id="invite-button" class="link-button">I have invite code</div>
                     <form id="write-invite-form" class="hidden" name="beaconInvite">
-                        <label for="write-invite-input">Write invite code</label>
-                        <input name="invite" id="write-invite-input" maxlength="40" required pattern="^[\da-fA-F-]{36}$" type="text">
-                        <input type="submit" value="Send">
+                        <label for="write-invite-input">Write invite code:</label>
+                        <input class="text-input" name="invite" id="write-invite-input" maxlength="40" required pattern="^[\da-fA-F-]{36}$" type="text">
+                        <input class="button-button" type="submit" value="Send">
                     </form>
                 </div>
                 <div id="beacon" class="hidden card">
