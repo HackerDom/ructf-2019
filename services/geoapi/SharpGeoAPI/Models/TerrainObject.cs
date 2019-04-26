@@ -12,7 +12,7 @@ namespace SharpGeoAPI.Models
         [JsonIgnore]
         public ObjectId Id { get; set; }
 
-        public string IndexKey { get; }
+        public string IndexKey { get; set; }
 
         public string Info { get; set; }
         public  byte[,] Cells { get; set; }

@@ -20,14 +20,16 @@ namespace SharpGeoAPI.Storages
             var client = new MongoClient(settings.MongoDBConnectionString);
             var database = client.GetDatabase(settings.MongoDBName);
             terrainObjects = database.GetCollection<TerrainObject>(settings.TObjectsCollectionName);
+
+            terrainObjects.Indexes.CreateOneAsync(Builders<TerrainObject>.IndexKeys.Ascending(_ => _.IndexKey)).GetAwaiter().GetResult();
         }
 
-        public TerrainObject GetTerrainObject(string agentName, string objectId)
+        public TerrainObject GetTerrainObject(string objectId)
         {
-            return terrainObjects.Find(GetKey(agentName, objectId)).FirstOrDefault();
+            return terrainObjects.Find(tobjcet => tobjcet.IndexKey == objectId).FirstOrDefault();
         }
 
-        public IEnumerable<TerrainObject> GetTerrainObject(string agentName)
+        public IEnumerable<TerrainObject> GetTerrainObjects(string agentName)
         {
             return terrainObjects.Find(tObject => tObject.IndexKey.StartsWith(agentName)).Limit(settings.SearchLimit).ToList();
         }
@@ -35,11 +37,6 @@ namespace SharpGeoAPI.Storages
         public void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject)
         {
             terrainObjects.InsertOne(terrainObject);
-        }
-
-        public static string GetKey(string agentName, string objectId)
-        {
-            return $"{agentName}{objectId}";
         }
     }
 }

@@ -5,6 +5,10 @@ namespace SharpGeoAPI.HTTP.Handlers
 {
     public abstract class BaseHandler : IBaseHandler
     {
+        protected static string ObjectKeyParameter => "ObjectKey";
+        protected static string AgentKeyParameter => "AgentKey";
+
+
         protected BaseHandler(string httpMethod, string httpPath)
         {
             Method = httpMethod;

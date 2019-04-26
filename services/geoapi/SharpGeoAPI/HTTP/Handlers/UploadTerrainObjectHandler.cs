@@ -18,7 +18,7 @@ namespace SharpGeoAPI.HTTP.Handlers
         private readonly ISettings settings;
 
 
-        public UploadTerrainObjectHandler(IStorage storage, ITerrainObjectStore terrainObjectStore, ISettings settings) : base("PUT", "action")
+        public UploadTerrainObjectHandler(IStorage storage, ITerrainObjectStore terrainObjectStore, ISettings settings) : base("PUT", "object")
         {
             this.storage = storage;
             this.terrainObjectStore = terrainObjectStore;

@@ -24,8 +24,6 @@ namespace SharpGeoAPI.HTTP.Handlers
         {
             var content = await context.Request.ReadContentAsync();
 
-            await context.Response.Send(200, "");
-
             var request = content.FromJson<RegisterAgentRequests>();
 
             var agent = new AgentInfo

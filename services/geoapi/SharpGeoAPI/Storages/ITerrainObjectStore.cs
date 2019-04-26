@@ -6,8 +6,8 @@ namespace SharpGeoAPI.Storages
 {
     public interface ITerrainObjectStore
     {
-        TerrainObject GetTerrainObject(string agentName, string objectId);
+        TerrainObject GetTerrainObject(string objectId);
         void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject);
-        IEnumerable<TerrainObject> GetTerrainObject(string agentName);
+        IEnumerable<TerrainObject> GetTerrainObjects(string ownerIndex);
     }
 }
