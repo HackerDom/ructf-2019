@@ -11,7 +11,7 @@ enum ECameraDirection
 };
 
 
-static const float kSpeed = 25.0f;
+static const float kSpeed = 150.0f;
 static const float kSensitivity = 0.1f;
 
 
