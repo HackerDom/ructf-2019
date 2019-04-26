@@ -52,6 +52,14 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, kMaxUnitsCount * sizeof(Unit), nullptr, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+	
+	glGenBuffers(kCopyBuffers, m_copyBuffers);
+	for(uint32_t i = 0; i < kCopyBuffers; i++)
+	{
+		glBindBuffer(GL_COPY_WRITE_BUFFER, m_copyBuffers[i]);
+		glBufferData(GL_COPY_WRITE_BUFFER, kMaxUnitsCount * sizeof(Unit), nullptr, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_COPY_WRITE_BUFFER, 0); // unbind
+	}
 
 	glGenBuffers(1, &m_indirectBuffer);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_indirectBuffer);
@@ -277,18 +285,22 @@ void Units::Simulate(const Texture2D& randomTex)
 		return;
 
 	{
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
-		//if(m_units.size())
-		//	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
+		if(m_copyBuffersMask == (1 << kCopyBuffers) - 1)
+		{
+			glBindBuffer(GL_COPY_WRITE_BUFFER, m_copyBuffers[m_curCopyBuffer]);
+			glGetBufferSubData(GL_COPY_WRITE_BUFFER, 0, sizeof(Unit) * m_copyBufferSizes[m_curCopyBuffer], m_units.data());
+			glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+		}
 
 		uint32_t unitsAdded = AddPendingUnits();
 		if (unitsAdded)
 		{
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
 			uint32_t offset = m_units.size() - unitsAdded;
 			void* ptr = (void*)(m_units.data() + offset);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, offset * sizeof(Unit), unitsAdded * sizeof(Unit), ptr);
+			glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 		}
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
 	if (m_units.size())
@@ -302,6 +314,11 @@ void Units::Simulate(const Texture2D& randomTex)
 		glDispatchCompute((m_units.size() + 31) / 32, 1, 1);
 
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		
+		m_copyBufferSizes[m_curCopyBuffer] = m_units.size();
+		glCopyNamedBufferSubData(m_ssbo, m_copyBuffers[m_curCopyBuffer], 0, 0, m_units.size() * sizeof(Unit));
+		m_copyBuffersMask |= 1 << m_curCopyBuffer;
+		m_curCopyBuffer = (m_curCopyBuffer + 1) % kCopyBuffers;
 	}
 }
 

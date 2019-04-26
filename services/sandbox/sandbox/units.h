@@ -68,6 +68,12 @@ private:
 
 	ComputeShader* m_simulationCs = nullptr;
 	Program* m_simulationProgram = nullptr;
+	
+	static const uint32_t kCopyBuffers = 4;
+	GLuint m_copyBuffers[kCopyBuffers];
+	uint32_t m_copyBufferSizes[kCopyBuffers] = {};
+	uint32_t m_curCopyBuffer = 0;
+	uint32_t m_copyBuffersMask = 0;
 
 	uint32_t m_fieldSizeX;
 	uint32_t m_fieldSizeY;
