@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Alert, Button, Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Spinner } from 'reactstrap';
+import { Alert, Button, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Spinner } from 'reactstrap';
 import { bindActionCreators } from 'redux';
 import * as User from '../store/User';
 import Notes from './Notes';
@@ -20,6 +20,7 @@ class NotesPage extends React.Component {
         this.handleFormChange = this.handleFormChange.bind(this);
         this.handleTabChange = this.handleTabChange.bind(this);
         this.submitForm = this.submitForm.bind(this);
+        this.renderForm = this.renderForm.bind(this);
     }
 
     submitForm(e) {
@@ -67,12 +68,12 @@ class NotesPage extends React.Component {
     };
 
     handleTabChange = n => _ => {
-        this.setState({ tab: n });
+        this.setState({ tab: n, success: false });
     };
 
     render() {
         return <React.Fragment>
-            <Nav tabs>
+            <Nav tabs className='tabs'>
                 <NavItem>
                     <NavLink href="#"
                              active={this.state.tab === 1}
@@ -95,37 +96,35 @@ class NotesPage extends React.Component {
     }
 
     renderForm() {
-        return this.user
-            ? <Form onSubmit={this.submitForm} style={{ marginTop: '20px' }}>
-                <FormGroup row>
-                    <Col sm={8}>
-                        <Input type="textarea"
-                               placeholder="Write new note here"
-                               name="note"
-                               id="note"
-                               onChange={this.handleFormChange} />
-                    </Col>
+        return this.props.user
+            ? <Form onSubmit={this.submitForm}>
+                <FormGroup>
+                    <Input type="textarea"
+                           placeholder="Write new note here"
+                           name="note"
+                           id="note"
+                           onChange={this.handleFormChange}/>
                 </FormGroup>
-                <FormGroup check>
+                <FormGroup className='light-purple mb-4' check>
                     <Label check>
-                        <Input type="checkbox" name="public" id="public" onChange={this.handleFormChange} />{' '}Public
+                        <Input type="checkbox" name="public" id="public" onChange={this.handleFormChange}/>{' '}Public
                     </Label>
                 </FormGroup>
                 <FormGroup>
-                    <Button>{this.state.fetching && <Spinner size="sm" color="dark" />} post</Button>
+                    <Button>{this.state.fetching && <Spinner size="sm" color="dark"/>} post</Button>
                 </FormGroup>
-                {this.state.error && <Col sm={5}><Alert color="danger">{this.state.error}</Alert></Col>}
-                {this.state.success && <Col sm={5}><Alert color="success">Uploaded</Alert></Col>}
+                {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+                {this.state.success && <Alert color="success">Uploaded</Alert>}
             </Form>
-            : <Alert color="warning">You need to login</Alert> ;
+            : <Alert color="warning">You need to login</Alert>;
     }
 
     renderContent() {
         switch (this.state.tab) {
             case 1:
-                return <Notes key="pub" isPublic={true} />;
+                return <Notes key="pub" isPublic={true}/>;
             case 2:
-                return <Notes key="priv" isPublic={false} />;
+                return <Notes key="priv" isPublic={false}/>;
             case 3:
                 return this.renderForm();
             default:

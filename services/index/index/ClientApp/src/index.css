@@ -55,10 +55,25 @@ button {
 }
 
 .lg:nth-child(odd) {
-    background-color: #60356f;
+    background-color: #452e61;
 }
 
 input {
     background-color: #acacac !important;
     border: none !important;
+}
+
+.tabs {
+    border: none;
+    /*border-bottom: 1px solid #582a91;*/
+}
+
+.nav-link.active{
+    background-color: #582a91 !important;
+    border: none;
+    color: #a0a0a0 !important;
+}
+
+.nav-link:hover{
+    border-color: #662ea4 #662ea4 #662ea4 !important;
 }

@@ -11,11 +11,13 @@ class Notes extends React.Component {
 
     render() {
         if (this.props.fetching)
-            return <Spinner color="secondary" />;
+            return <Spinner color="secondary"/>;
 
         return this.props.notes.length !== 0
-            ? <ListGroup>{this.props.notes.map(n => <ListGroupItem>{n}</ListGroupItem>)}</ListGroup>
-            : <Alert color="light">No notes yes</Alert>;
+            ? <ListGroup>
+                {this.props.notes.map(n => <ListGroupItem className='lg light-purple'>{n}</ListGroupItem>)}
+            </ListGroup>
+            : <Alert color="info">no notes yes</Alert>;
     }
 }
 
