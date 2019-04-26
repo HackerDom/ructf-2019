@@ -18,6 +18,10 @@ async def login(request):
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        if len(username) > 40:
+            return {"message": "Username must be less then 40 symbols"}
+        if len(password) > 40:
+            return {"message": "Password must be less then 40 symbols"}
         user = await User.find_one({"name": username})
         if user and check_password(user, password):
             return auth.login_user(request, user)
@@ -47,6 +51,10 @@ async def signin(request):
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        if len(username) > 40:
+            return {"message": "Username must be less then 40 symbols"}
+        if len(password) > 40:
+            return {"message": "Password must be less then 40 symbols"}
         if await User.find_one({"name": username}):
             return {"message": "User exists"}
         if not re.match(r"[A-Za-z0-9_]+", username):

@@ -4,6 +4,7 @@ from sanic import Blueprint
 from beacons import auth
 from beacons.repositories.photo import Photo
 from random import shuffle
+import re
 
 photo_page = Blueprint("latest", url_prefix="/Photo")
 latest_range = 100
@@ -23,7 +24,9 @@ async def get_latest(request):
 
 
 @photo_page.route("/GetPhoto/<photo_id>")
-# @auth.login_required
+@auth.login_required
 async def get_photo(request, photo_id):
+    if not re.match(r"^[\da-fA-F]{24}$", photo_id) or len(photo_id) > 40:
+        return json({"error": "Incorrect photo id"})
     photo = await Photo.find_one(photo_id)
     return raw(photo.photo)

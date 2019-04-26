@@ -26,6 +26,11 @@ async def add_beacon(request):
     name = request.form.get("name")
     comment = request.form.get("comment")
 
+    if len(name) > 40:
+        return {"message": "Name must be less then 40 symbols"}
+    if len(comment) > 255:
+        return {"message": "Comment must be less then 255 symbols"}
+
     if not re.match(r"[\w_]+", name):
         return {"error": "Username should contains only letters, numbers or _"}
     if comment and not re.match(r"[\w_!?.,]+", comment):
@@ -56,14 +61,16 @@ async def add_beacon(request):
     await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
     return json({"upserted_id": str(upserted_id)})
 
+
 async def get_invite_by_user(user):
     await User.update_one({"_id": user.id}, {"$pop": {"invites": -1}})
     return user.invites.pop(0)
-    
+
+
 @beacon_page.route("/<beacon_id>")
 @auth.login_required
 async def get_beacon(request, beacon_id):
-    if not re.match(r"^[\da-fA-F]{24}$", beacon_id):
+    if not re.match(r"^[\da-fA-F]{24}$", beacon_id) or len(beacon_id) > 40:
         return json({"error": "Incorrect beacon id"})
     
     user = await User.find_one(auth.current_user(request).id)
@@ -78,18 +85,28 @@ async def get_beacon(request, beacon_id):
                  "x": beacon.coord_x, "y": beacon.coord_y,
                  "creator": beacon.creator, "photos": beacon.photos, "invite": beacon.invite})
 
-@beacon_page.route("/invite/<invite>")
+
+@beacon_page.route("/Invite/<invite>")
 @auth.login_required
 async def get_beacon_by_invite(request, invite):
+    if not re.match(r"^[\da-fA-F]{24}$", invite) or len(invite) > 40:
+        return json({"error": "Incorrect invite"})
+
     beacon = await Beacon.find_one({'invite': invite})
+    if not beacon:
+        return json({"error": "Incorrect invite"})
     await User.update_one({"_id": ObjectId(auth.current_user(request).id)}, {"$push": {"beacons": str(beacon.id)}})
     return json({"name": beacon.name, "comment": beacon.comment,
                  "x": beacon.coord_x, "y": beacon.coord_y,
                  "creator": beacon.creator, "photos": beacon.photos, "invite": beacon.invite})
 
+
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
 @auth.login_required
-async def add_photo(request, beacon_id):   
+async def add_photo(request, beacon_id):
+    if not re.match(r"^[\da-fA-F]{24}$", beacon_id) or len(beacon_id) > 40:
+        return json({"error": "Incorrect beacon id"})
+
     user = await User.find_one(auth.current_user(request).id)
     beacon = await Beacon.find_one(beacon_id)
 
