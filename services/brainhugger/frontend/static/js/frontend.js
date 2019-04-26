@@ -8,7 +8,7 @@ let token = genRandString(20);
 let interval = 100;
 
 let loginFrom = $("#login-form");
-let workPage = $("#work-page");
+let workPage = $("#brainhugger");
 let loginLabel = $("#login-label");
 let registerLabel = $("#register-label");
 let loginButton = $("#login-btn");
@@ -147,7 +147,7 @@ $("#login-link").click(function () {
 
 registerButton.click(
     function () {
-        password = passwordField.val();
+        let password = passwordField.val();
         if (password === "") {
             alert("Password is empty!");
             return;
