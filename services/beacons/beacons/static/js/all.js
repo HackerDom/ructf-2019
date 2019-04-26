@@ -224,9 +224,14 @@ function addFormsListener(mapStateObject, ctx) {
     inviteFormElement.addEventListener("submit", function(event) {
         event.preventDefault();
         var form = new FormData(document.forms.beaconInvite);
-        let beacon = getBeaconByInvite(form);
-        if (beacon) {
-            viewBeacon(beacon);
+        let openedBeacon = getBeaconByInvite(form);
+        if (openedBeacon) {
+            let beacon = {"id": openedBeacon.id, "coord_x": openedBeacon.x, "coord_y": openedBeacon.y}
+            mapStateObject["selected"] = {"beacon": beacon, "x": openedBeacon.x, "y": openedBeacon.y}
+
+            mapStateObject["centerX"] = openedBeacon.x;
+            mapStateObject["centerY"] = openedBeacon.y;
+            renderFullMap(mapStateObject, ctx);
         }
         inviteFormElement.reset();
     });

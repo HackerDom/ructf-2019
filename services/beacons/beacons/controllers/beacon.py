@@ -100,7 +100,8 @@ async def get_beacon_by_invite(request):
     if not beacon:
         return json({"error": "Incorrect invite"})
     await User.update_one({"_id": ObjectId(auth.current_user(request).id)}, {"$push": {"beacons": str(beacon.id)}})
-    return json({"id": str(beacon.id)})
+
+    return json({"id": str(beacon.id), "x": beacon.coord_x, "y": beacon.coord_y})
 
 
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
