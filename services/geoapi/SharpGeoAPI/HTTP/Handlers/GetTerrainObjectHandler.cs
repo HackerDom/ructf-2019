@@ -26,7 +26,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             if (agent == null)
             {
-                await context.Response.Send(404, agent.ToJson());
+                await context.Response.Send(404, "Object not found");
                 return;
             }
 

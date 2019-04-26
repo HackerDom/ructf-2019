@@ -7,6 +7,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 {
     public class GetAgentInfoHandler : BaseHandler
     {
+        private static string QueryAgentParameter => "AgentKey";
         private readonly IStorage storage;
 
         public GetAgentInfoHandler(IStorage storage) : base("GET", "agent")
@@ -16,19 +17,16 @@ namespace SharpGeoAPI.HTTP.Handlers
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
-            var content = await context.Request.ReadContentAsync();
-            var agentId = content.FromJson<string>();
+            var key = context.Request.QueryString[QueryAgentParameter];
 
-            var agent = storage.GetAgent(agentId);
+            var agent = storage.GetAgent(key);
 
             if (agent == null)
             {
-                await context.Response.Send(404, agent.ToJson());
+                await context.Response.Send(404, "Agent not found");
             }
 
             await context.Response.Send(200, agent.ToJson());
-
-            context.Response.Close();
         }
     }
 }

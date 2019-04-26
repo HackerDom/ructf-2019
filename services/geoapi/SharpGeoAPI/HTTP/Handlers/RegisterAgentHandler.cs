@@ -34,7 +34,6 @@ namespace SharpGeoAPI.HTTP.Handlers
                 AgentName = request.AgentName,
             };
 
-
             storage.AddAgent(agent);
 
             await context.Response.Send(200, agent.ToJson());
