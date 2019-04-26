@@ -190,3 +190,15 @@ img {
 
     transition: opacity .5s ease-out 1s;
 }
+
+.bold {
+    font-weight: bold;
+}
+
+.margin {
+    margin-top: 10px;
+}
+
+.textarea {
+    white-space: normal;
+}

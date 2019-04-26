@@ -57,9 +57,9 @@ async def signin(request):
             return {"message": "Password must be less then 40 symbols"}
         if await User.find_one({"name": username}):
             return {"message": "User exists"}
-        if not re.match(r"[A-Za-z0-9_]+", username):
+        if not re.match(r"^[A-Za-z0-9_]+$", username):
             return {"message": "Username should contains only letters, numbers or _"}
-        if not re.match(r"[A-Za-z0-9_]+", password):
+        if not re.match(r"^[A-Za-z0-9_]+$", password):
             return {"message": "Password should contains only letters, numbers or _"}
         inserted_id = (await User.insert_one(
                                     {"name": username, "password": password, "beacons": [], "invites": get_invites()})).inserted_id

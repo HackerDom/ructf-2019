@@ -27,15 +27,18 @@ async def add_beacon(request):
     comment = request.form.get("comment")
 
     if len(name) > 25:
-        return {"message": "Name must be less then 40 symbols"}
+        return json({"message": "Name must be less then 40 symbols"})
     if len(comment) > 255:
-        return {"message": "Comment must be less then 255 symbols"}
+        return json({"message": "Comment must be less then 255 symbols"})
 
-    if not re.match(r"[\w_ ]+", name):
-        return {"error": "Username should contains only letters, numbers or _"}
-    if comment and not re.match(r"[\w_!?., ]+", comment):
-        return {"error": "Incorrect symbol in comment"}
-    
+    if not re.match(r"^[\w_ ]+$", name):
+        print(name)
+        return json({"error": "Username should contains only letters, numbers or _"})
+    if comment and not re.match(r"^[\w_!?., ]+$", comment):
+        print(comment)
+        return json({"error": "Incorrect symbol in comment"})
+
+    print(88)
     coord_x = int(request.form.get("coord_x"))
     coord_y = int(request.form.get("coord_y"))
     is_private = True if request.form.get("isPrivate") == 'on' else False
@@ -123,9 +126,9 @@ async def add_photo(request, beacon_id):
 
     photo = request.files.get("photo")
 
-    if not re.match(r"image\/jpg|image\/jpeg|image\/tiff", photo.type):
+    if not re.match(r"^image\/jpg|image\/jpeg|image\/tiff$", photo.type):
         return json({"error": "File should be *.jpeg or *.tiff"})
-    if not re.match(r"[\w_!?.,]+", photo.name):
+    if not re.match(r"^[\w_!?.,]+$", photo.name):
         return json({"error": "Incorrect symbol in filename"})
     if len(photo.body) > 10000000:
         return json({"error": "File should be less then 5 mg"})

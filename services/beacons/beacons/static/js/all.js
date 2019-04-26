@@ -353,8 +353,8 @@ function viewBeacon(beacon) {
 
     if (beaconInfo.invite) {
         beaconAdditional.innerHTML =
-        "This beacon is private. If you want other people view this beacon, you can share them this code: " +
-            beaconInfo.invite + "."
+        "This beacon is private. If you want other people view this beacon, you can share them this code: </br><span class=\"bold\">" +
+            beaconInfo.invite + "</span>."
         beaconAdditional.classList.remove("hidden");
     }
 
