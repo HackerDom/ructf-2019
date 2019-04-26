@@ -29,12 +29,13 @@
                 <div id="beacon" class="hidden card">
                     <h3 id="beacon-name" class=""></h3>
                     <div class="">
-                        <p id="beacon-comment" class=""></p>
+                        <p class="text" id="beacon-comment" class=""></p>
                         <p id="beacon-additional" class="hidden"></p>
                         <div id="beacon-photos"></div>
-                        <form id="beacon-add-photo-form" name="beaconPhotos">
+                        <form id="beacon-add-photo-form" class="beacon-add-photo-form" name="beaconPhotos">
+                            <label class="link-button" for="beacon-add-photo-input">Choose photo</label>
                             <input class="button-file" name="photo" id="beacon-add-photo-input" required accept="image/jpeg,image/tiff,image/jpg" type="file" value="Choose file">
-                            <input class="button-button" type="submit" value="Add photo">
+                            <input class="button-button button-file-submit" type="submit" value="Submit">
                         </form>
                     </div>
                 </div>

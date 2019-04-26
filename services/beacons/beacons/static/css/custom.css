@@ -3,6 +3,7 @@ body {
     color: #4B0082;
     min-height: 100%;
     font-family: "Source Sans Pro", "Helvetica", "sans-serif";
+    position: relative;
 }
 
 html, body {
@@ -15,7 +16,8 @@ html, body {
 }
 
 .row,
-.main {
+.main,
+.beacon-add-photo-form {
     margin-left: 0px;
     margin-right: 0px;
     display: flex;
@@ -40,6 +42,7 @@ html, body {
     text-align: center;
     user-select: none;
     width: 110px;
+    color: #4B0082;
 }
 
 .nav {
@@ -99,8 +102,21 @@ html, body {
     width: 95px;
 }
 
+.button-file-submit {
+    font-size: 17px;
+}
+
 #invite-button {
     width: 140px;
+}
+
+.button-file {
+    visibility: hidden;
+    width: 0px;
+}
+
+.text {
+    word-wrap: break-word;
 }
 
 .text-input {
@@ -132,6 +148,11 @@ html, body {
     user-select: none;
 }
 
+.img-photo {
+    padding: 10px;
+    border-top: 1px dashed #841b40;
+}
+
 img {
     max-width: 60px;
 }
@@ -151,17 +172,16 @@ img {
 }
 
 .img-label {
-    width: 200px;
+    width: 180px;
+    display: block;
     float: right;
     font-size: 15px;
     font-weight: bold;
     text-align: center;
-    color: #4B0082;
     opacity: 0;
 
     transition: opacity .5s ease-out 0s;
 }
-
 
 .img-little:hover ~ .img-label {
     display: block;
