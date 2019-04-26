@@ -22,6 +22,7 @@ namespace SharpGeoAPI
             serviceBuilder.RegisterInstance(LogManager.GetLogger(typeof(Service))).As<ILog>();
             serviceBuilder.RegisterType<UploadTerrainObjectHandler>().As<IBaseHandler>();
             serviceBuilder.RegisterType<GetAgentInfoHandler>().As<IBaseHandler>();
+            serviceBuilder.RegisterType<GetTerrainObjectsHandler>().As<IBaseHandler>();
             serviceBuilder.RegisterType<GetTerrainObjectHandler>().As<IBaseHandler>();
             serviceBuilder.RegisterType<RegisterAgentHandler>().As<IBaseHandler>();
             serviceBuilder.RegisterType<TerrainObjectStore>().As<ITerrainObjectStore>();
