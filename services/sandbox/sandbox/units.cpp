@@ -72,6 +72,7 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_fieldSizeX = fieldSizeX;
 	m_fieldSizeY = fieldSizeY;
 	m_units.reserve(kMaxUnitsCount);
+	m_unitUuids.reserve(kMaxUnitsCount);
 
 	m_storage = fopen("storage.dat", "rb+");
 	if(m_storage)
@@ -108,6 +109,7 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 				uint32_t idx = m_units.size();
 				m_units.push_back(unit);
+				m_unitUuids.push_back(uuid);
 				m_uuidToIdx[uuid] = idx;
 			}
 		}
@@ -258,8 +260,9 @@ uint32_t Units::AddPendingUnits()
 		u.unit.index = m_units.size();
 		m_uuidToIdx[u.uuid] = u.unit.index;
 		m_units.push_back(u.unit);
+		m_unitUuids.push_back(u.uuid);
 		
-		size_t recordSize = u.uuid.size() + sizeof(Unit);
+		size_t recordSize = kUUIDSize + sizeof(Unit);
 		fseek(m_storage, recordSize * u.unit.index, SEEK_SET);
 		fwrite(u.uuid.data(), u.uuid.size(), 1, m_storage);
 		fwrite(&u.unit, sizeof(Unit), 1, m_storage);
@@ -292,6 +295,15 @@ void Units::Simulate(const Texture2D& randomTex)
 			glBindBuffer(GL_COPY_WRITE_BUFFER, buf.buffer);
 			glGetBufferSubData(GL_COPY_WRITE_BUFFER, 0, sizeof(Unit) * buf.unitsCopied, m_units.data() + buf.offset);
 			glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+			size_t recordSize = kUUIDSize + sizeof(Unit);
+			for (uint32_t i = buf.offset; i < buf.offset + buf.unitsCopied; i++)
+			{
+				fseek(m_storage, recordSize * i, SEEK_SET);
+				auto& uuid = m_unitUuids[i];
+				fwrite(uuid.data(), uuid.size(), 1, m_storage);
+				fwrite(&m_units[i], sizeof(Unit), 1, m_storage);
+			}
 		}
 
 		if (ret != GL_TIMEOUT_EXPIRED)

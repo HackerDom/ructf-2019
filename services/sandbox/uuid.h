@@ -1,7 +1,8 @@
 #pragma once
 #include <array>
 
-using UUID = std::array<uint8_t, 16>;
+#define kUUIDSize 16
+using UUID = std::array<uint8_t, kUUIDSize>;
 
 
 inline void uuid_generate(UUID& uuid)

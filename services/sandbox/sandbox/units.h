@@ -84,6 +84,7 @@ private:
 	uint32_t m_fieldSizeX;
 	uint32_t m_fieldSizeY;
 	std::vector<Unit> m_units;
+	std::vector<UUID> m_unitUuids;
 	std::map<UUID, uint32_t> m_uuidToIdx;
 
 	struct PendingUnit
