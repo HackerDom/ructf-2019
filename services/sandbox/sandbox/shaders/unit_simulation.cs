@@ -55,16 +55,13 @@ void main()
 
 	const vec2 kDirections[] = vec2[](vec2(1.0f, 0.0f), vec2(0.0f, 1.0f), vec2(-1.0f, 0.0f), vec2(0.0f, -1.0f));
 
-    vec2 rand = vec2(RandVector_v2(uvec2(floatBitsToUint(unit.posX) | unit.mind[0], floatBitsToUint(unit.posZ) | unit.mind[1])));
-	vec2 rand01 = vec2(cos(rand.x * 3.14f), sin(rand.y * 3.14f));
-    vec2 randf = texture(randomTex, rand01).xy;
-	uvec2 randu = floatBitsToUint(randf);
+    vec2 uv = vec2(RandVector_v2(uvec2(unit.mind[0], unit.mind[1])));
+    vec4 randf = texture(randomTex, uv);
+	uvec2 randu = floatBitsToUint(randf.zw);
 
 	vec2 prevPos = vec2(unit.posX, unit.posZ);
 	ivec2 prevUPos = ivec2(prevPos);
 	vec2 prevDir = kDirections[unit.prevDirIdx];
-
-	int maskedDirections0 = 15;
 
 	int maskedDirections1 = 0;
 	ivec2 prevUPosMod = ivec2(prevUPos.x % 32, prevUPos.y % 32);
@@ -83,21 +80,18 @@ void main()
 		units[id].prevCrossIdx = crossIdx;
 	}
 
-	int maskedDirections = maskedDirections0 & maskedDirections1 & maskedDirections2 & maskedDirections3;
-	maskedDirections |= 1 << 4;
+	int maskedDirections = maskedDirections1 & maskedDirections2 & maskedDirections3;
 
 	uint dirIdx = unit.prevDirIdx;
-	for(uint i = 0; i < 5; i++)
+	for(uint i = 0; i < 4; i++)
 	{
-		uint bit = (randu.x + i) % 5;
+		uint bit = (randu.x ^ randu.y + i) % 5;
 		if((maskedDirections & (1 << bit)) > 0)
 		{
 			dirIdx = bit;
 			break;
 		}
 	}
-	if(dirIdx == 4)
-		dirIdx = unit.prevDirIdx;
 	vec2 pos = prevPos + kDirections[dirIdx] * units[id].power;
 
 	if(pos.x < 1.0f)

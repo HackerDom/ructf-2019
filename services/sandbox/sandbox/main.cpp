@@ -137,10 +137,17 @@ void UpdateRandomTexture(Texture2D& tex)
 	static std::default_random_engine e;
 	static std::uniform_real_distribution<> dis(-8.0, 8.0);
 
-	const int kSize = 32 * 32 * 4;
-	static float data[kSize];
+	const int kSize = 32 * 32;
+	static glm::vec4 data[kSize];
 	for (int i = 0; i < kSize; i++)
-		data[i] = (float)dis(e);
+	{
+		data[i].x = (float)dis(e);
+		data[i].y = (float)dis(e);
+		uint32_t r = rand();
+		data[i].z = *(float*)&r;
+		r = rand();
+		data[i].w = *(float*)&r;
+	}
 
 	glBindTexture(GL_TEXTURE_2D, tex.GetTexture());
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tex.GetWidth(), tex.GetHeight(), GL_RGBA, GL_FLOAT, data);
