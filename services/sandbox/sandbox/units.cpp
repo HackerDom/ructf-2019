@@ -212,6 +212,7 @@ Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 	Unit u;
 	memcpy(u.mind, mind, 32);
 	u.index = ~0u;
+	u.padding = 0xDEADCFAB;
 
 	uint32_t crossesPerX = m_fieldSizeX / (kStreetWidth + kBuildingSize);
 	uint32_t crossesPerY = m_fieldSizeY / (kStreetWidth + kBuildingSize);
