@@ -8,9 +8,9 @@ const exponent = 2;
 const size = 20;
 const delta = 10;
 const stylesMap = {0: "#352D64", 1: "#6C2D6A", 2: "#933B92", 3: "#D35092", 4: "#EE82EE"};
-const beaconStyle = "#C0C0C0";
-const selectedBeaconStyle = "#D2691E";
-const selectedCellStyle = "#800000";
+const beaconStyle = "#ff3041";
+const selectedBeaconStyle = "#f9e902";
+const selectedCellStyle = "#002eff";
 let gen = undefined;
 
 function noise(nx, ny) {
