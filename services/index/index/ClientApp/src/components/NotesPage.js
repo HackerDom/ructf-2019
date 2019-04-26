@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Alert, Button, Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Spinner } from 'reactstrap';
-import './NavMenu.css';
 import { bindActionCreators } from 'redux';
 import * as User from '../store/User';
 import Notes from './Notes';

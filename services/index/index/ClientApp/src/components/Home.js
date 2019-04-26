@@ -3,14 +3,14 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 const Home = props => (
-    <div>
+    <div className="light-purple">
         <h1>welcome to index</h1>
         <p>here we collect all files about VR simulation</p>
         <br />
         <p>
             <Link to="/login">create account</Link> and after<br />
             you can <Link to="/upload">add</Link> new zip archives to index<br />
-            or <Link to="/search">search</Link> and observe already indexed content
+            or <Link to="/search">search</Link> and observe already indexed content<br/>
             also you can left <Link to="/notespage">notes</Link> to save some data
         </p>
     </div>

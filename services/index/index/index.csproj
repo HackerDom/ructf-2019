@@ -34,6 +34,8 @@
 		<Content Include="ClientApp\src\components\Search.js" />
 		<Content Include="ClientApp\src\components\Upload.js" />
 		<Content Include="ClientApp\src\store\Notes.js" />
+		<Content Include="ClientApp\src\components\NavMenu\NavMenu.css" />
+		<Content Include="ClientApp\src\components\NavMenu\index.js" />
 		<None Remove="$(SpaRoot)**" />
 		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
 		<None Update="run.sh">

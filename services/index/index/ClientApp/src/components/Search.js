@@ -1,6 +1,5 @@
 import React from 'react';
 import { Alert, Button, Col, Container, Form, FormGroup, Input, ListGroup, ListGroupItem, Spinner } from 'reactstrap';
-import './NavMenu.css';
 
 export default class Search extends React.Component {
     constructor(props) {

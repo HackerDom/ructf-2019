@@ -1,6 +1,5 @@
 import React from 'react';
 import { Alert, Button, Col, Container, Form, FormGroup, Input, Label, Spinner } from 'reactstrap';
-import './NavMenu.css';
 
 export default class Upload extends React.Component {
     constructor(props) {
