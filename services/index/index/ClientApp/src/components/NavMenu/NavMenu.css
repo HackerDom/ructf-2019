@@ -18,14 +18,6 @@ html {
     box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
-.light-purple {
-    color: #a263aa !important;
-}
-
-.light-purple.link:hover {
-    color: #d08dd8 !important;
-}
-
 .bg {                           
     background-color: #50126e;
 }

@@ -38,8 +38,24 @@ button {
     color: #6c6414 !important;
 }
 
-.login-form {
+.light-purple {
+    color: #a263aa !important;
+}
+
+.light-purple.link:hover {
+    color: #d08dd8 !important;
+}
+
+.common-form {
     margin: 0 20%;
+}
+
+.lg:nth-child(even) {
+    background-color: #3c1d50;
+}
+
+.lg:nth-child(odd) {
+    background-color: #60356f;
 }
 
 input {

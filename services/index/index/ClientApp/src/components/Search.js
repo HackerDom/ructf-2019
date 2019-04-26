@@ -26,7 +26,9 @@ export default class Search extends React.Component {
                 else
                     throw resp;
             this.setState({ data: await resp.json() });
-        }).catch(() => this.setState({ error: `can't find ${this.state.fileName}` })).finally(_ => this.setState({ fetching: false }));
+        }).catch(() => this.setState(
+            { error: `can't find ${this.state.fileName}` }
+        )).finally(_ => this.setState({ fetching: false }));
     };
 
     handleChange = e => {
@@ -38,32 +40,30 @@ export default class Search extends React.Component {
     };
 
     render() {
-        return <Container>
-            <Col sm={3} md={{ size: 8, offset: 2 }}>
-                <Alert color="light">search your file by name and list containing directories</Alert>
-                <Form onSubmit={this.submitForm} id="uploadForm">
-                    <FormGroup row>
-                        <Col sm={8}>
-                            <Input type="text"
-                                   placeholder="file name"
-                                   name="fileName"
-                                   id="fileName"
-                                   onChange={this.handleChange} />
-                        </Col>
-                        <Button>
-                            {this.state.fetching && <Spinner size="sm" color="dark" />}
-                            find</Button>
-                    </FormGroup>
-                </Form>
-                {this.state.error && <Col sm={5}><Alert color="danger">{this.state.error}</Alert></Col>}
-                {this.state.data &&
-                <ListGroup>
-                    {this.state.data.map(dir =>
-                        <ListGroupItem>
-                            {dir.map(d => <div>{d}</div>)}
-                        </ListGroupItem>)}
-                </ListGroup>}
-            </Col>
-        </Container>;
+        return <div className='common-form'>
+            <Alert color="info">search your file by name and list containing directories</Alert>
+            <Form onSubmit={this.submitForm} id="uploadForm">
+                <FormGroup row>
+                    <Col>
+                        <Input type="text"
+                               placeholder="file name"
+                               name="fileName"
+                               id="fileName"
+                               onChange={this.handleChange}/>
+                    </Col>
+                    <Button>
+                        {this.state.fetching && <Spinner size="sm" color="dark"/>}
+                        find</Button>
+                </FormGroup>
+            </Form>
+            {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+            {this.state.data &&
+            <ListGroup>
+                {this.state.data.map(dir =>
+                    <ListGroupItem className='lg light-purple'>
+                        {dir.map(d => <div>{d}</div>)}
+                    </ListGroupItem>)}
+            </ListGroup>}
+        </div>;
     }
 }

@@ -43,7 +43,7 @@ class Login extends React.Component {
 
     render() {
         const { login, pwd } = this.state;
-        return <div className='login-form'>
+        return <div className='common-form'>
             <Alert className='text-center' color="info">You also can register here, just use unique login :)</Alert>
             <Form onSubmit={this.submitForm} id="loginForm">
                 <FormGroup row>
