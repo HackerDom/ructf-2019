@@ -99,7 +99,12 @@ async def get_beacon_by_invite(request):
     beacon = await Beacon.find_one({'invite': invite})
     if not beacon:
         return json({"error": "Incorrect invite"})
-    await User.update_one({"_id": ObjectId(auth.current_user(request).id)}, {"$push": {"beacons": str(beacon.id)}})
+        
+    user = await User.find_one(auth.current_user(request).id)
+    if str(beacon.id) in user.beacons:
+        return json({"error": "Invite already released"})
+    
+    await User.update_one({"_id": user.id}, {"$push": {"beacons": str(beacon.id)}})
 
     return json({"id": str(beacon.id), "x": beacon.coord_x, "y": beacon.coord_y})
 
