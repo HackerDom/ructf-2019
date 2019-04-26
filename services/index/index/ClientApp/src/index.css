@@ -42,12 +42,20 @@ button {
     color: #a263aa !important;
 }
 
+.link {
+    cursor: pointer;
+}
+
 .light-purple.link:hover {
     color: #d08dd8 !important;
 }
 
 .common-form {
     margin: 0 20%;
+}
+
+.upload-form {
+    margin: 0 30%;
 }
 
 .lg:nth-child(even) {
@@ -68,12 +76,20 @@ input {
     /*border-bottom: 1px solid #582a91;*/
 }
 
-.nav-link.active{
+.nav-link.active {
     background-color: #582a91 !important;
     border: none;
     color: #a0a0a0 !important;
 }
 
-.nav-link:hover{
+.nav-link:hover {
     border-color: #662ea4 #662ea4 #662ea4 !important;
+}
+
+.upload-input {
+    display: none;
+}
+
+.upload-input-label {
+
 }
