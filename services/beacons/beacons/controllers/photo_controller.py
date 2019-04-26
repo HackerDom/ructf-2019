@@ -26,7 +26,7 @@ async def get_latest(request):
 @photo_page.route("/GetPhoto/<photo_id>")
 @auth.login_required
 async def get_photo(request, photo_id):
-    if not re.match(r"^[\da-fA-F]{24}$", photo_id) or len(photo_id) > 40:
+    if not re.match(r"^[\da-fA-F]{24}$", photo_id):
         return json({"error": "Incorrect photo id"})
     photo = await Photo.find_one(photo_id)
     return raw(photo.photo)

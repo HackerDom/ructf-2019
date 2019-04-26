@@ -92,7 +92,6 @@ async def get_beacon(request, beacon_id):
 @auth.login_required
 async def get_beacon_by_invite(request):
     invite = request.form.get("invite")
-    print(invite)
 
     if not re.match(r"^[\da-fA-F-]{36}$", invite):
         return json({"error": "Incorrect invite"})
