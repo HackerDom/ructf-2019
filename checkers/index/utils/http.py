@@ -13,4 +13,4 @@ def build_session() -> Session:
     return s
 
 def wait(max_time = 3000):
-    time.sleep(random.randrange(1000, max_time) / 1000)
+    time.sleep(random.randrange(250, max_time) / 1000)

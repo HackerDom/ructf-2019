@@ -23,7 +23,7 @@ class Api:
         if self._is_first:
             self._is_first = False
         else:
-            wait(3000)
+            wait(1500)
 
     def register_user(self, user) -> Response:
         self._jitter()
