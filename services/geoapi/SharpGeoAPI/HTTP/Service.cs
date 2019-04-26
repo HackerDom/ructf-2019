@@ -10,8 +10,9 @@ using Autofac;
 using log4net;
 using SharpGeoAPI.HTTP.Handlers;
 using SharpGeoAPI.Storages;
+using SharpGeoAPI.Utils;
 
-namespace SharpGeoAPI
+namespace SharpGeoAPI.HTTP
 {
     public class Service
     {

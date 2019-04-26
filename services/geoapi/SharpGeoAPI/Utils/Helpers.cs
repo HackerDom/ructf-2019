@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace SharpGeoAPI
+namespace SharpGeoAPI.Utils
 {
     public static class Helpers
     {
@@ -19,11 +19,6 @@ namespace SharpGeoAPI
             await response.OutputStream.WriteAsync(Encoding.UTF8.GetBytes(message));
         }
 
-        public static void Send(this HttpListenerResponse response, int statusCode)
-        {
-            response.StatusCode = statusCode;
-        }
-
         public static string ToJson<T>(this T source)
         {
             return JsonConvert.SerializeObject(source);
@@ -35,11 +30,6 @@ namespace SharpGeoAPI
             {
                 TypeNameHandling = TypeNameHandling.All,
             });
-        }
-
-        public static byte[] ToBytes(this string source)
-        {
-            return Encoding.UTF8.GetBytes(source);
         }
 
         public static async Task<string> ReadToEndAsync(this Stream stream)

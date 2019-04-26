@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using SharpGeoAPI.Models;
+﻿using SharpGeoAPI.Models;
 
 namespace SharpGeoAPI.Storages
 {

@@ -2,10 +2,8 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac.Core;
 using log4net;
-using MongoDB.Driver;
-using SharpGeoAPI.Models;
+using SharpGeoAPI.Utils;
 
 namespace SharpGeoAPI.HTTP
 {

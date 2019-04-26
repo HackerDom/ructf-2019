@@ -1,7 +1,6 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using SharpGeoAPI.HTTP;
+﻿using MongoDB.Driver;
 using SharpGeoAPI.Models;
+using SharpGeoAPI.Utils;
 
 namespace SharpGeoAPI.Storages
 {
@@ -25,16 +24,6 @@ namespace SharpGeoAPI.Storages
         public void AddAgent(AgentInfo agentInfo)
         {
             agents.InsertOne(agentInfo);
-        }
-
-        public void UpdateAgent(AgentInfo agentInfo)
-        {
-            agents.ReplaceOne(origin => origin.Id == agentInfo.Id, agentInfo);
-        }
-
-        public void RemoveAgent(AgentInfo agentInfoToDelete)
-        {
-            agents.DeleteOne(origin => origin.Id == agentInfoToDelete.Id);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SharpGeoAPI
+﻿namespace SharpGeoAPI.Utils
 {
     public class Settings : ISettings
     {

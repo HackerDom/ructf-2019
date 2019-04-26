@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using SharpGeoAPI.Storages;
+using SharpGeoAPI.Utils;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {

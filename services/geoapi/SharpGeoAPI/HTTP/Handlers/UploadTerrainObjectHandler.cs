@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Net;
-using System.Reflection.Metadata;
 using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 using SharpGeoAPI.Models;
 using SharpGeoAPI.Storages;
+using SharpGeoAPI.Utils;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
