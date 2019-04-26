@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using SharpGeoAPI.Models;
 using SharpGeoAPI.Storages;
@@ -11,10 +12,12 @@ namespace SharpGeoAPI.HTTP.Handlers
     public class RegisterAgentHandler : BaseHandler
     {
         private readonly IStorage storage;
+        private readonly ISettings settings;
 
-        public RegisterAgentHandler(IStorage storage) : base("POST", "agent")
+        public RegisterAgentHandler(IStorage storage, ISettings settings) : base("POST", "agent")
         {
             this.storage = storage;
+            this.settings = settings;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
@@ -27,7 +30,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var agent = new AgentInfo
             {
-                AgentId = CreateNewAgentId(),
+                AgentId = GetAgentToken(),
                 AgentKey = request.AgentKey,
             };
 
@@ -42,6 +45,15 @@ namespace SharpGeoAPI.HTTP.Handlers
             public string AgentKey { get; set; }
         }
 
-        private string CreateNewAgentId() => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        private string GetAgentToken()
+        {
+            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tokenData = new byte[settings.AgentIdSize];
+                rng.GetBytes(tokenData);
+
+                return Convert.ToBase64String(tokenData);
+            }
+        }
     }
 }

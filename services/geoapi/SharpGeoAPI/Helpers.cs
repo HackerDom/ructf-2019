@@ -33,7 +33,7 @@ namespace SharpGeoAPI
         {
             return JsonConvert.DeserializeObject<T>(source, new JsonSerializerSettings()
             {
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.All,
             });
         }
 

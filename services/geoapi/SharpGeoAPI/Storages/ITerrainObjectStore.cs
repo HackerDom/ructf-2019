@@ -8,6 +8,6 @@ namespace SharpGeoAPI.Storages
     {
         TerrainObject GetTerrainObject(string agentName, string objectId);
         void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject);
-        Task<IEnumerable<TerrainObject>> GetTerrainObject(string agentName);
+        IEnumerable<TerrainObject> GetTerrainObject(string agentName);
     }
 }

@@ -27,11 +27,9 @@ namespace SharpGeoAPI.Storages
             return terrainObjects.Find(GetKey(agentName, objectId)).FirstOrDefault();
         }
 
-        public async Task<IEnumerable<TerrainObject>> GetTerrainObject(string agentName)
+        public IEnumerable<TerrainObject> GetTerrainObject(string agentName)
         {
-            var prefix = Builders<TerrainObject>.Filter.Regex("x", new BsonRegularExpression(agentName, "i"));
-           // return await terrainObjects.Find(prefix).Limit(100).ToListAsync()
-           throw new NotImplementedException();
+            return terrainObjects.Find(tObject => tObject.Key.StartsWith(agentName)).Limit(settings.SearchLimit).ToList();
         }
 
         public void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject)

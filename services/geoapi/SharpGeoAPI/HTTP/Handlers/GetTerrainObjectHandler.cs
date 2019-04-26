@@ -32,7 +32,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var tObject = terrainObjectStore.GetTerrainObject(request.AgentId,request.ObjectId);
 
-            await context.Response.Send(200, tObject.GetView());
+            await context.Response.Send(200, tObject.ToJson());
         }
 
         private class GetTerrainObjectRequest

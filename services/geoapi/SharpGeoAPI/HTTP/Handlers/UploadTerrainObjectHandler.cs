@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Reflection.Metadata;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using SharpGeoAPI.Models;
@@ -42,12 +43,21 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var tObject = TerrainObject.Decode(request.Cells);
 
-            terrainObjectStore.UploadTerrainObject(agentInfo.AgentId, CreateNewAgentId(), tObject);
+            terrainObjectStore.UploadTerrainObject(agentInfo.AgentId, GetAgentToken(), tObject);
 
             context.Response.Send(200);
         }
 
-        private string CreateNewAgentId() => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+        private string GetAgentToken()
+        {
+            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            {
+                byte[] tokenData = new byte[settings.ObjectIdSize];
+                rng.GetBytes(tokenData);
+
+                return Convert.ToBase64String(tokenData);
+            }
+        }
 
         private class UploadObjectRequest
         {
