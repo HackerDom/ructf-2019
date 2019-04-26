@@ -1,7 +1,7 @@
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
-
+import json
 
 class RustClient:
     def __init__(self, port, timeout):
@@ -24,17 +24,20 @@ class RustClient:
 
     def push_to_source(self, source_name, password, message, ip):
         req = self.create_push_to_source_request(source_name, password, message, ip)
+        print("starting push")
         result = self.do_request(req)
+
         if result is None:
             return None
         code = result.getcode()
+        print("CODE: " + str(code))
         return RustResult(code)
 
     def do_request(self, req, retries=3):
         for i in range(retries):
             try:
-                return urlopen(req, timeout=self.timeout)
-            except (HTTPError, URLError):
+                return urlopen(req, timeout=1000)
+            except Exception as e:
                 continue
 
         return None
@@ -43,17 +46,21 @@ class RustClient:
                                      use_encryption: bool, encryption_key: str, iv: str, ip: str):
         post_fields = {'name': source_name,
                        'password': passwrd,
-                       'isPublic': is_public,
+                       'is_public': is_public,
                        'encryption': use_encryption,
                        'encryption_key': encryption_key,
                        'iv': iv
                        }
-
-        return Request("http://{0}:{1}/create_source".format(ip, self.port), urlencode(post_fields).encode())
+        post_json = json.dumps(post_fields)
+        post_str = "name={}&password={}&is_public={}&encryption={}&encryption_key={}&iv={}".format(source_name, passwrd, is_public, use_encryption, encryption_key, iv)
+        return Request("http://{0}:{1}/create_source".format(ip, self.port), post_json.encode())
 
     def create_push_to_source_request(self, source_name, password, message, ip):
         post_fields = {'name': source_name, 'password': password, 'message': message}
-        return Request("http://{0}:{1}/push_message".format(ip, self.port), urlencode(post_fields).encode())
+        post_str = "name={}&password={}&message={}".format(source_name, password,message)
+
+        post_json = json.dumps(post_fields)
+        return Request("http://{0}:{1}/push_message".format(ip, self.port), post_json.encode())
 
     def decode_body(self, response):
         try:
