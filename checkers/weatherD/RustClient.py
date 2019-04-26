@@ -50,6 +50,9 @@ class RustClient:
                        'encryption': use_encryption,
                        'encryption_key': encryption_key,
                        'iv': iv
+                       'landscape' : 'desert',
+                       'race' : 'race',
+                       "population" : "33"
                        }
         post_json = json.dumps(post_fields)
         post_str = "name={}&password={}&is_public={}&encryption={}&encryption_key={}&iv={}".format(source_name, passwrd, is_public, use_encryption, encryption_key, iv)
