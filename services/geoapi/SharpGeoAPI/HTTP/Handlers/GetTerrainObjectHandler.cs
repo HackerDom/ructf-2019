@@ -33,6 +33,12 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var tObject = terrainObjectStore.GetTerrainObject(objectKey);
 
+            if (tObject == null)
+            {
+                await context.Response.Send(404, "Object not found");
+                return;
+            }
+
             await context.Response.Send(200, tObject.ToJson());
         }
     }
