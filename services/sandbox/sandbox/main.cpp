@@ -224,12 +224,6 @@ int main()
 #endif
 	srand(time(NULL));
 
-	if (PinThreadToCore(0) != 0)
-	{
-		perror("PinThreadToCore");
-		return 1;
-	}
-
 	InitInterface(InterfaceCallback);
 
 	glfwSetErrorCallback(GlfwErrorCallback);

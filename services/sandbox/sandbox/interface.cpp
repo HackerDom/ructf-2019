@@ -95,12 +95,6 @@ void ShutdownInterface()
 
 void NetworkThread()
 {
-	if(PinThreadToCore(1) != 0)
-	{
-		perror("PinThreadToCore");
-		return;
-	}
-
 	std::map<int, Socket> socketsMap;
 	std::vector<pollfd> pollFds;
 	std::vector<int> socketsToAdd;
