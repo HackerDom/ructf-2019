@@ -42,7 +42,7 @@ namespace NotificationsAPI
 			var sendMessageHandler = new SendMessageHandler(messagSender, mongoDbClient, sourceStorage, authorizer);
 			var handlerMapper = new HandlerMapper();
 
-		//	var expDaemon = new ExpirationDaemon(sourceStorage);
+			var expDaemon = new ExpirationDaemon(sourceStorage);
 
 			handlerMapper.Add("/addUserInfo", HttpMethod.Post, addUserInfoHandler);
 			handlerMapper.Add("/subscribe", HttpMethod.Get, new SubscribeOnSourceHandler(subscriber));

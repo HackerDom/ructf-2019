@@ -20,7 +20,7 @@ namespace NotificationsAPI.SSE
 
 		public async Task<bool> Subscribe(string src, string token, HttpContext httpContext)
 		{
-			if(true)
+			if(authorizer.CanSubscribe(src, token))
 			{
 				if(sourceStorage.TryGetInfo(src, out var res))
 				{
@@ -31,6 +31,14 @@ namespace NotificationsAPI.SSE
 			}
 
 			return false;
+		}
+
+		public void Unsubscribe(string src, HttpContext httpContext)
+		{
+			if(sourceStorage.TryGetInfo(src, out var res))
+			{
+				res.RemoveSubscriber(httpContext);
+			}
 		}
 
 		private async Task SendMessagesHistory(List<string> messages, HttpContext context)

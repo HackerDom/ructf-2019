@@ -1,7 +1,7 @@
 .Input {
     background: transparent;
     border: none;
-    border-bottom: 1px solid #FC63E3;
+    border-bottom: 1px solid  rgb(185, 156, 197);;
     font: unset;
     color: unset;
     display: flex;
@@ -12,4 +12,5 @@
 .Input-label {
     float: left;
     font-size: 20px;
+    padding: 20px;
 }

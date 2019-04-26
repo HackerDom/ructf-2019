@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import Input from "./components/Input";
 import "./App.css";
 import { Formik, Form, Field } from "formik";
@@ -20,8 +19,6 @@ function getSources()
     return await response.text()
   })
   .then(body => {
-    console.log(body);
-    console.log(123123123123)
     news = body.split('\n');
     console.log(news);
   });
@@ -37,7 +34,7 @@ class App extends Component {
     news = ["1", "2"]
     const articles = ["4", "5", "6", "32132"];
     return (
-        <div className="wrapper">
+        <div className="wrapper" id="wr">
           <div className="sources">
             <button id="add_source" onClick={()=> this.onSubscribeClick("add_src_popup")}>Add source</button>
             <div className="add_src_popup" id="add_src_popup">
@@ -84,7 +81,7 @@ class App extends Component {
                     <button className="popup_close" onClick={() => document.getElementById("popup" + i).style.visibility = "hidden"}>x</button>
                     <Formik onSubmit={(v) => this.subscribeOnMessage(t, v)}>
                     {() => (
-                    <Form className={"Subscribe-form"}>
+                    <Form className={"App-form"}>
                     <span>{"Source:  " + t}</span>
                     <Field name="token" type="password" component={Input} />
                     <button className="App-btn" type="submit">

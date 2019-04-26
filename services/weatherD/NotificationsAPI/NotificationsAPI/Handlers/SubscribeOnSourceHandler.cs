@@ -29,6 +29,7 @@ namespace NotificationsApi.Handlers
 			request.HttpContext.RequestAborted.Register(() => cts.TrySetResult(1));
 			await cts.Task;
 		    request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+			subscriber.Unsubscribe(request.source, request.HttpContext);
         }
 	}
 }
