@@ -25,6 +25,12 @@
                     <div class="">
                         <p id="beacon-comment" class=""></p>
                         <div id="beacon-photos"></div>
+                        <div id="invite-button" class="hidden">I have invite code</div>
+                        <form id="write-invite-form" class="hidden" name="beaconInvite">
+                            <label for="write-invite-input">Write invite code</label>
+                            <input name="invite" id="write-invite-input" maxlength="40" required pattern="^[\da-fA-F-]{36}$" type="text">
+                            <input type="submit" value="Send">
+                        </form>
                         <form id="beacon-add-photo-form" name="beaconPhotos">
                             <input name="photo" id="beacon-add-photo-input" required accept="image/jpeg,image/tiff,image/jpg" type="file" value="Choose file">
                             <input type="submit" value="Add photo">
@@ -36,9 +42,9 @@
                     <div class="">
                         <form id="beacon-add-form" name="beacon">
                             <label for="beacon-add-name">Write beacon name</label>
-                            <input id="beacon-add-name" name="name" maxlength="40" required pattern="[\w\d_]+" type="text" placeholder="For instance, beacon">
+                            <input id="beacon-add-name" name="name" maxlength="40" required pattern="[\w\d_ ]+" type="text" placeholder="For instance, beacon">
                             <label for="beacon-add-comment">Write beacon comment</label>
-                            <input id="beacon-add-comment" name="comment" maxlength="255" required pattern="[\w\d_!?.,]+" type="text" placeholder="For instance, my beacon">
+                            <input id="beacon-add-comment" name="comment" maxlength="255" required pattern="[\w\d_!?., ]+" type="text" placeholder="For instance, my beacon">
                             <label for="beacon-add-is-private">Make your beacon private</label>
                             <input id="beacon-add-is-private" name="isPrivate" type="checkbox">
                             <input type="submit" value="Add beacon">

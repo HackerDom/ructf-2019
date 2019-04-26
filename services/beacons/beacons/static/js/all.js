@@ -158,6 +158,11 @@ function addButtonListeners(mapStateObject, ctx) {
         mapStateObject["centerY"] = mapStateObject["centerY"] + delta;
         renderFullMap(mapStateObject, ctx);
     };
+    document.getElementById("invite-button").onclick = function(e) {
+        let inviteForm = document.getElementById("write-invite-form");
+        inviteForm.classList.remove("hidden");
+        e.target.classList.add("hidden");
+    };
     document.getElementById("go-to-profile").onclick = function() {
         if (mapStateObject["selected"]) {
             undoSelected(mapStateObject, ctx);
@@ -213,6 +218,17 @@ function addFormsListener(mapStateObject, ctx) {
             viewBeacon(beacon);
         }
         beaconAddFormElement.reset();
+    });
+
+    let inviteFormElement = document.getElementById("write-invite-form");
+    inviteFormElement.addEventListener("submit", function(event) {
+        event.preventDefault();
+        var form = new FormData(document.forms.beaconInvite);
+        let beacon = getBeaconByInvite(form);
+        if (beacon) {
+            viewBeacon(beacon);
+        }
+        inviteFormElement.reset();
     });
 }
 
@@ -314,6 +330,9 @@ function viewBeacon(beacon) {
         return;
     }
 
+    let inviteForm = document.getElementById("write-invite-form");
+    inviteForm.classList.add("hidden");
+
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.innerHTML = "";
     let beaconAddPhotosFormElement = document.getElementById("beacon-add-photo-form")
@@ -324,12 +343,16 @@ function viewBeacon(beacon) {
     let beaconCommentElement = document.getElementById("beacon-comment");
     beaconCommentElement.innerHTML = beaconInfo.comment;
 
+    let inviteButtonElement = document.getElementById("invite-button");
+
     if (beaconInfo.is_private) {
-        beaconPhotosElement.innerHTML = "You could not have access to this beacon. If you want, you can ask creator " +
-            beaconInfo.creator + " share this beacon."
         beaconAddPhotosFormElement.classList.add("hidden");
+        inviteButtonElement.classList.remove("hidden");
+        beaconPhotosElement.innerHTML = "You could not have access to this beacon. If you want, you can ask " +
+            beaconInfo.creator + " share this beacon."
     } else {
         beaconAddPhotosFormElement.classList.remove("hidden");
+        inviteButtonElement.classList.add("hidden");
         beaconInfo.photos.forEach(function(photo) {
             addPhotoRender(photo);
         });
@@ -480,6 +503,22 @@ function getUserBeacons() {
         showError("Could not get beacons. Try again.");
     } else {
         return JSON.parse(xhr.responseText)["beacons"];
+    }
+}
+
+function getBeaconByInvite(formData) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/Beacon/Invite", false);
+    xhr.send(formData);
+    if (xhr.status != 200) {
+        showError("Could not find beacon for this code. Try again.");
+    } else {
+        let response = JSON.parse(xhr.responseText);
+        if (response.error) {
+            showError(response.error);
+        } else {
+            return response;
+        }
     }
 }
 
