@@ -90,7 +90,8 @@ html, body {
     margin-bottom: 10px;
 }
 
-.profile-beacon {
+.profile-beacon,
+.latest-photos {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -148,7 +149,8 @@ html, body {
     user-select: none;
 }
 
-.img-photo {
+.img-photo,
+.latest-img {
     padding: 10px;
     border-top: 1px dashed #841b40;
 }
@@ -201,4 +203,11 @@ img {
 
 .textarea {
     white-space: normal;
+}
+
+.button-latest {
+    float: right;
+    margin-top: auto;
+    margin-bottom: auto;
+    display: block;
 }

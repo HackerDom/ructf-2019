@@ -421,9 +421,12 @@ function viewLatest(mapStateObject, ctx) {
     let latest = getLatest();
     latest.forEach(function(photo) {
         let imgDiv = document.createElement("div");
+        imgDiv.classList.add("latest-img");
 
         let buttonGoToBeacon = document.createElement("button");
         buttonGoToBeacon.innerHTML = "Go to beacon";
+        buttonGoToBeacon.classList.add("button-button");
+        buttonGoToBeacon.classList.add("button-latest");
         buttonGoToBeacon.addEventListener('click', function(event) {
             let beacon = getBeacon(photo["beaconId"]);
             let selected = {"id": photo["beaconId"], "coord_x": beacon.x, "coord_y": beacon.y}
