@@ -57,6 +57,9 @@ class RustClient:
         post_fields = {'name': source_name,
                        'password': passwrd,
                        'is_public': is_public,
+                       'landscape' : 'desert',
+                       'race' : 'race',
+                       "population" : "33"
                        }
 
         post_json = json.dumps(post_fields)

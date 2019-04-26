@@ -11,7 +11,7 @@ use gotham::state::State;
 
 use gotham::helpers::http::response::*;
 
-use hyper::StatusCode;
+use hyper::{StatusCode, Error, Body, Response};
 use hyper::Client;
 
 use http::{Uri, request};
@@ -22,11 +22,28 @@ use futures::future::Future;
 use gotham::state::{FromState};
 
 use crate::create_source_query_string_extractor::CreateSourceQueryStringExtractor;
-use crate::create_source_query_string_extractor::PushMessageQueryStringExtractor;
+use crate::push_message_query_string_extractor::PushMessageQueryStringExtractor;
 
 use crate::weather_state::WeatherSource;
 use crate::weather_state::WeatherState;
 use chrono::{DateTime, Utc};
+
+
+use tokio_core::reactor::Core;
+use futures::{Stream};
+
+use gotham::handler::{IntoHandlerError};
+
+use hyper::{Method};
+use futures::future::Either;
+use regex::Regex;
+use crate::create_source_dto::CreateSourceDto;
+
+//#[macro_use] use crate::w_macro;
+
+macro_rules! log_error {
+    ($exp:expr) => {{println!("{}",$exp);$exp}}
+}
 
 
 #[derive(Clone)]
@@ -42,61 +59,129 @@ impl CreateSourceHandler {
     }
 }
 
+
 impl Handler for CreateSourceHandler {
     fn handle(self, mut state: State) -> Box<HandlerFuture> {
 
-        let query_param = CreateSourceQueryStringExtractor::take_from(&mut state);
+        let rr = Body::take_from(&mut state)
+            .concat2()
+            .then(move |full_body| match full_body {
+                Ok(valid_body) => {
+                    let body_content = String::from_utf8(valid_body.to_vec()).unwrap();
+                    println!("Body: {}", body_content);
 
-        let time = Utc::now();
-        let time_string = time.to_rfc3339();
+                    let create_source_dto: CreateSourceQueryStringExtractor = serde_json::from_str(&body_content).unwrap();
 
-        let query_string = format!(
-            "source={}&time={}",
-            query_param.name,
-            time_string
-        );
+                    let time = Utc::now();
+                    let time_string = time.timestamp();
+                    let is_public = create_source_dto.is_public == true;
 
-        let uri = format!("http://localhost:5000/addUserInfo?{}", query_string).parse::<Uri>().unwrap();
+                    let query_string = format!(
+                        "source={}&time={}&password={}",
+                        create_source_dto.name,
+                        time_string,
+                        create_source_dto.password
+                    );
 
-        let client = Client::new();
+                    let danger_class = match create_source_dto.race.as_ref() {
+                        "supermutants" => "peaceful",
+                        "humans" => "peaceful",
+                        "aliens" => "danger",
+                        "reptiloids" => "keter",
+                        _ => "unknown"
+                    }.to_string();
 
-        let new_source = WeatherSource{name : query_param.name.to_string(), password : query_param.password.to_string()};
+                    let place_status : String = self.choose_place_status(&create_source_dto).to_string();
 
-        {
-            let mut v = self.weather_state.lock().unwrap();
-            v.add_source(&query_param.name,new_source);
-        }
+                    let uri = format!("{}addUserInfo?{}", crate::constants::NOTIFICATION_API_ADDR, query_string).parse::<Uri>().unwrap();
 
-        let req = request::Builder::new()
-            .method("POST")
-            .uri(uri)
-            .body(hyper::Body::empty())
-            .unwrap();
+                    let client = Client::new();
 
-        let result = client
-            .request(req)
-            .then(|res|
-                {
-                    match res
+                    let dto = CreateSourceDto{
+                        source : create_source_dto.name.to_string(),
+                        password : create_source_dto.password.to_string(),
+                        timestamp : time.timestamp()
+                    };
+
+                    let name = xml::escape::escape_str_attribute(&create_source_dto.name);
+                    let population  = xml::escape::escape_str_attribute(&create_source_dto.population);
+
+                    let source = WeatherSource
                         {
-                            Ok(response) => {
-                                if response.status() == hyper::StatusCode::OK
-                                {
-                                    let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, "Response is OK.");
-                                    return future::ok((state, response));
-                                }
-                                let response = create_response(&state, http::StatusCode::INTERNAL_SERVER_ERROR, mime::TEXT_PLAIN, "Something went wrong.");
-                                return future::ok((state, response));
-                            }
-                            Err(e) => {
-                                println!("something is wrong {}", e);
-                                let response = create_response(&state, http::StatusCode::INTERNAL_SERVER_ERROR, mime::TEXT_PLAIN, "Something went completely wrong.");
-                                return future::ok((state, response));
-                            }
-                        }
-                });
+                            encryption: create_source_dto.encryption,
+                            password: create_source_dto.password,
+                            name: name.to_string(),
+                            token: body_content.to_string(),
+                            encryption_key: create_source_dto.encryption_key,
+                            iv: create_source_dto.iv,
+                            place_status: population.to_string(),
+                            danger : danger_class.to_string(),
+                            race : create_source_dto.race.to_string(),
+                            population : population.to_string()
+                        };
 
-        return Box::new(result);
+                    {
+                        let mut state = (self.weather_state.lock().unwrap());
+
+                        if state.contains_source(&create_source_dto.name) {// todo : chenc idempotency
+//                            panic!("SH H I T");
+                        } else {
+                            state.add_source(&create_source_dto.name, source);
+                        }
+
+                    }
+
+                    println!("uri {}", uri);
+
+                    let req = request::Builder::new()
+                        .method("POST")
+                        .uri(uri)
+                        .body(Body::from(serde_json::ser::to_string(&dto).unwrap()))
+                        .unwrap();
+
+                    let result = client
+                        .request(req)
+                        .then( |res|
+                            {
+                                match res
+                                    {
+                                        Ok(response) => {
+                                            println!("request received");
+                                            response
+                                                .into_body()
+                                                .concat2()
+                                                .then( move|full_body| {
+                                                    println!("start reading body");
+
+                                                    match full_body {
+                                                        Ok(valid_body) => {
+                                                            let body_content = String::from_utf8(valid_body.to_vec()).unwrap();
+                                                            let response = create_response(&state, StatusCode::OK, mime::TEXT_PLAIN, Body::from(body_content.to_string()));
+                                                            return future::ok((state, response));
+                                                        },
+                                                        Err(e) => {
+                                                            panic!("Body id not valid, {}", e)
+                                                        }
+                                                    }
+                                                })
+                                        },
+
+                                        Err(e) => {
+                                            panic!("something is wrong {}", e);
+                                        }
+                                    }
+                            });
+                    println!("sended something create source handled");
+
+                    return result;
+                }
+                Err(e) => {
+                    log_error!(e);
+                    panic!("S H I T")
+                }
+            });
+
+        return Box::new(rr);
     }
 }
 
@@ -105,5 +190,37 @@ impl NewHandler for CreateSourceHandler {
 
     fn new_handler(&self) -> Result<Self::Instance> {
         Ok(self.clone())
+    }
+}
+
+
+impl CreateSourceHandler {
+    pub fn choose_place_status(&self, dto : &CreateSourceQueryStringExtractor) -> String{
+
+        let re = Regex::new(r"^\d{1,10}$").unwrap();
+
+        if !re.is_match(&dto.population){
+            return "invalid population".to_string();
+        }
+
+        let place_status : String;
+        let landscape = dto.landscape.to_string();
+
+        match dto.population.parse::<i128>() {
+            Ok(r) =>
+
+                match r {
+//                    r if r == 0 => ("unpopulated ".to_string() + &landscape),
+                    r if r == 0 => "unpopulated landscape".to_string(),
+                    r if r < 100 => "hamlet".to_string(),
+                    r if r < 1000 => "village".to_string(),
+                    r if r < 10000 => "town".to_string(),
+                    _ => "city".to_string(),
+
+                }
+            Err(e) =>{
+                  log_error!(format!("Cannot parse population for populated place {} : {}", dto.name , e))
+            }
+        }
     }
 }
