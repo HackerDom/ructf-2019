@@ -26,7 +26,7 @@ notificationApiClient = NotificationApiClient(NotificationApiPort, 3)
 IMAGE_WIDTH = 1000
 IMAGE_HEIGHT = 1000
 
-PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (374, 636), (982, 570), (1042, 497), (1055, 420)]
+PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (974, 636), (982, 570), (1042, 497), (1055, 420)]
 
 def check_result(result, out):
     if result is None:
@@ -95,7 +95,7 @@ async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verd
         try:
             async for event in event_source:
                 decode_result = get_flag_from_base64(event.data)
-                print(decode_result)
+                print(decode_result[1].upper() == flag)
                 if flag in decode_result:
                     return Verdict.OK()
         except Exception as e:
@@ -176,6 +176,7 @@ def get_flag_from_base64(base64text):
         image = getImageFromBase64(base64text)
         bytes = get_bytes_with_flag(image)
         flag = decode_flag_bytes(bytes)
+        print(len(flag[1]))
         return flag
     except Exception as e:
         return None
@@ -208,7 +209,8 @@ def get_bytes_with_flag(image : Image):
         r, g, b = a[0], a[1], a[2]
         res = res + [r, g, b]
 
-    print(','.join(list(map(str, res))))
+    print(res)
+    print(','.join(list(map(lambda x: str(hex(x)), res))))
     return res
 
 
@@ -223,12 +225,13 @@ def decode_flag_bytes(u8bytes):
             n = n << 8
             n += x
 
-            if i == 11:
+            if i == 12: # 11
                 i = 0
                 nums.append(n)
                 n = 0
         res = []
         for x in nums:
+            print("num :", x)
             r = x
             for i in range(17):
                 num = to_u32(r % 37)
@@ -238,7 +241,7 @@ def decode_flag_bytes(u8bytes):
         res2 = []
         try:
             for x in range(len(res)):
-                if x != 14 and x != 15:
+                if x != 33 and x != 16: # 14
                     res2.append(res[x])
         except:
             pass
@@ -250,11 +253,13 @@ def decode_flag_bytes(u8bytes):
 
 def unpack_char(n):
     if 0 <= n < 10:
-        return chr(to_u8(n) + to_u8(48))
+        return chr(to_u8(n) + ord('0'))
 
-    if 10 <= n <= 37:
-        return chr(to_u8(n - 11) + to_u8(97))
+    if 10 <= n < 36:
+        return chr(to_u8(n - 10) + ord('a'))
 
+    if n == 36:
+        return '='
 
 def to_u8(i):
     return i % 2 ** 8
@@ -265,7 +270,7 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-    flag = generate_random_string(31) + '='
+    flag = generate_random_string(31) +  '='
     print(flag)
     name= str(uuid.uuid4())
     a = put_flag_into_the_service1("10.33.54.127", name, flag)
