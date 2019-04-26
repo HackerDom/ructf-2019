@@ -59,13 +59,24 @@
     chdir: /home/user/sandbox/proxy
     creates: /home/user/sandbox/proxy/proxy
 
-- name: build docker image
+- name: build proxy docker image
   command: docker build --tag=proxy /home/user/sandbox/proxy
 
-- name: start container
+- name: start proxy container
   docker_container:
     name: proxy
     image: proxy
+    network_mode: host
+    restart: yes
+    restart_policy: on-failure
+
+- name: build proxy_v2 docker image
+  command: docker build --tag=proxy_v2 /home/user/sandbox/proxy_v2
+
+- name: start proxy_v2 container
+  docker_container:
+    name: proxy_v2
+    image: proxy_v2
     network_mode: host
     restart: yes
     restart_policy: on-failure
