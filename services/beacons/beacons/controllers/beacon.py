@@ -46,7 +46,7 @@ async def add_beacon(request):
                                                      "creator": str(user.id),
                                                      "photos": [],
                                                      "is_private": is_private},
-                                                     "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
+                                                     "$currentDate": {"createDate": {"$type": "date"}}}, upsert=True)
                    ).upserted_id
 
     await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
@@ -92,7 +92,7 @@ async def add_photo(request, beacon_id):
 
     upserted_id = (await Photo.update_one({"_id": ObjectId(get_random_id())}, {
                                                             "$set": {"photo": photo.body, "beaconId": beacon_id, "is_private": beacon.is_private},
-                                                            "$currentDate": {"createDate": {"$type": "timestamp"}}},
+                                                            "$currentDate": {"createDate": {"$type": "date"}}},
                                                             upsert=True)).upserted_id
 
     await Beacon.update_one({"_id": ObjectId(beacon_id)},
