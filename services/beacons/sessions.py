@@ -4,6 +4,7 @@ from sanic import response
 from inspect import isawaitable
 from random import choices
 import string
+import hashlib
 
 
 User = namedtuple('User', 'id name'.split())
@@ -15,12 +16,15 @@ class Sessions:
         self.login_url = app.config.get('AUTH_LOGIN_URL', None)
         self.cookie_name = 'session'
         self._sessions = {}
-        
-    def _get_cookie(self):
-        return ''.join(choices(string.hexdigits, k=24))
+        self.cookie_generator = self._cookie_gen()
+
+    def _cookie_gen(self, cookie=''):
+        while True:
+            cookie = hashlib.md5(cookie.encode()).hexdigest()
+            yield cookie
             
     def login_user(self, request, user):
-        cookie = self._get_cookie()
+        cookie = next(self.cookie_generator)
         self._sessions[cookie] = {'uid': str(user.id), 'name': user.name}
         resp = response.redirect('/')
         resp.cookies[self.cookie_name] = cookie
