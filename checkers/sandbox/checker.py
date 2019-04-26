@@ -32,17 +32,18 @@ def put(*args):
 	addr = args[ 0 ]
 	flag_id = args[ 1 ]
 	flag = args[ 2 ]
+	vuln = args[ 3 ]
 
 	flag_id = ''.join(random.choice(string.hexdigits) for i in range(32)).upper()
 
-	url = 'http://%s:16780/add_unit?uuid=%s&mind=%s' % ( addr, flag_id, flag )
+	url = 'http://%s:1678%s/add_unit?uuid=%s&mind=%s' % ( addr, vuln, flag_id, flag )
 	headers = { 'User-Agent' : UserAgents.get() }
 	try:
 		r = requests.post(url, headers=headers )
 		if r.status_code == 502:
 			close(DOWN, "Service is down", "Nginx 502")
 		if r.status_code != 200:
-			close( MUMBLE, "Submit error", "Invalid status code: %s %d" % ( url, r.status_code ) )	
+			close( MUMBLE, "Submit error", "Invalid status code: %s %d %s" % ( url, r.status_code, r.text ) )
 
 	except Exception as e:
 		 close(DOWN, "HTTP Error", "HTTP error: %s" % e)
@@ -54,15 +55,16 @@ def get(*args):
 	addr = args[0]
 	flag_id = args[1]
 	flag = args[2]
+	vuln = args[ 3 ]
 
-	url = 'http://%s:16780/get?uuid=%s' % ( addr, flag_id )
+	url = 'http://%s:1678%s/get?uuid=%s' % ( addr, vuln, flag_id )
 	headers = { 'User-Agent' : UserAgents.get() }
 	try:
 		r = requests.get(url, headers=headers )
 		if r.status_code == 502:
 			close(DOWN, "Service is down", "Nginx 502")
 		if r.status_code != 200:
-			close( MUMBLE, "Submit error", "Invalid status code: %s %d" % ( url, r.status_code ) )	
+			close( MUMBLE, "Submit error", "Invalid status code: %s %d %s" % ( url, r.status_code, r.text ) )
 
 		j = json.loads(r.text)
 		if 'mind' in j.keys():
@@ -77,7 +79,7 @@ def get(*args):
 
 
 def info(*args):
-    close(OK, "vulns: 1")
+    close(OK, "vulns: 1:1")
 
 
 COMMANDS = {'check': check, 'put': put, 'get': get, 'info': info}
