@@ -79,7 +79,7 @@ async def get_beacon(request, beacon_id):
     creator = await User.find_one(beacon.creator)
     
     if beacon.is_private and beacon_id not in user.beacons:
-        return json({"name": "Hidden", "comment": "Hidden", "is_private" : True,
+        return json({"name": "Hidden", "comment": "Hidden", "is_private": True,
                      "x": beacon.coord_x, "y": beacon.coord_y,
                      "creator": creator.name, "photos": []})
     

@@ -338,6 +338,8 @@ function viewBeacon(beacon) {
 
     let inviteForm = document.getElementById("write-invite-form");
     inviteForm.classList.add("hidden");
+    let beaconAdditional = document.getElementById("beacon-additional");
+    beaconAdditional.classList.add("hidden");
 
     let beaconPhotosElement = document.getElementById("beacon-photos");
     beaconPhotosElement.innerHTML = "";
@@ -348,6 +350,13 @@ function viewBeacon(beacon) {
 
     let beaconCommentElement = document.getElementById("beacon-comment");
     beaconCommentElement.innerHTML = beaconInfo.comment;
+
+    if (beaconInfo.invite) {
+        beaconAdditional.innerHTML =
+        "This beacon is private. If you want other people view this beacon, you can share them this code: " +
+            beaconInfo.invite + "."
+        beaconAdditional.classList.remove("hidden");
+    }
 
     if (beaconInfo.is_private) {
         beaconAddPhotosFormElement.classList.add("hidden");
