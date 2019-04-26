@@ -52,14 +52,6 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, kMaxUnitsCount * sizeof(Unit), nullptr, GL_DYNAMIC_DRAW);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-	
-	glGenBuffers(kCopyBuffers, m_copyBuffers);
-	for(uint32_t i = 0; i < kCopyBuffers; i++)
-	{
-		glBindBuffer(GL_COPY_WRITE_BUFFER, m_copyBuffers[i]);
-		glBufferData(GL_COPY_WRITE_BUFFER, kMaxUnitsCount * sizeof(Unit), nullptr, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_COPY_WRITE_BUFFER, 0); // unbind
-	}
 
 	glGenBuffers(1, &m_indirectBuffer);
 	glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_indirectBuffer);
@@ -285,11 +277,29 @@ void Units::Simulate(const Texture2D& randomTex)
 		return;
 
 	{
-		if(m_copyBuffersMask == (1 << kCopyBuffers) - 1)
+		if (!m_issuedCopyBuffers.empty())
 		{
-			glBindBuffer(GL_COPY_WRITE_BUFFER, m_copyBuffers[m_curCopyBuffer]);
-			glGetBufferSubData(GL_COPY_WRITE_BUFFER, 0, sizeof(Unit) * m_copyBufferSizes[m_curCopyBuffer], m_units.data());
-			glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+			CopyBuffer& buf = m_issuedCopyBuffers.front();
+			GLenum ret = glClientWaitSync(buf.sync, 0, 0);
+			if (ret == GL_WAIT_FAILED)
+			{
+				CheckError("glClientWaitSync");
+			}
+			else if (ret == GL_ALREADY_SIGNALED || ret == GL_CONDITION_SATISFIED)
+			{
+				glBindBuffer(GL_COPY_WRITE_BUFFER, buf.buffer);
+				glGetBufferSubData(GL_COPY_WRITE_BUFFER, 0, sizeof(Unit) * buf.unitsCopied, m_units.data());
+				glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+			}
+
+			if (ret != GL_TIMEOUT_EXPIRED)
+			{
+				glDeleteSync(buf.sync);
+				buf.sync = 0;
+				buf.unitsCopied = 0;
+				m_freeCopyBuffers.push_back(buf);
+				m_issuedCopyBuffers.pop_front();
+			}
 		}
 
 		uint32_t unitsAdded = AddPendingUnits();
@@ -315,10 +325,23 @@ void Units::Simulate(const Texture2D& randomTex)
 
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		
-		m_copyBufferSizes[m_curCopyBuffer] = m_units.size();
-		glCopyNamedBufferSubData(m_ssbo, m_copyBuffers[m_curCopyBuffer], 0, 0, m_units.size() * sizeof(Unit));
-		m_copyBuffersMask |= 1 << m_curCopyBuffer;
-		m_curCopyBuffer = (m_curCopyBuffer + 1) % kCopyBuffers;
+		CopyBuffer copyBuf;
+		if (m_freeCopyBuffers.empty())
+		{
+			glGenBuffers(1, &copyBuf.buffer);
+			glBindBuffer(GL_COPY_WRITE_BUFFER, copyBuf.buffer);
+			glBufferData(GL_COPY_WRITE_BUFFER, kMaxUnitsCount * sizeof(Unit), nullptr, GL_DYNAMIC_DRAW);
+			glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+		}
+		else
+		{
+			copyBuf = m_freeCopyBuffers.front();
+			m_freeCopyBuffers.pop_front();
+		}
+		glCopyNamedBufferSubData(m_ssbo, copyBuf.buffer, 0, 0, m_units.size() * sizeof(Unit));
+		copyBuf.unitsCopied = m_units.size();
+		copyBuf.sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		m_issuedCopyBuffers.push_back(copyBuf);
 	}
 }
 
