@@ -98,8 +98,10 @@ class Checker:
         except Exception as e:
             result = Verdict.CHECKER_ERROR('', f"Checker caught an error: {e},\n {format_exc()}")
         finally:
-            print(result._public_message, file=sys.stdout)
-            print(result._private_message, file=sys.stderr)
+            if result._public_message:
+                print(result._public_message, file=sys.stdout)
+            if result._private_message:
+                print(result._private_message, file=sys.stderr)
             sys.exit(result._code)
 
     @staticmethod
