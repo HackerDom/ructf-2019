@@ -9,6 +9,8 @@ import struct
 
 @get('/get')
 def GetUnit():
+	print("Get unit request")
+
 	uuid = request.query.uuid
 	if not uuid:
 		abort(400, "Invalid UUID")
@@ -43,6 +45,8 @@ def GetUnit():
 
 @post('/add_unit')
 def AddUnit():
+	print("Add unit request")
+	
 	uuid = request.query.uuid
 	if not uuid:
 		abort(400, "Invalid UUID")
