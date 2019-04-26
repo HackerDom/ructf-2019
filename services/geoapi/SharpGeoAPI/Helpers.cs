@@ -44,7 +44,6 @@ namespace SharpGeoAPI
 
         public static async Task<string> ReadToEndAsync(this Stream stream)
         {
-            stream.Position = 0;
             using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
             {
                 return await reader.ReadToEndAsync();

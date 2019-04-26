@@ -29,8 +29,6 @@ namespace SharpGeoAPI.HTTP.Handlers
         {
             var content = await context.Request.ReadContentAsync();
 
-            await context.Response.Send(200, "");
-
             var request = content.FromJson<UploadObjectRequest>();
 
             var agentInfo = storage.GetAgent(request.AgentId);
@@ -41,11 +39,15 @@ namespace SharpGeoAPI.HTTP.Handlers
                 return;
             }
 
-            var tObject = TerrainObject.Decode(request.Cells);
+            var tObject = new TerrainObject(request.AgentId, GetAgentToken())
+            {
+                Info = request.Info,
+                Cells = request.Cells,
+            };
 
-            terrainObjectStore.UploadTerrainObject(agentInfo.AgentId, GetAgentToken(), tObject);
+            terrainObjectStore.UploadTerrainObject(agentInfo.AgentToken, GetAgentToken(), tObject);
 
-            context.Response.Send(200);
+            await context.Response.Send(200, tObject.IndexKey);
         }
 
         private string GetAgentToken()
@@ -62,7 +64,8 @@ namespace SharpGeoAPI.HTTP.Handlers
         private class UploadObjectRequest
         {
             public string AgentId { get; set; }
-            public byte[] Cells { get; set; }
+            public byte[,] Cells { get; set; }
+            public string Info { get; set; }
         }
     }
 }

@@ -2,21 +2,24 @@
 using System.Text;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace SharpGeoAPI.Models
 {
     public class TerrainObject
     {
-        [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Key { get; set; }
+
+        [JsonIgnore]
+        public ObjectId Id { get; set; }
+
+        public string IndexKey { get; }
 
         public string Info { get; set; }
         public  byte[,] Cells { get; set; }
 
-        private TerrainObject(byte[,] cells)
+        public TerrainObject(string agentKey, string objectKey)
         {
-            this.Cells = cells;
+            IndexKey = agentKey + objectKey;
         }
     }
 }

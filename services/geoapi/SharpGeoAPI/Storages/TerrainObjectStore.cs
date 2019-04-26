@@ -29,7 +29,7 @@ namespace SharpGeoAPI.Storages
 
         public IEnumerable<TerrainObject> GetTerrainObject(string agentName)
         {
-            return terrainObjects.Find(tObject => tObject.Key.StartsWith(agentName)).Limit(settings.SearchLimit).ToList();
+            return terrainObjects.Find(tObject => tObject.IndexKey.StartsWith(agentName)).Limit(settings.SearchLimit).ToList();
         }
 
         public void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject)

@@ -30,19 +30,20 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var agent = new AgentInfo
             {
-                AgentId = GetAgentToken(),
-                AgentKey = request.AgentKey,
+                AgentToken = GetAgentToken(),
+                AgentName = request.AgentName,
             };
+
 
             storage.AddAgent(agent);
 
-            await context.Response.OutputStream.WriteAsync(agent.ToJson().ToBytes());
+            await context.Response.Send(200, agent.ToJson());
             context.Response.Close();
         }
 
         private class RegisterAgentRequests
         {
-            public string AgentKey { get; set; }
+            public string AgentName { get; set; }
         }
 
         private string GetAgentToken()

@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using SharpGeoAPI.HTTP;
 using SharpGeoAPI.Models;
 
@@ -13,11 +14,12 @@ namespace SharpGeoAPI.Storages
             var client = new MongoClient(settings.MongoDBConnectionString);
             var database = client.GetDatabase(settings.MongoDBName);
             agents = database.GetCollection<AgentInfo>(settings.AgentsCollectionName);
+            agents.Indexes.CreateOneAsync(Builders<AgentInfo>.IndexKeys.Ascending(_ => _.AgentToken)).GetAwaiter().GetResult();
         }
 
         public AgentInfo GetAgent(string agentId)
         {
-            return agents.Find(agent => agent.AgentId == agentId).FirstOrDefault();
+            return agents.Find(agent => agent.AgentToken == agentId).FirstOrDefault();
         }
 
         public void AddAgent(AgentInfo agentInfo)
@@ -27,12 +29,12 @@ namespace SharpGeoAPI.Storages
 
         public void UpdateAgent(AgentInfo agentInfo)
         {
-            agents.ReplaceOne(origin => origin.AgentId == agentInfo.AgentId, agentInfo);
+            agents.ReplaceOne(origin => origin.Id == agentInfo.Id, agentInfo);
         }
 
         public void RemoveAgent(AgentInfo agentInfoToDelete)
         {
-            agents.DeleteOne(origin => origin.AgentId == agentInfoToDelete.AgentId);
+            agents.DeleteOne(origin => origin.Id == agentInfoToDelete.Id);
         }
     }
 }
