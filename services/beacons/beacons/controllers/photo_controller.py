@@ -2,8 +2,6 @@ from sanic.response import json
 from sanic.response import raw
 from sanic import Blueprint
 from beacons import auth
-from beacons.repositories.user import User
-from beacons.repositories.beacon import Beacon
 from beacons.repositories.photo import Photo
 from random import shuffle
 

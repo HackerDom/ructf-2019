@@ -313,18 +313,27 @@ function viewBeacon(beacon) {
     if (!beaconInfo) {
         return;
     }
+
+    let beaconPhotosElement = document.getElementById("beacon-photos");
+    beaconPhotosElement.innerHTML = "";
+    let beaconAddPhotosFormElement = document.getElementById("beacon-add-photo-form")
+
     let beaconNameElement = document.getElementById("beacon-name");
     beaconNameElement.innerHTML = beaconInfo.name;
 
     let beaconCommentElement = document.getElementById("beacon-comment");
     beaconCommentElement.innerHTML = beaconInfo.comment;
 
-    let beaconPhotosElement = document.getElementById("beacon-photos");
-    beaconPhotosElement.innerHTML = "";
-
-    beaconInfo.photos.forEach(function(photo) {
-        addPhotoRender(photo);
-    });
+    if (beaconInfo.is_private) {
+        beaconPhotosElement.innerHTML = "You could not have access to this beacon. If you want, you can ask creator " +
+            beaconInfo.creator + " share this beacon."
+        beaconAddPhotosFormElement.classList.add("hidden");
+    } else {
+        beaconAddPhotosFormElement.classList.remove("hidden");
+        beaconInfo.photos.forEach(function(photo) {
+            addPhotoRender(photo);
+        });
+    }
 }
 
 function viewProfile(mapStateObject, ctx) {

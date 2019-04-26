@@ -50,7 +50,7 @@ async def add_beacon(request):
                                                      "photos": [],
                                                      "is_private": is_private,
                                                      "invite": (await get_invite_by_user(user)) if is_private else ''},
-                                                     "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
+                                                     "$currentDate": {"createDate": {"$type": "date"}}}, upsert=True)
                    ).upserted_id
 
     await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
@@ -70,9 +70,11 @@ async def get_beacon(request, beacon_id):
     beacon = await Beacon.find_one(beacon_id)
     
     if beacon.is_private and beacon_id not in user.beacons:
-        return json({"name": "Hidden", "comment": "Hidden", "creator": beacon.creator, "photos": []})
+        return json({"name": "Hidden", "comment": "Hidden", "is_private" : True,
+                     "x": beacon.coord_x, "y": beacon.coord_y,
+                     "creator": beacon.creator, "photos": []})
     
-    return json({"name": beacon.name, "comment": beacon.comment,
+    return json({"name": beacon.name, "comment": beacon.comment, "is_private": False,
                  "x": beacon.coord_x, "y": beacon.coord_y,
                  "creator": beacon.creator, "photos": beacon.photos, "invite": beacon.invite})
 
@@ -105,7 +107,7 @@ async def add_photo(request, beacon_id):
 
     upserted_id = (await Photo.update_one({"_id": ObjectId(get_random_id())}, {
                                                             "$set": {"photo": photo.body, "beaconId": beacon_id, "is_private": beacon.is_private},
-                                                            "$currentDate": {"createDate": {"$type": "timestamp"}}},
+                                                            "$currentDate": {"createDate": {"$type": "date"}}},
                                                             upsert=True)).upserted_id
 
     await Beacon.update_one({"_id": ObjectId(beacon_id)},

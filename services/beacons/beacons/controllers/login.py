@@ -1,6 +1,5 @@
 from sanic.response import redirect
 from sanic import Blueprint
-from sanic import response
 from beacons import jinja
 from beacons import auth
 from beacons.repositories.user import User
