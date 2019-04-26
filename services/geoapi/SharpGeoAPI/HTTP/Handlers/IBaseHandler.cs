@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SharpGeoAPI.HTTP.Handlers
 {
-    internal interface IBaseHandler
+    public interface IBaseHandler
     {
         Task ProcessRequest(HttpListenerContext context);
         string Key { get; }

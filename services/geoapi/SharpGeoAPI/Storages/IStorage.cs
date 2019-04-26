@@ -6,7 +6,7 @@ namespace SharpGeoAPI.Storages
 {
     public interface IStorage
     {
-        AgentSession GetAgent(string agentId);
-        void AddAgent(AgentSession agentSession);
+        AgentInfo GetAgent(string agentId);
+        void AddAgent(AgentInfo agentInfo);
     }
 }

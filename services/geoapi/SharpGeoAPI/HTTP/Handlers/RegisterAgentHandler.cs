@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using SharpGeoAPI.Models;
-using SharpGeoAPI.Models.Geo;
 using SharpGeoAPI.Storages;
 
 namespace SharpGeoAPI.HTTP.Handlers
@@ -22,9 +21,11 @@ namespace SharpGeoAPI.HTTP.Handlers
         {
             var content = await context.Request.ReadContentAsync();
 
+            await context.Response.Send(200, "");
+
             var request = content.FromJson<RegisterAgentRequests>();
 
-            var agent = new AgentSession
+            var agent = new AgentInfo
             {
                 AgentId = CreateNewAgentId(),
                 AgentKey = request.AgentKey,
@@ -32,13 +33,11 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             storage.AddAgent(agent);
 
-
-
             await context.Response.OutputStream.WriteAsync(agent.ToJson().ToBytes());
             context.Response.Close();
         }
 
-        class RegisterAgentRequests
+        private class RegisterAgentRequests
         {
             public string AgentKey { get; set; }
         }

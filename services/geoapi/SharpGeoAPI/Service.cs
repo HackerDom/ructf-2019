@@ -9,57 +9,39 @@ using System.Threading.Tasks;
 using Autofac;
 using log4net;
 using SharpGeoAPI.HTTP.Handlers;
-using SharpGeoAPI.Logic;
 using SharpGeoAPI.Storages;
 
-namespace SharpGeoAPI.HTTP
+namespace SharpGeoAPI
 {
     public class Service
     {
-        private static readonly ContainerBuilder ServiceBuilder;
-
-        private ConcurrentDictionary<string, IBaseHandler> handlers;
-        private ILog log;
-
-
-        static Service()
+        public static Service BuildWithService(Settings settings)
         {
-            ServiceBuilder = new ContainerBuilder();
+            var serviceBuilder = new ContainerBuilder();
+            serviceBuilder.RegisterInstance(settings).As<ISettings>();
+            serviceBuilder.RegisterInstance(LogManager.GetLogger(typeof(Service))).As<ILog>();
+            serviceBuilder.RegisterType<UploadTerrainObjectHandler>().As<IBaseHandler>();
+            serviceBuilder.RegisterType<GetAgentInfoHandler>().As<IBaseHandler>();
+            serviceBuilder.RegisterType<RegisterAgentHandler>().As<IBaseHandler>();
+            serviceBuilder.RegisterType<TerrainObjectStore>().As<ITerrainObjectStore>();
+            serviceBuilder.RegisterType<Storage>().As<IStorage>();
 
-            ServiceBuilder.RegisterInstance(LogManager.GetLogger(typeof(Service))).As<ILog>();
-            RegisterHandlers();
-            RegisterStorages();
-        }
+            var container = serviceBuilder.Build();
 
-        private static void RegisterHandlers()
-        {
-            ServiceBuilder.RegisterType<AgentActionHandler>().As<IBaseHandler>();
-            ServiceBuilder.RegisterType<GetAgentInfoHandler>().As<IBaseHandler>();
-            ServiceBuilder.RegisterType<RegisterAgentHandler>().As<IBaseHandler>();
-            ServiceBuilder.RegisterType<GetAgentInfoHandler>().As<IBaseHandler>();
-        }
-
-        private static void RegisterStorages()
-        {
-            ServiceBuilder.RegisterType<ChunkSaver>().As<IChunkSaver>().SingleInstance();
-            ServiceBuilder.RegisterType<ChunkManager>().As<IChunkManager>().SingleInstance();
-            ServiceBuilder.RegisterType<Storage>().As<IStorage>().SingleInstance();
-        }
-
-        public Service(Settings settings)
-        {
-            InitWithSettings(settings);
-        }
-
-        private void InitWithSettings(Settings settings)
-        {
-            ServiceBuilder.RegisterInstance(settings).As<ISettings>();
-            var container = ServiceBuilder.Build();
-
-            handlers = new ConcurrentDictionary<string, IBaseHandler>(container.Resolve<IEnumerable<IBaseHandler>>()
+            var handlers = new ConcurrentDictionary<string, IBaseHandler>(container.Resolve<IEnumerable<IBaseHandler>>()
                 .ToDictionary(handler => handler.Key, handler => handler));
+            var log = container.Resolve<ILog>();
 
-            log = container.Resolve<ILog>();
+            return new Service(handlers, log);
+        }
+
+        private readonly ConcurrentDictionary<string, IBaseHandler> handlers;
+        private readonly ILog log;
+
+        public Service(ConcurrentDictionary<string, IBaseHandler> handlers, ILog log)
+        {
+            this.handlers = handlers;
+            this.log = log;
         }
 
         public async Task ProcessRequest(SemaphoreSlim semaphoreSlim, HttpListenerContext context)
@@ -82,6 +64,7 @@ namespace SharpGeoAPI.HTTP
             {
                 semaphoreSlim.Release();
             }
+
             context.Response.Close();
         }
 
@@ -90,6 +73,5 @@ namespace SharpGeoAPI.HTTP
             var method = new HttpMethod(context.Request.HttpMethod);
             return $"{method}{context.Request.Url.LocalPath}";
         }
-
     }
 }

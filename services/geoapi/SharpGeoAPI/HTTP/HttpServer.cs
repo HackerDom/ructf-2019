@@ -9,7 +9,7 @@ using SharpGeoAPI.Models;
 
 namespace SharpGeoAPI.HTTP
 {
-    class HttpServer : IDisposable
+    public class HttpServer : IDisposable
     {
         private readonly ILog log;
         private readonly Service service;
@@ -23,8 +23,7 @@ namespace SharpGeoAPI.HTTP
             this.settings = settings;
             this.log = LogManager.GetLogger(typeof(HttpServer));
 
-            service = new Service(settings);
-
+            service = Service.BuildWithService(settings);
             serverThread = new Thread(Listen);
             serverThread.Start();
         }
@@ -44,13 +43,10 @@ namespace SharpGeoAPI.HTTP
             }
         }
 
-
         public void Dispose()
         {
             serverThread.Abort();
             listener.Stop();
         }
-
-       
     }
 }
