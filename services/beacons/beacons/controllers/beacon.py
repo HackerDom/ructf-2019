@@ -1,4 +1,4 @@
-from sanic.response import json
+from sanic.response import json, redirect
 from sanic import Blueprint
 from beacons import auth
 from beacons.repositories.user import User
@@ -35,9 +35,12 @@ async def add_beacon(request):
     coord_y = int(request.form.get("coord_y"))
     is_private = True if request.form.get("isPrivate") == 'on' else False
     
+    if len(user.invites) < 1 and is_private:
+        return json({"error": "Only 200 beacon permit"})
+    
     if await Beacon.find_one({"coord_x": coord_x, "coord_y": coord_y}):
         return json({"error": "Beacon exists"})
-    
+        
     upserted_id = (await Beacon.update_one({"_id": ObjectId(get_random_id())}, {
                                             "$set": {"name": name,
                                                      "comment": comment,
@@ -45,13 +48,17 @@ async def add_beacon(request):
                                                      "coord_y": coord_y,
                                                      "creator": str(user.id),
                                                      "photos": [],
-                                                     "is_private": is_private},
+                                                     "is_private": is_private,
+                                                     "invite": (await get_invite_by_user(user)) if is_private else ''},
                                                      "$currentDate": {"createDate": {"$type": "timestamp"}}}, upsert=True)
                    ).upserted_id
 
     await User.update_one({"_id": user.id}, {"$push": {"beacons": str(upserted_id)}})
     return json({"upserted_id": str(upserted_id)})
 
+async def get_invite_by_user(user):
+    await User.update_one({"_id": user.id}, {"$pop": {"invites": -1}})
+    return user.invites.pop(0)
     
 @beacon_page.route("/<beacon_id>")
 @auth.login_required
@@ -67,8 +74,16 @@ async def get_beacon(request, beacon_id):
     
     return json({"name": beacon.name, "comment": beacon.comment,
                  "x": beacon.coord_x, "y": beacon.coord_y,
-                 "creator": beacon.creator, "photos": beacon.photos})
+                 "creator": beacon.creator, "photos": beacon.photos, "invite": beacon.invite})
 
+@beacon_page.route("/invite/<invite>")
+@auth.login_required
+async def get_beacon_by_invite(request, invite):
+    beacon = await Beacon.find_one({'invite': invite})
+    await User.update_one({"_id": ObjectId(auth.current_user(request).id)}, {"$push": {"beacons": str(beacon.id)}})
+    return json({"name": beacon.name, "comment": beacon.comment,
+                 "x": beacon.coord_x, "y": beacon.coord_y,
+                 "creator": beacon.creator, "photos": beacon.photos, "invite": beacon.invite})
 
 @beacon_page.route("/AddPhoto/<beacon_id>", methods=["POST"])
 @auth.login_required

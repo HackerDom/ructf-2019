@@ -5,6 +5,10 @@ from beacons import jinja
 from beacons import auth
 from beacons.repositories.user import User
 import re
+from random import getrandbits
+from functools import reduce
+from operator import concat
+from uuid import UUID
 
 login_page = Blueprint("login_page", url_prefix="/")
 
@@ -31,6 +35,12 @@ def logout(request):
     del resp.cookies['session']
     return resp
 
+def get_uuid_bytes():
+    return bytes(reduce(concat, (getrandbits(32).to_bytes(4, 'little') for _ in range(4)), bytearray()))
+
+def get_invites():
+    return [str(UUID(bytes=get_uuid_bytes())) for _ in range(200)]
+        
 
 @login_page.route("/Signup", methods=["GET", "POST"])
 @jinja.template("signup.html")
@@ -44,7 +54,8 @@ async def signin(request):
             return {"message": "Username should contains only letters, numbers or _"}
         if not re.match(r"[A-Za-z0-9_]+", password):
             return {"message": "Password should contains only letters, numbers or _"}
-        inserted_id = (await User.insert_one({"name": username, "password": password, "beacons": []})).inserted_id
+        inserted_id = (await User.insert_one(
+                                    {"name": username, "password": password, "beacons": [], "invites": get_invites()})).inserted_id
         user = auth.load_user({"uid": inserted_id, "name": username})
         return auth.login_user(request, user)
     return {"message": ""}
