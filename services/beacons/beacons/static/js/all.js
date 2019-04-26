@@ -234,6 +234,7 @@ function addFormsListener(mapStateObject, ctx) {
             renderFullMap(mapStateObject, ctx);
         }
         inviteFormElement.reset();
+        inviteFormElement.classList.add("hidden");
     });
 }
 
@@ -348,16 +349,12 @@ function viewBeacon(beacon) {
     let beaconCommentElement = document.getElementById("beacon-comment");
     beaconCommentElement.innerHTML = beaconInfo.comment;
 
-    let inviteButtonElement = document.getElementById("invite-button");
-
     if (beaconInfo.is_private) {
         beaconAddPhotosFormElement.classList.add("hidden");
-        inviteButtonElement.classList.remove("hidden");
         beaconPhotosElement.innerHTML = "You could not have access to this beacon. If you want, you can ask " +
             beaconInfo.creator + " share this beacon."
     } else {
         beaconAddPhotosFormElement.classList.remove("hidden");
-        inviteButtonElement.classList.add("hidden");
         beaconInfo.photos.forEach(function(photo) {
             addPhotoRender(photo);
         });
@@ -369,6 +366,12 @@ function viewProfile(mapStateObject, ctx) {
     showSidebarsCard("profile");
     let profileBeaconsElement = document.getElementById("profile-beacons");
     profileBeaconsElement.innerHTML = "";
+
+    let inviteButtonElement = document.getElementById("invite-button");
+    inviteButtonElement.classList.remove("hidden");
+
+    let inviteFormElement = document.getElementById("write-invite-form");
+    inviteFormElement.classList.add("hidden");
 
     let userBeacons = getUserBeacons();
     userBeacons.forEach(function(beacon) {
