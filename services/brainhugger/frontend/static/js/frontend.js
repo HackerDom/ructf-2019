@@ -17,6 +17,20 @@ let registerHead = $("#reg-head");
 let loginHead = $("#login-head");
 let passwordField = $("#password-fld");
 let idField = $("#id-fld");
+let hugButton = $("#hug-btn");
+let bhSource = $("#bh-source");
+
+let rightButton = $("#rht-b");
+let leftBraceButton = $("#lbr-b");
+let rightBraceButton = $("#rbr-b");
+let incButton = $("#inc-b");
+let decButton = $("#dec-b");
+let printButton = $("#prt-b");
+let scanButton = $("#scn-b");
+let leftButton = $("#lft-b");
+
+let buttons = [rightButton, leftBraceButton, rightBraceButton, incButton, decButton, printButton, scanButton, leftButton];
+
 
 function genRandString(length) {
     let res = "";
@@ -39,9 +53,10 @@ function clearCookies() {
 }
 
 function runTask() {
+    console.log($("#bh-source").val());
     let data = JSON.stringify({
-        "source": $("#src-fld").val(),
-        "stdinb64": btoa($("#stdin-fld").val()),
+        "source": $("#bh-source").val(),
+        "stdinb64": btoa($("#bh-stdin").val()),
         "token": token,
     });
     $("#noTrespassingOuterBarG").css("display", "block");
@@ -50,10 +65,10 @@ function runTask() {
         url: "/run_task",
         data: data,
         success: function (data, status, obj) {
-            $("#error-out-fld").text("");
-            $("#stdout-out-fld").text("");
-            $("#stdout-div").css("display", "none");
-            $("#error-div").css("display", "none");
+            // $("#error-out-fld").text("");
+            // $("#stdout-out-fld").text("");
+            // $("#stdout-div").css("display", "none");
+            // $("#error-div").css("display", "none");
             interval = 100;
             timerId = setInterval(checkTask, interval, JSON.parse(data).taskId);
         },
@@ -62,9 +77,9 @@ function runTask() {
                 clearCookies();
                 location.reload();
             }
-            $("#noTrespassingOuterBarG").css("display", "none");
-            $("#error-out-fld").text("Could not connect to server.");
-            $("#error-div").css("display", "block");
+            // $("#noTrespassingOuterBarG").css("display", "none");
+            // $("#error-out-fld").text("Could not connect to server.");
+            // $("#error-div").css("display", "block");
         },
         dataType: "text",
     });
@@ -77,14 +92,18 @@ function checkTask(taskId) {
         success: function (data, status, obj) {
             let task = JSON.parse(data);
             if (task.Status === 0) {
-                $("#stdout-div").css("display", "block");
-                $("#stdout-out-fld").text(atob(task.Stdoutb64));
-                $("#noTrespassingOuterBarG").css("display", "none");
+                // console.log("result", atob(task.Stdoutb64));
+                console.log(atob(task.Stdoutb64));
+                $("#bh-stdout").text(atob(task.Stdoutb64));
+                // $("#stdout-div").css("display", "block");
+                // $("#stdout-out-fld").text(atob(task.Stdoutb64));
+                // $("#noTrespassingOuterBarG").css("display", "none");
                 clearInterval(timerId);
             } else if (task.Status === 2) {
-                $("#error-out-fld").text("Executing error: " + task.Error);
-                $("#error-div").css("display", "block");
-                $("#noTrespassingOuterBarG").css("display", "none");
+                console.log("error", task.Error);
+                // $("#error-out-fld").text("Executing error: " + task.Error);
+                // $("#error-div").css("display", "block");
+                // $("#noTrespassingOuterBarG").css("display", "none");
                 clearInterval(timerId);
             }
         },
@@ -197,6 +216,34 @@ loginButton.click(
         });
     }
 );
+
+hugButton.click(
+    function () {
+        runTask();
+    }
+);
+
+function addSymbol(c) {
+    bhSource.text(bhSource.val() + c);
+}
+
+let id2ops = {
+    "inc": "+",
+    "dec": "-",
+    "rht": ">",
+    "lbr": "[",
+    "scn": ",",
+    "prt": ".",
+    "rbr": "]",
+    "lft": "<",
+};
+
+buttons.forEach(function (button) {
+    button.click(function (event) {
+        let idPref = event.target.id.substr(0, 3);
+        bhSource.text(bhSource.val() + id2ops[idPref]);
+    })
+});
 
 if (getUid() !== undefined) {
     setInterface(Mode.work);

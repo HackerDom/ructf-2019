@@ -189,8 +189,6 @@ hr {
     font-size: 30px;
 }
 
-
-
 #login-form{
     color: #2700cd;
     font-family: 'Audiowide', cursive;
@@ -205,4 +203,45 @@ hr {
     justify-content: center;
     border-radius: 25px;
     box-shadow: 0 0 30px #a200f9;
+}
+
+#bh-source {
+    background-color: black;
+    height: 480px;
+    width: 499px;
+    font-size: 20px;
+}
+
+.bh-text {
+    color: #00FF00;
+}
+
+#bh-stdin {
+    background-color: black;
+    border: none;
+    font-size: 27px;
+    width: 250px;
+    outline: none;
+}
+
+#bh-source {
+    border: none;
+    outline: none
+}
+
+#bh-stdout {
+    width: 100%;
+    height: 100px;
+    background-color: black;
+    outline: none;
+    border: none;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
+    white-space: nowrap;
+}
+
+#bh-stdout::-webkit-scrollbar {
+    height: 0;
 }
