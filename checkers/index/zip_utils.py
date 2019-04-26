@@ -25,7 +25,7 @@ def create_flag_zip(flag) -> Tuple[str, bytes]:
         n = random.randint(2, 4)
         for i in range(n):
             for ii in range(random.randint(1, 3)):
-                if not is_flag_in and random.randint(1, 2) % 2 == 0:
+                if not is_flag_in:
                     z.writestr(flag, Randomizer.word())
                     is_flag_in = True
                 else:
