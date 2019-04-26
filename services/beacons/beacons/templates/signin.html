@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
+    <link href="/static/css/signin.css" rel="stylesheet">
     <meta charset="UTF-8">
     <title></title>
 </head>
 <body>
-    <div>Это типа страничка с регистрацией</div>
-    <div>{{ message }}</div>
-    <form action="Signin" method="post">
-        <input type="text" name="username" maxlength="40"><br>
-        <input type="password" name="password" maxlength="40"><br>
-        <input type="submit">
-        <a href="/Signup">Register</a>
-    </form>
+    <div class="sign-container">
+        <div class="sign-desc">
+            Hello! You are in a simulation. This map should help you. <br>
+            Make beacons, attach photos of the area, share beacons with friends and try to find exit in reality!<br>
+            Firstly, you should to sign in.
+        </div>
+        <div class="sign-error">{{ message }}</div>
+        <form action="Signin" method="post">
+            <input class="text-input" type="text" name="username" maxlength="40"><br>
+            <input class="text-input" type="password" name="password" maxlength="40"><br>
+            <div class="buttons">
+                <input class="submit-button" type="submit" value="Submit">
+                <a class="other-button" href="/Signup">Register</a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

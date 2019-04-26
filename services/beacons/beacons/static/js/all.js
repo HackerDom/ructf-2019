@@ -370,6 +370,7 @@ function viewProfile(mapStateObject, ctx) {
         let beaconDiv = document.createElement("div");
 
         let buttonGoToBeacon = document.createElement("button");
+        buttonGoToBeacon.innerHTML = "Go to beacon";
         buttonGoToBeacon.addEventListener('click', function(event) {
             let selected = {"id": beacon.id, "coord_x": beacon.x, "coord_y": beacon.y}
 
@@ -387,6 +388,9 @@ function viewProfile(mapStateObject, ctx) {
 
         profileBeaconsElement.appendChild(beaconDiv);
     });
+    if (userBeacons.length == 0) {
+        profileBeaconsElement.innerHTML = "You have no beacons yet."
+    }
 }
 
 function viewLatest(mapStateObject, ctx) {
@@ -400,6 +404,7 @@ function viewLatest(mapStateObject, ctx) {
         let imgDiv = document.createElement("div");
 
         let buttonGoToBeacon = document.createElement("button");
+        buttonGoToBeacon.innerHTML = "Go to beacon";
         buttonGoToBeacon.addEventListener('click', function(event) {
             let beacon = getBeacon(photo["beaconId"]);
             let selected = {"id": photo["beaconId"], "coord_x": beacon.x, "coord_y": beacon.y}
@@ -418,6 +423,9 @@ function viewLatest(mapStateObject, ctx) {
 
         latestPhotosElement.appendChild(imgDiv);
     });
+    if (latest.length == 0) {
+        latestPhotosElement.innerHTML = "There is nothing here yet."
+    }
 }
 
 function setDeviceModel(imgElement, deviceModelElement) {
