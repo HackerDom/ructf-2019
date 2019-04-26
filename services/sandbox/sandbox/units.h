@@ -80,14 +80,9 @@ private:
 		Unit unit;
 	};
 	std::vector<PendingUnit> m_unitsToAdd;
-
-	std::thread m_flushThread;
-	bool m_stopFlushThread = false;
 	mutable std::mutex m_mutex;
-	bool m_flushStorage = false;
-	std::condition_variable m_condVar;
+
+	FILE* m_storage = nullptr;
 
 	uint32_t AddPendingUnits();
-
-	static void FlushThread(Units* units);
 };

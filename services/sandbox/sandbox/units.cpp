@@ -4,47 +4,6 @@
 #include <random>
 
 
-void Units::FlushThread(Units* units)
-{
-	if(PinThreadToCore(2) != 0)
-	{
-		perror("PinThreadToCore");
-		return;
-	}
-
-	std::unique_lock<std::mutex> lock(units->m_mutex);
-
-	while(!units->m_stopFlushThread)
-	{
-		while(!units->m_flushStorage)
-			units->m_condVar.wait(lock);
-
-		timespec tp;
-		clock_gettime( CLOCK_REALTIME, &tp );
-		double startTime = tp.tv_sec + tp.tv_nsec / 1000000000.0;
-
-		FILE* f = fopen("storage.dat", "w");
-		fseek(f, 0, SEEK_SET);
-		for(auto& iter : units->m_uuidToIdx)
-		{
-			fwrite(iter.first.data(), iter.first.size(), 1, f);
-			Unit& unit = units->m_units[iter.second];
-			fwrite(&unit, sizeof(Unit), 1, f);
-		}
-
-		units->m_flushStorage = false;
-		fflush(f);
-		fclose(f);
-
-		clock_gettime( CLOCK_REALTIME, &tp );
-		double endTime = tp.tv_sec + tp.tv_nsec / 1000000000.0;
-		printf("Units storage flushed, time: %f\n", endTime - startTime);
-	}
-
-	printf("Flush thread stopped\n");
-}
-
-
 bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 {
 	m_visualizationVs = new VertexShader("shaders/unit.vert");
@@ -111,12 +70,12 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 	m_fieldSizeY = fieldSizeY;
 	m_units.reserve(kMaxUnitsCount);
 
-	FILE* storage = fopen("storage.dat", "rb");
-	if(storage)
+	m_storage = fopen("storage.dat", "rb+");
+	if(m_storage)
 	{
-		fseek(storage, 0, SEEK_END);
-		size_t fileSize = ftell(storage);
-		fseek(storage, 0, SEEK_SET);
+		fseek(m_storage, 0, SEEK_END);
+		size_t fileSize = ftell(m_storage);
+		fseek(m_storage, 0, SEEK_SET);
 
 		UUID uuid;
 		size_t recordSize = uuid.size() + sizeof(Unit);
@@ -130,14 +89,14 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 			for(size_t i = 0; i < recordsNum; i++)
 			{
 				UUID uuid;
-				if(fread(uuid.data(), uuid.size(), 1, storage) != 1)
+				if(fread(uuid.data(), uuid.size(), 1, m_storage) != 1)
 				{
 					printf("Failed to read storage\n");
 					break;
 				}
 
 				Unit unit;
-				if(fread(&unit, sizeof(Unit), 1, storage) != 1)
+				if(fread(&unit, sizeof(Unit), 1, m_storage) != 1)
 				{
 
 					printf("Failed to read storage\n");
@@ -149,7 +108,6 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 				m_uuidToIdx[uuid] = idx;
 			}
 		}
-		fclose(storage);
 
 		if(m_units.size())
 		{
@@ -160,8 +118,12 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 		printf("Units restored from storage: %u\n", m_units.size());
 	}
-
-	m_flushThread = std::thread(&Units::FlushThread, this);
+	else
+	{
+		FILE* c = fopen("storage.dat", "w");
+		fclose(c);
+		m_storage = fopen("storage.dat", "rb+");
+	}
 
 	return true;
 }
@@ -169,11 +131,6 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 
 void Units::Shutdown()
 {
-	m_stopFlushThread = true;
-	m_flushStorage = true;
-	m_condVar.notify_one();
-	m_flushThread.join();
-
 	if (m_vao)
 	{
 		glDeleteVertexArrays(1, &m_vao);
@@ -219,14 +176,17 @@ void Units::Shutdown()
 		delete m_simulationCs;
 		m_simulationCs = nullptr;
 	}
+	
+	fflush(m_storage);
+	fclose(m_storage);
 }
 
 
 Units::EAddResult Units::AddUnit(const UUID& uuid, uint32_t mind[8])
 {
-	std::lock_guard<std::mutex> lck (m_mutex);
+	std::lock_guard<std::mutex> lck(m_mutex);
 
-	if (m_units.size() >= kMaxUnitsCount)
+	if (m_uuidToIdx.size() + m_unitsToAdd.size() >= kMaxUnitsCount)
 	{
 		printf("Too much units in simulation\n");
 		return kAddTooMuchUnits;
@@ -281,29 +241,31 @@ const Unit* Units::GetUnit(const UUID& uuid)
 
 uint32_t Units::GetUnitsNumber() const
 {
-	std::lock_guard<std::mutex> lck(m_mutex);
 	return m_units.size();
 }
 
 
 uint32_t Units::AddPendingUnits()
 {
-	m_flushStorage = !m_unitsToAdd.empty();
-
-	uint32_t ret = 0;
+	std::lock_guard<std::mutex> lck(m_mutex);
+	
+	uint32_t ret = m_unitsToAdd.size();
 	for (auto& u : m_unitsToAdd)
 	{
 		u.unit.index = m_units.size();
 		m_uuidToIdx[u.uuid] = u.unit.index;
 		m_units.push_back(u.unit);
-		ret++;
+		
+		size_t recordSize = u.uuid.size() + sizeof(Unit);
+		fseek(m_storage, recordSize * u.unit.index, SEEK_SET);
+		fwrite(u.uuid.data(), u.uuid.size(), 1, m_storage);
+		fwrite(&u.unit, sizeof(Unit), 1, m_storage);
 	}
 	m_unitsToAdd.clear();
-
-	if(m_flushStorage)
-		printf("Number of units: %u\n", m_units.size());
-
-	m_condVar.notify_one();
+	fflush(m_storage);
+	
+	if(ret)
+		printf("Number of units: %u %u\n", m_units.size(), m_uuidToIdx.size());
 
 	return ret;
 }
@@ -315,8 +277,6 @@ void Units::Simulate(const Texture2D& randomTex)
 		return;
 
 	{
-		std::lock_guard<std::mutex> lck (m_mutex);
-
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssbo);
 		//if(m_units.size())
 		//	glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Unit) * m_units.size(), m_units.data());
