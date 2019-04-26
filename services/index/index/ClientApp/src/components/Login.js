@@ -43,31 +43,29 @@ class Login extends React.Component {
 
     render() {
         const { login, pwd } = this.state;
-        return <Container>
-            <Col sm={12} md={{ size: 4, offset: 4 }}>
-                <Alert color="info">You also can register here, just use unique login :)</Alert>
-                <Form onSubmit={this.submitForm} id="loginForm">
-                    <FormGroup row>
-                        <Label for="login" sm={3}>Login</Label>
-                        <Col sm={9}>
-                            <Input type="text" name="login" id="login" value={login} onChange={this.handleChange} />
-                        </Col>
-                    </FormGroup>
-                    <FormGroup row>
-                        <Label for="pwd" sm={3}>Password</Label>
-                        <Col sm={9}>
-                            <Input type="password" name="pwd" id="pwd" value={pwd} onChange={this.handleChange} />
-                        </Col>
-                    </FormGroup>
-                    <FormGroup check row>
-                        <Col sm={{ size: 20, offset: 3 }}>
-                            <Button>Submit</Button>
-                        </Col>
-                    </FormGroup>
-                </Form>
-                {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
-            </Col>
-        </Container>;
+        return <div className='login-form'>
+            <Alert className='text-center' color="info">You also can register here, just use unique login :)</Alert>
+            <Form onSubmit={this.submitForm} id="loginForm">
+                <FormGroup row>
+                    <Label className="label light-purple" for="login" sm={3}>Login</Label>
+                    <Col sm={9}>
+                        <Input type="text" name="login" id="login" value={login} onChange={this.handleChange}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup row>
+                    <Label className="label light-purple" for="pwd" sm={3}>Password</Label>
+                    <Col sm={9}>
+                        <Input type="password" name="pwd" id="pwd" value={pwd} onChange={this.handleChange}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup check row>
+                    <Col sm={{ size: 20, offset: 3 }}>
+                        <Button>Submit</Button>
+                    </Col>
+                </FormGroup>
+            </Form>
+            {this.state.error && <Alert color="danger">{this.state.error}</Alert>}
+        </div>
     }
 }
 

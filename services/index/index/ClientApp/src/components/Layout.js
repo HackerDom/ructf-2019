@@ -19,7 +19,7 @@ class Layout extends Component {
         return (
             <div>
                 <NavMenu fetchUser={this.props.fetchUser} removeUser={this.props.removeUser} history={this.props.history}/>
-                <Container>
+                <Container className='main-container'>
                     {this.props.children}
                 </Container>
             </div>

@@ -6,6 +6,7 @@
     src: local('Audiowide Regular'), local('Audiowide-Regular'), url(https://fonts.gstatic.com/s/audiowide/v7/l7gdbjpo0cum0ckerWCdmA_OMRlABolM.woff2) format('woff2');
     unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
 /* latin */
 @font-face {
     font-family: 'Audiowide';
@@ -20,10 +21,28 @@ body {
     background-color: #360056;
 }
 
-.yellow-main{
-    color: #fff42f !important;
+.yellow-main {
+    color: #bcb41c !important;
 }
 
-.m-r-s{
-    margin-right: 5px;
+.main-container {
+    min-width: 800px;
+}
+
+.label {
+    text-align: right;
+}
+
+button {
+    background-color: #bcb41c !important;
+    color: #6c6414 !important;
+}
+
+.login-form {
+    margin: 0 20%;
+}
+
+input {
+    background-color: #acacac !important;
+    border: none !important;
 }
