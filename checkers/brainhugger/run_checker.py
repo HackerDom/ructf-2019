@@ -1,6 +1,7 @@
 from subprocess import check_output, Popen, PIPE
 from time import sleep
-
+from random import random
+from os import fork
 from generators import generate_string
 
 
@@ -51,7 +52,6 @@ def run():
     cycle = 0
     while True:
         try:
-            sleep(1)
             print("Cycle:", cycle)
             if check() is None:
                 continue
@@ -63,10 +63,24 @@ def run():
                 get(flag_id, flag, vuln)
             cycle += 1
             print()
+            # sleep(1)
         except KeyboardInterrupt:
             print("\nstop")
             break
 
 
-if __name__ == '__main__':
+def sr():
+    sleep(random())
+
+
+def main():
+     for _ in range(3):
+         sr()
+         fork()
     run()
+
+
+if __name__ == '__main__':
+    main()
+
+
