@@ -9,13 +9,13 @@
     <div class="sign-container">
         <div class="sign-desc">
             Hello! You are in a simulation. This map should help you. <br>
-            Make beacons, attach photos of the area, share beacons with friends and try to find exit in reality!<br>
-            Firstly, you should to sign up.
+            Make beacons, attach photos of the area, share beacons with friends and try to find the way to reality!<br>
+            Firstly, you should sign up.
         </div>
         <div class="sign-error">{{ message }}</div>
         <form action="Signup" method="post">
-            <input class="text-input" type="text" name="username" maxlength="5"><br>
-            <input class="text-input" type="password" name="password" maxlength="40"><br>
+            <input class="text-input" required type="text" name="username" maxlength="5"><br>
+            <input class="text-input" required type="password" name="password" maxlength="40"><br>
             <div class="buttons">
                 <input class="submit-button" type="submit" value="Submit">
                 <a class="other-button" href="/Signin">Sign in</a>

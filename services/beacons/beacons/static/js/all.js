@@ -368,9 +368,11 @@ function viewProfile(mapStateObject, ctx) {
     let userBeacons = getUserBeacons();
     userBeacons.forEach(function(beacon) {
         let beaconDiv = document.createElement("div");
+        beaconDiv.classList.add("profile-beacon");
 
         let buttonGoToBeacon = document.createElement("button");
         buttonGoToBeacon.innerHTML = "Go to beacon";
+        buttonGoToBeacon.classList.add("button-button");
         buttonGoToBeacon.addEventListener('click', function(event) {
             let selected = {"id": beacon.id, "coord_x": beacon.x, "coord_y": beacon.y}
 

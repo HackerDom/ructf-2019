@@ -26,7 +26,7 @@ async def add_beacon(request):
     name = request.form.get("name")
     comment = request.form.get("comment")
 
-    if len(name) > 40:
+    if len(name) > 25:
         return {"message": "Name must be less then 40 symbols"}
     if len(comment) > 255:
         return {"message": "Comment must be less then 255 symbols"}
