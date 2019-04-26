@@ -74,10 +74,12 @@ private:
 	{
 		GLuint buffer;
 		GLsync sync;
+		uint32_t offset;
 		uint32_t unitsCopied;
 	};
 	std::list<CopyBuffer> m_freeCopyBuffers;
 	std::list<CopyBuffer> m_issuedCopyBuffers;
+	uint32_t m_curCopyOffsetInUnits = 0;
 
 	uint32_t m_fieldSizeX;
 	uint32_t m_fieldSizeY;
