@@ -89,7 +89,7 @@ namespace index.Helpers
                 root = child;
             }
 
-            return root.Children.Select(n => n.Name).ToList();
+            return root.Children.Select(n => $"{n.Name}{(n.Children.Count != 0 ? "/" : "")}").ToList();
         }
 
         private void AddNodes(Node current, string filePath, string fileName)
