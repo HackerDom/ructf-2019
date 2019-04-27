@@ -12,11 +12,11 @@
   copy: src=motd dest=/etc/motd
 
 # example of installing packages
-#- name: install packages
-#  apt: 
-#    #update_cache: yes
-#    name:
-#      - cowsay
+- name: install packages
+  apt: 
+    #update_cache: yes
+    name:
+      - nginx
 
 - name: create autostart dir
   file: 
@@ -43,9 +43,20 @@
       - "--exclude=build_so.sh"
   notify: enable and restart services
 
-- name: fix permissions
+- name: fix permissions /home/user/sandbox
   file: name=/home/user/sandbox owner=user group=user recurse=yes state=directory
-  file: name=/home/user/sandbox/static owner=nginx group=nginx recurse=yes state=directory
+
+- name: fix permissions /home/user/sandbox/static
+  file: name=/home/user/sandbox/static owner=www-data group=www-data recurse=yes state=directory
+
+- name: fix permissions /home
+  file: name=/home mode=+x
+
+- name: fix permissions /home/user
+  file: name=/home/user mode=+x
+
+- name: fix permissions /home/user/sandbox
+  file: name=/home/user/sandbox mode=+x
 
 - name: build sandbox executable
   command: make -j8
