@@ -13,7 +13,6 @@ import base64
 import io
 import string
 import random
-import uuid
 Checker.INFO = "1"
 
 RUSTPORT = 7878
@@ -41,9 +40,14 @@ def check_result(result, out):
 
 @Checker.define_check
 async def check_service(host: str) -> Verdict:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(check(host))
 
+
+async def check(host: str) -> Verdict:
     password = generate_random_string()
-    src_name = generate_random_string(31) + '='
+    src_name = generate_random_string(31)
     message = generate_random_string()
     result = rustClient.create_source(src_name, password, False, host)
     a = None
@@ -80,7 +84,6 @@ async def check_service(host: str) -> Verdict:
     return Verdict.OK()
 
 
-
 @Checker.define_put(vuln_num=1)
 def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
@@ -100,7 +103,13 @@ def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
 
 
 @Checker.define_get(vuln_num=1)
-async def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
+def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(get_flag(host, flag_id, flag))
+
+
+async def get_flag(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
