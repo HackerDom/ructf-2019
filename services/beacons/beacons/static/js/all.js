@@ -357,15 +357,15 @@ function viewBeacon(beacon) {
 
     if (beaconInfo.invite) {
         beaconAdditional.innerHTML =
-        "This beacon is private. If you want other people view this beacon, you can share them this code: </br><span class=\"bold\">" +
+        "This beacon is private.<br/> If you want share it to other people, send them this code: </br><span class=\"bold\">" +
             beaconInfo.invite + "</span>."
         beaconAdditional.classList.remove("hidden");
     }
 
     if (beaconInfo.is_private) {
         beaconAddPhotosFormElement.classList.add("hidden");
-        beaconPhotosElement.innerHTML = "You could not have access to this beacon. If you want, you can ask " +
-            beaconInfo.creator + " share this beacon."
+        beaconPhotosElement.innerHTML = "You could not access to this beacon. If you want, you can ask " +
+            beaconInfo.creator + " to share it."
     } else {
         beaconAddPhotosFormElement.classList.remove("hidden");
         beaconInfo.photos.forEach(function(photo) {
