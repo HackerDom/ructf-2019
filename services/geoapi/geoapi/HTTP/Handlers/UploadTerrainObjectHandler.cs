@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using geoapi.Models;
 using geoapi.Storages;
@@ -8,14 +9,14 @@ namespace geoapi.HTTP.Handlers
 {
     public class UploadTerrainObjectHandler : BaseHandler
     {
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
         private readonly ITerrainObjectStore terrainObjectStore;
         private readonly ISettings settings;
 
 
-        public UploadTerrainObjectHandler(IStorage storage, ITerrainObjectStore terrainObjectStore, ISettings settings) : base("PUT", "object")
+        public UploadTerrainObjectHandler(IAgentStorage agentStorage, ITerrainObjectStore terrainObjectStore, ISettings settings) : base("PUT", "object")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
             this.terrainObjectStore = terrainObjectStore;
             this.settings = settings;
         }
@@ -23,10 +24,13 @@ namespace geoapi.HTTP.Handlers
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
             var content = await context.Request.ReadContentAsync();
+            
+            //context.Request.InputStream.
 
             var request = content.FromJson<UploadObjectRequest>();
 
-            var agentInfo = storage.GetAgent(request.AgentId);
+
+            var agentInfo = agentStorage.GetAgent(request.AgentId);
 
             if (agentInfo == null)
             {
@@ -34,7 +38,7 @@ namespace geoapi.HTTP.Handlers
                 return;
             }
 
-            var tObject = new TerrainObject(request.AgentId, GenerateId(settings.ObjectIdSize))
+            var tObject = new TerrainObject(request.AgentId, GenerateId(settings.ObjectIdSize), DateTime.UtcNow)
             {
                 Info = request.Info,
                 Cells = request.Cells,
@@ -46,13 +50,6 @@ namespace geoapi.HTTP.Handlers
         }
 
 
-
-        private class UploadObjectRequest
-        {
-            public string AgentId { get; set; }
-            public byte[,] Cells { get; set; }
-            public string Info { get; set; }
-        }
     }
 }
  

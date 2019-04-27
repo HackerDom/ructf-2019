@@ -27,7 +27,7 @@ namespace geoapi.HTTP
             serviceBuilder.RegisterType<GetTerrainObjectHandler>().As<IBaseHandler>();
             serviceBuilder.RegisterType<RegisterAgentHandler>().As<IBaseHandler>();
             serviceBuilder.RegisterType<TerrainObjectStore>().As<ITerrainObjectStore>();
-            serviceBuilder.RegisterType<Storage>().As<IStorage>();
+            serviceBuilder.RegisterType<AgentStorage>().As<IAgentStorage>();
 
             var container = serviceBuilder.Build();
 

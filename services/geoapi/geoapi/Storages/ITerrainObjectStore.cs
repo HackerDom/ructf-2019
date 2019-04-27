@@ -6,7 +6,7 @@ namespace geoapi.Storages
     public interface ITerrainObjectStore
     {
         TerrainObject GetTerrainObject(string objectId);
-        void UploadTerrainObject( TerrainObject terrainObject);
-        IEnumerable<TerrainObject> GetTerrainObjects(string ownerIndex, int skip, int take);
+        void UploadTerrainObject(TerrainObject terrainObject);
+        IEnumerable<TerrainObject> GetTerrainObjects(string agentToken, int skip, int take);
     }
 }

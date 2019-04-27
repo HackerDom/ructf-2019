@@ -8,12 +8,12 @@ namespace geoapi.HTTP.Handlers
 {
     public class RegisterAgentHandler : BaseHandler
     {
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
         private readonly ISettings settings;
 
-        public RegisterAgentHandler(IStorage storage, ISettings settings) : base("POST", "agent")
+        public RegisterAgentHandler(IAgentStorage agentStorage, ISettings settings) : base("POST", "agent")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
             this.settings = settings;
         }
 
@@ -29,16 +29,10 @@ namespace geoapi.HTTP.Handlers
                 AgentName = request.AgentName,
             };
 
-            storage.AddAgent(agent);
+            agentStorage.AddAgent(agent);
 
             await context.Response.Send(200, agent.ToJson());
             context.Response.Close();
         }
-
-        private class RegisterAgentRequests
-        {
-            public string AgentName { get; set; }
-        }
-
     }
 }

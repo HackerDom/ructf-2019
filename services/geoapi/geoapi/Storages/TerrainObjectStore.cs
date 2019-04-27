@@ -27,9 +27,9 @@ namespace geoapi.Storages
             return terrainObjects.Find(tobjcet => tobjcet.IndexKey == objectId).FirstOrDefault();
         }
 
-        public IEnumerable<TerrainObject> GetTerrainObjects(string agentName, int skip, int take)
+        public IEnumerable<TerrainObject> GetTerrainObjects(string agentToken, int skip, int take)
         {
-            return terrainObjects.Find(tObject => tObject.IndexKey.StartsWith(agentName))
+            return terrainObjects.Find(tObject => tObject.IndexKey.StartsWith(agentToken))
                     .Skip(skip)
                     .Limit(Math.Max(take - skip, settings.SearchLimit))
                     .ToList();

@@ -2,24 +2,25 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using geoapi.HTTP.Handlers;
 using geoapi.Utils;
 using log4net;
 
 namespace geoapi.HTTP
 {
-    public class HttpServer : IDisposable
+    public class HttpServer : IDisposable, ILoggerProvider
     {
         private readonly ILog log;
-        private readonly Service service;
-        private readonly Settings settings;
+        private Service service;
+        private Settings settings;
 
-        private readonly Thread serverThread;
+        private Thread serverThread;
         private HttpListener listener;
 
         public HttpServer(Settings settings)
         {
             this.settings = settings;
-            this.log = LogManager.GetLogger(typeof(HttpServer));
+            this.log = GetLog();
 
             service = Service.BuildWithService(settings);
             serverThread = new Thread(Listen);
@@ -44,6 +45,11 @@ namespace geoapi.HTTP
         public void Dispose()
         {
             listener.Stop();
+        }
+
+        public ILog GetLog()
+        {
+            return LogManager.GetLogger(GetType());
         }
     }
 }

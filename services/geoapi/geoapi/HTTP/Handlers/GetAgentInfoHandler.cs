@@ -8,18 +8,18 @@ namespace geoapi.HTTP.Handlers
     public class GetAgentInfoHandler : BaseHandler
     {
         private static string QueryAgentParameter => "AgentKey";
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
 
-        public GetAgentInfoHandler(IStorage storage) : base("GET", "agent")
+        public GetAgentInfoHandler(IAgentStorage agentStorage) : base("GET", "agent")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
         }
 
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
             var key = context.Request.QueryString[QueryAgentParameter];
 
-            var agent = storage.GetAgent(key);
+            var agent = agentStorage.GetAgent(key);
 
             if (agent == null)
             {

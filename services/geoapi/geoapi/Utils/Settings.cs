@@ -9,6 +9,7 @@ namespace geoapi.Utils
         public string MongoDBConnectionString { get; set; } = "mongodb://localhost:27017";
         public string AgentsCollectionName { get; set; } = "AgentsCollection";
         public string TObjectsCollectionName { get; set; } = "TObjecstCollection";
+        public int MaxContentLength { get; set; }
         public int AgentIdSize { get; set; } = 12;
         public int ObjectIdSize { get; set; } = 12;
         public int SearchLimit { get; set; } = 100;

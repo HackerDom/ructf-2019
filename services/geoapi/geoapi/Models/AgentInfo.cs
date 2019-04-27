@@ -1,4 +1,6 @@
-﻿using MongoDB.Bson;
+﻿using System;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace geoapi.Models
@@ -11,5 +13,8 @@ namespace geoapi.Models
         public string AgentToken { get; set; }
 
         public string AgentName { get; set; }
+
+        [BsonElement("expireAt")]
+        public DateTime ExpireAt;
     }
 }

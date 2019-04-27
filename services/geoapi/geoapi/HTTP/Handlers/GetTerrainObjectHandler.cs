@@ -8,12 +8,12 @@ namespace geoapi.HTTP.Handlers
     public class GetTerrainObjectHandler : BaseHandler
     {
 
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
         private readonly ITerrainObjectStore terrainObjectStore;
 
-        public GetTerrainObjectHandler(IStorage storage, ITerrainObjectStore terrainObjectStore) : base("GET", "object")
+        public GetTerrainObjectHandler(IAgentStorage agentStorage, ITerrainObjectStore terrainObjectStore) : base("GET", "object")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
             this.terrainObjectStore = terrainObjectStore;
         }
 
@@ -23,7 +23,7 @@ namespace geoapi.HTTP.Handlers
 
             var agentKey = context.Request.QueryString[AgentKeyParameter];
 
-            var agent = storage.GetAgent(agentKey);
+            var agent = agentStorage.GetAgent(agentKey);
 
             if (agent == null)
             {

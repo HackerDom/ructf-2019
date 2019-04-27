@@ -4,11 +4,11 @@ using MongoDB.Driver;
 
 namespace geoapi.Storages
 {
-    class Storage : IStorage
+    class AgentStorage : IAgentStorage
     {
         private readonly IMongoCollection<AgentInfo> agents;
 
-        public Storage(ISettings settings)
+        public AgentStorage(ISettings settings)
         {
             var client = new MongoClient(settings.MongoDBConnectionString);
             var database = client.GetDatabase(settings.MongoDBName);

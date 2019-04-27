@@ -7,13 +7,12 @@ namespace geoapi.HTTP.Handlers
 {
     public class GetTerrainObjectsHandler : BaseHandler
     {
-        private readonly IStorage storage;
+        private readonly IAgentStorage agentStorage;
         private readonly ITerrainObjectStore terrainObjectStore;
 
-        public GetTerrainObjectsHandler(IStorage storage, ITerrainObjectStore terrainObjectStore) : base("GET",
-            "objects")
+        public GetTerrainObjectsHandler(IAgentStorage agentStorage, ITerrainObjectStore terrainObjectStore) : base("GET","objects")
         {
-            this.storage = storage;
+            this.agentStorage = agentStorage;
             this.terrainObjectStore = terrainObjectStore;
         }
 
@@ -21,7 +20,7 @@ namespace geoapi.HTTP.Handlers
         {
             var agentKey = context.Request.QueryString[AgentKeyParameter];
             
-            var agent = storage.GetAgent(agentKey);
+            var agent = agentStorage.GetAgent(agentKey);
             if (agent == null)
             {
                 await context.Response.Send(404, "Object not found");
@@ -44,7 +43,5 @@ namespace geoapi.HTTP.Handlers
 
             await context.Response.Send(200, terrainObjects.ToJson());
         }
-
-
     }
 }
