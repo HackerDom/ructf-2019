@@ -54,7 +54,7 @@ def is_processing_by_worker(team_ip, vuln):
 
 
 def get_team_state(team_ip, vuln):
-    return _execute("select put from teams_state where team_ip=%s and vuln=%s;", ( team_ip, vuln))
+    return _execute("select state from teams_state where team_ip=%s and vuln=%s;", ( team_ip, vuln))
 
 
 # makes state of worker directly to down (use ONLY THIS function for that purpose)
@@ -70,16 +70,13 @@ def set_down_state(worker_id):
 
 
 # time updates automatically
-def update_team_state(team_ip, vuln, put_state=None, get_state=None):
+def update_team_state(team_ip, vuln, put_state):
     data = _execute("select * from teams_state where team_ip=%s and vuln=%s;", (team_ip, vuln))
     if not data:
-        _execute('insert into teams_state (team_ip, vuln, put, get) values (%s, %s, %s, %s);',
-                 (team_ip, vuln, put_state, get_state))
+        _execute('insert into teams_state (team_ip, vuln, state) values (%s, %s, %s);',
+                 (team_ip, vuln, put_state))
     else:
-        if put_state:
-            _execute("update teams_state set put=%s where team_ip=%s and vuln=%s;", (put_state, team_ip, vuln))
-        if get_state:
-            _execute("update teams_state set get=%s where team_ip=%s and vuln=%s;", (get_state, team_ip, vuln))
+        _execute("update teams_state set state=%s where team_ip=%s and vuln=%s;", (put_state, team_ip, vuln))
 
 
 def add_free_worker(host, port):

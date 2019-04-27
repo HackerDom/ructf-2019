@@ -27,8 +27,7 @@ class Worker:
         self.flag_id = flag_id
         self.flag = flag
         self.vuln = vuln
-        self.put_state = None
-        self.get_state = None
+        self.state = None
 
     def begin_loop(self, loop_seconds):
         loop_thread = threading.Thread(target=self._begin_loop, args=[loop_seconds])
@@ -60,31 +59,30 @@ class Worker:
             if session:
                 break
             if i == 5:
-                self.put_state = 103
+                self.state = 103
                 print("Can't register")
-                print(self.put_state)
-                return f"{self.put_state} // Can't sign in or register user"
+                print(self.state)
+                return f"{self.state} // Can't sign in or register user"
         beacon_name = generator.generate_beacon_name()
         for i in range(7):
             x, y = generator.generate_coords()
             beacon_id = beacons_api.add_beacon(self.team_ip, session, x, y, beacon_name, self.flag)
             if beacon_id:
-                self.put_state = 101
-                print(self.put_state)
-                return str(self.put_state)
-        self.put_state = 103
-        print(self.put_state)
-        return f"{self.put_state} // Can't add new beacon"
+                self.state = 101
+                print(self.state)
+                return str(self.state)
+        self.state = 103
+        print(self.state)
+        return f"{self.state} // Can't add new beacon"
 
     # get state?
     def get(self, user, password):
         print('\ngetting')
         data = phantom_logic.make_request(self.team_ip, user, password)
         print(data)
-        self.get_state = data['code']
 
     def send_state(self):
-        db_manager.update_team_state(self.team_ip, self.vuln, self.put_state, self.get_state)
+        db_manager.update_team_state(self.team_ip, self.vuln, self.state)
 
     def get_current_state(self):
         state = db_manager.get_worker_state(HOST, PORT)

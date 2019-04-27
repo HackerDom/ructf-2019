@@ -39,16 +39,14 @@ vuln INT);
 CREATE TABLE IF NOT EXISTS teams_state
 (team_ip VARCHAR(20) NOT NULL,
 vuln INT NOT NULL,
-put INT CHECK (put in (101, 102, 103, 104, 110)) DEFAULT NULL,
-get INT CHECK (get in (101, 102, 103, 104, 110)) DEFAULT NULL,
+state INT CHECK (state in (101, 102, 103, 104, 110)) DEFAULT NULL,
 refresh_time TIME DEFAULT now(),
 UNIQUE (team_ip, vuln));
 
 CREATE TABLE IF NOT EXISTS teams_state_history
 (team_ip VARCHAR(20),
 vuln INT,
-put INT CHECK (put in (101, 102, 103, 104, 110)),
-get INT CHECK (get in (101, 102, 103, 104, 110)),
+state INT CHECK (state in (101, 102, 103, 104, 110)),
 refresh_time TIME);
 
 
@@ -94,8 +92,8 @@ FOR EACH ROW EXECUTE PROCEDURE make_worker_busy();
 CREATE OR REPLACE FUNCTION move_to_teams_history()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO teams_state_history (team_ip, vuln, put, get, refresh_time)
-    VALUES (OLD.team_ip, OLD.vuln, OLD.put, OLD.get, OLD.refresh_time);
+    INSERT INTO teams_state_history (team_ip, vuln, state, refresh_time)
+    VALUES (OLD.team_ip, OLD.vuln, OLD.state, OLD.refresh_time);
     RETURN OLD;
 END;
 $$ language 'plpgsql';
