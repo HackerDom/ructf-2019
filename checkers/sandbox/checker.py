@@ -36,7 +36,7 @@ def put(*args):
 
 	flag_id = ''.join(random.choice(string.hexdigits) for i in range(32)).upper()
 
-	url = 'http://%s:1678%s/add_unit?uuid=%s&mind=%s' % ( addr, vuln, flag_id, flag )
+	url = 'http://%s:1678%s/add_unit?uuid=%s&mind=%s' % ( addr, int(vuln) - 1, flag_id, flag )
 	headers = { 'User-Agent' : UserAgents.get() }
 	try:
 		r = requests.post(url, headers=headers )
@@ -57,7 +57,7 @@ def get(*args):
 	flag = args[2]
 	vuln = args[ 3 ]
 
-	url = 'http://%s:1678%s/get?uuid=%s' % ( addr, vuln, flag_id )
+	url = 'http://%s:1678%s/get?uuid=%s' % ( addr, int(vuln) - 1, flag_id )
 	headers = { 'User-Agent' : UserAgents.get() }
 	try:
 		r = requests.get(url, headers=headers )

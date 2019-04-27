@@ -1,3 +1,4 @@
+#!/home/cs/miniconda3/bin/python3
 from Checkers.infrastructure.actions import Checker
 from Checkers.infrastructure.verdict import Verdict
 from aiohttp_sse_client import client as sse_client
