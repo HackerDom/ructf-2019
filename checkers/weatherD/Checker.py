@@ -39,9 +39,10 @@ def check_result(result, out):
 
 
 @Checker.define_check
-def check_service(host: str) -> Verdict:
+async def check_service(host: str) -> Verdict:
+
     password = generate_random_string()
-    src_name = str(uuid.uuid4())
+    src_name = generate_random_string(31) + '='
     message = generate_random_string()
     result = rustClient.create_source(src_name, password, False, host)
     a = None
@@ -52,24 +53,31 @@ def check_service(host: str) -> Verdict:
     push_result = rustClient.push_to_source(src_name, password, message, host)
     if not check_result(push_result, a):
         return a
+    fl = True
+    subscribe_req = notificationApiClient.create_subscribe_on_source_request(src_name, token, host)
+    async with sse_client.EventSource(subscribe_req) as event_source:
+        try:
+            async for event in event_source:
+                decode_result = get_flag_from_base64(event.data)
+                if decode_result is None:
+                    continue
 
-    subscribe_result = notificationApiClient.subscribe_on_source(src_name, token, host)
-    if subscribe_result is None:
-        return Verdict.DOWN("network error", "network error")
+                if message in decode_result.upper():
+                    fl = False
+                    break
+        except Exception as e:
+            return Verdict.DOWN("network error", "network error")
 
-    for mess in subscribe_result.iter:
-        decode_result = get_flag_from_base64(mess)
-        if decode_result is None:
-            continue
-
-        if message.upper() in decode_result.upper():
-            return Verdict.OK()
+    if fl:
+        return Verdict.CORRUPT("flag not found", "flag not found")
 
     get_sources_list_result = rustClient.get_sources_list(host)
     if not check_result(get_sources_list_result, a):
         return a
 
-    return Verdict.CORRUPT("flag not found", "flag not found")
+    print(1)
+    return Verdict.OK()
+
 
 
 @Checker.define_put(vuln_num=1)
@@ -132,6 +140,10 @@ def get_flag_from_base64(base64text):
 
 def getImageFromBase64(base64Image) -> Image:
     try:
+        image = open("image.png", "wb")
+        image.write(base64.b64decode(base64Image))
+        image.close()
+
         bytes = base64.b64decode(base64Image)
 
         image = Image.open(io.BytesIO(bytes))
@@ -206,10 +218,6 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-    Checker.run()
-#     flag = generate_random_string(31) + '='
-#     name= str(uuid.uuid4())
-#     a = put_flag_into_the_service1("10.33.54.127", name, flag)
-#
-#     loop = asyncio.get_event_loop()
-#     loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, flag))
+   # Checker.run()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(check_service("10.33.54.127"))
