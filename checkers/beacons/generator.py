@@ -1,5 +1,6 @@
 import random
 import mimesis
+import json
 
 
 def generate_userpass(seed):
@@ -23,12 +24,12 @@ def generate_comment():
 
 # папка указывается уже при загрузке картинки (beacons_api)
 def get_image():
-    image_names = {'44.jpg': 'Apple'}
-    filename = random.choice(list(image_names.keys()))
+    with open('pictures/dict.json', 'rb') as images:
+        image_names = json.load(images)
+        filename = random.choice(list(image_names.keys()))
     return filename, image_names[filename]
 
 
 if __name__ == '__main__':
-    ee = mimesis.Person()
-    print(ee.password(18, True))
+    print()
 

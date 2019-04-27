@@ -37,8 +37,6 @@ def make_request(team_ip, user, password):
 
 # team_ip is without port
 def run_get_logic(driver: PhantomJS, team_ip, user, password):
-    # if team_ip == '127.0.0.1':
-    #     team_ip = 'localhost'
     session_cookie = beacons_api.sign_in(team_ip, user, password)
     print('cookie: ' + session_cookie)
     beacons = beacons_api.get_all_user_beacons(team_ip, session_cookie)
@@ -59,8 +57,8 @@ def run_get_logic(driver: PhantomJS, team_ip, user, password):
         # print(driver.page_source)
         if beacon_id in driver.current_url:
             print('fine')
-
-    return {"code": 101}
+            return {"code": 101}
+    return {'code': 110}
 
 
 if __name__ == '__main__':
