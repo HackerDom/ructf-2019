@@ -99,6 +99,24 @@ html, body {
     border-bottom: 1px dashed #841b40;
 }
 
+.card-container::-webkit-scrollbar {
+    width: 0;
+}
+
+.header {
+    width: 270px;
+}
+
+.card-container {
+    overflow: scroll;
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
+}
+
+.card {
+    height: 626px;
+}
+
 .button-button {
     width: 95px;
 }
@@ -170,6 +188,7 @@ img {
     margin-right: auto;
     position: absolute;
     left: 50%;
+    top: 40%;
     vertical-align: center;
 }
 
@@ -210,4 +229,64 @@ img {
     margin-top: auto;
     margin-bottom: auto;
     display: block;
+}
+
+.checkbox-label {
+    width: 100px;;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+input[type="checkbox"] + label {
+    cursor: pointer;
+    padding-left: 50px;
+    position: relative;
+    font-family: tahoma, sans-serif, arial;
+    line-height: 40px;
+}
+
+input[type="checkbox"] + label::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    vertical-align: middle;
+    padding: 0;
+    height: 24px;
+    width: 34px;
+    margin: 0 5px 0 0;
+    border: 3px solid #510350;
+    border-radius: 15px;
+    background: #e5c9e5;
+}
+
+input[type="checkbox"] + label::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 23px;
+    background: #D35092;
+    border: 1px solid #d3438c;
+    box-shadow: 0 3px 3px rgba(140, 140, 140, .1);
+}
+
+input[type="checkbox"] + label::before,
+input[type="checkbox"] + label::after {
+    -webkit-transition: all .2s ease-out;
+    transition: all .2s ease-out;
+}
+
+input[type="checkbox"]:checked + label::before {
+    background: #352D64;
+    border-color: #510350;
+}
+input[type="checkbox"]:checked + label::after {
+    left: 13px;
 }
