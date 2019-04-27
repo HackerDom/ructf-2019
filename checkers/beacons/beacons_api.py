@@ -13,6 +13,8 @@ def handle_exception(function):
     def wrapper(*args, **kwargs):
         try:
             return function(*args, **kwargs)
+        except requests.exceptions.ConnectionError:
+            raise requests.exceptions.ConnectionError
         except Exception as occurred:
             # print(occurred)
             # print(traceback.format_exc())
@@ -44,7 +46,7 @@ def get_all_user_beacons(host, session):
 @handle_exception
 def register_user(host, user, password):
     session = requests.Session()
-    res = session.post(f'http://{host}:{SERVICE_PORT}/Signup', data={'username': user, 'password': password}, timeout=5)
+    session.post(f'http://{host}:{SERVICE_PORT}/Signup', data={'username': user, 'password': password}, timeout=5)
     return session.cookies.get_dict()['session']
 
 
@@ -60,6 +62,13 @@ def get_beacon_comment(host, session, beacon_id):
     data = requests.get(f'http://{host}:{SERVICE_PORT}/Beacon/{beacon_id}',
                         cookies={'session': session}, timeout=5).content.decode()
     return json.loads(data)['comment']
+
+
+@handle_exception
+def logout(host, session):
+    req = requests.get(f'http://{host}:{SERVICE_PORT}/Logout',
+                       cookies={'session': session}, timeout=5)
+    return req.status_code
 
 
 @handle_exception
