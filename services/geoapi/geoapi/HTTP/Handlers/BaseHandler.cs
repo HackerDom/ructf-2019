@@ -3,7 +3,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace SharpGeoAPI.HTTP.Handlers
+namespace geoapi.HTTP.Handlers
 {
     public abstract class BaseHandler : IBaseHandler
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SharpGeoAPI.Utils
+namespace geoapi.Utils
 {
     public interface ISettings
     {

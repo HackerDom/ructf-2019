@@ -7,12 +7,12 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using geoapi.HTTP.Handlers;
+using geoapi.Storages;
+using geoapi.Utils;
 using log4net;
-using SharpGeoAPI.HTTP.Handlers;
-using SharpGeoAPI.Storages;
-using SharpGeoAPI.Utils;
 
-namespace SharpGeoAPI.HTTP
+namespace geoapi.HTTP
 {
     public class Service
     {

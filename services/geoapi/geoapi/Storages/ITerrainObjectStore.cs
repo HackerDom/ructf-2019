@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
-using SharpGeoAPI.Models;
+using geoapi.Models;
 
-namespace SharpGeoAPI.Storages
+namespace geoapi.Storages
 {
     public interface ITerrainObjectStore
     {
         TerrainObject GetTerrainObject(string objectId);
-        void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject);
+        void UploadTerrainObject( TerrainObject terrainObject);
         IEnumerable<TerrainObject> GetTerrainObjects(string ownerIndex, int skip, int take);
     }
 }

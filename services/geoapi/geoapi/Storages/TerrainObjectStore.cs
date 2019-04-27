@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using geoapi.Models;
+using geoapi.Utils;
 using MongoDB.Driver;
-using SharpGeoAPI.Models;
-using SharpGeoAPI.Utils;
 
-namespace SharpGeoAPI.Storages
+namespace geoapi.Storages
 {
     public class TerrainObjectStore : ITerrainObjectStore
     {

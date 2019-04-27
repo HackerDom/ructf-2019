@@ -1,6 +1,6 @@
-﻿using SharpGeoAPI.Models;
+﻿using geoapi.Models;
 
-namespace SharpGeoAPI.Storages
+namespace geoapi.Storages
 {
     public interface IStorage
     {

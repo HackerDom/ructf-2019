@@ -2,10 +2,10 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using geoapi.Utils;
 using log4net;
-using SharpGeoAPI.Utils;
 
-namespace SharpGeoAPI.HTTP
+namespace geoapi.HTTP
 {
     public class HttpServer : IDisposable
     {

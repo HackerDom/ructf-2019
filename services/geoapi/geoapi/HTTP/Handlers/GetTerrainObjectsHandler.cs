@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using SharpGeoAPI.Storages;
-using SharpGeoAPI.Utils;
+using geoapi.Storages;
+using geoapi.Utils;
 
-namespace SharpGeoAPI.HTTP.Handlers
+namespace geoapi.HTTP.Handlers
 {
     public class GetTerrainObjectsHandler : BaseHandler
     {

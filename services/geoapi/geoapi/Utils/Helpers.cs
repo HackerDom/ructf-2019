@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace SharpGeoAPI.Utils
+namespace geoapi.Utils
 {
     public static class Helpers
     {

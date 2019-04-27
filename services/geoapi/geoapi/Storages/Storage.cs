@@ -1,8 +1,8 @@
-﻿using MongoDB.Driver;
-using SharpGeoAPI.Models;
-using SharpGeoAPI.Utils;
+﻿using geoapi.Models;
+using geoapi.Utils;
+using MongoDB.Driver;
 
-namespace SharpGeoAPI.Storages
+namespace geoapi.Storages
 {
     class Storage : IStorage
     {

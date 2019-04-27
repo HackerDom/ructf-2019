@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using Newtonsoft.Json;
 
-namespace SharpGeoAPI.Models
+namespace geoapi.Models
 {
     public class TerrainObject
     {

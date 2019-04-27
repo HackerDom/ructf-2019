@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 
-namespace SharpGeoAPI.HTTP.Handlers
+namespace geoapi.HTTP.Handlers
 {
     public interface IBaseHandler
     {
