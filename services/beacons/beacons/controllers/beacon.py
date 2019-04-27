@@ -1,4 +1,4 @@
-from sanic.response import json, redirect
+from sanic.response import json
 from sanic import Blueprint
 from beacons import auth
 from beacons.repositories.user import User
@@ -32,13 +32,10 @@ async def add_beacon(request):
         return json({"message": "Comment must be less then 255 symbols"})
 
     if not re.match(r"^[\w_ ]+$", name):
-        print(name)
         return json({"error": "Username should contains only letters, numbers or _"})
-    if comment and not re.match(r"^[\w_!?., ]+$", comment):
-        print(comment)
+    if comment and not re.match(r"^[\w_!?., '\r\n]+$", comment):
         return json({"error": "Incorrect symbol in comment"})
 
-    print(88)
     coord_x = int(request.form.get("coord_x"))
     coord_y = int(request.form.get("coord_y"))
     is_private = True if request.form.get("isPrivate") == 'on' else False
