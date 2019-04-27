@@ -204,6 +204,10 @@ img {
     transition: opacity .5s ease-out 0s;
 }
 
+.img-label-container {
+    font-size: 10px;
+}
+
 .img-little:hover ~ .img-label {
     display: block;
     position: relative;
