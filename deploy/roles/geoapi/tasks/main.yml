@@ -61,7 +61,7 @@
 
 - name: unpack service
   unarchive:
-    src: "{{ playbook_dir }}/../services/geoapi/geoapi_withpub.tar"
+    src: "{{ playbook_dir }}/../services/geoapi/publish.tar.gz"
     dest: /home/geoapi/
     owner: geoapi
     group: geoapi
@@ -110,9 +110,9 @@
 #     - /home/geoapi/geoapi.py
 #   notify: enable and restart services
 
-# - name: add service files
-#   copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
-#   notify: enable and restart services
-#   with_items:
-#     - geoapi
+- name: add service files
+  copy: src={{ item }}.service dest=/etc/systemd/system/{{ item }}.service
+  notify: enable and restart services
+  with_items:
+    - geoapi
 
