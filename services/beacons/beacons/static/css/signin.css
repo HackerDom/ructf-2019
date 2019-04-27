@@ -9,6 +9,14 @@ html, body {
     height: 100%;
 }
 
+.icon {
+    width: 150px;
+    height: 158px;
+    display: inline-block;
+    float: left;
+    margin-left: -100px;
+}
+
 .sign-container {
     display: flex;
     text-align: center;

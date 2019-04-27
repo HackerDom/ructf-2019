@@ -13,15 +13,20 @@ namespace NotificationsApi.Handlers
 	    private readonly MongoDbClient mongoClient;
 	    private readonly SourceStorage sourceStorage;
 	    private readonly Authorizer authorizer;
-	    private readonly TimeSpan TTL = TimeSpan.FromMinutes(60);
+	    private readonly TimeSpan ttl;
 
 
-		public SendMessageHandler(MessageSender messageSender, MongoDbClient mongoClient, SourceStorage sourceStorage, Authorizer authorizer)
+	    public SendMessageHandler(MessageSender messageSender,
+			MongoDbClient mongoClient, 
+			SourceStorage sourceStorage,
+			Authorizer authorizer, 
+			TimeSpan ttl)
 	    {
 		    this.messageSender = messageSender;
 		    this.mongoClient = mongoClient;
 		    this.sourceStorage = sourceStorage;
 		    this.authorizer = authorizer;
+		    this.ttl = ttl;
 	    }
 		public async Task HandleAsync(NotificationApiRequest request)
 		{
@@ -36,7 +41,7 @@ namespace NotificationsApi.Handlers
 			{
 				if(sourceStorage.TryGetInfo(request.source, out var info))
 				{
-					var message = new Message(request.Base64Message, DateTime.UtcNow + TTL);
+					var message = new Message(request.Base64Message, DateTime.UtcNow + ttl);
 					//await mongoClient.InsertMessage(request.SourceName, message);
 					info.AddMessage(message);
 					messageSender.Send(request.Base64Message, info);

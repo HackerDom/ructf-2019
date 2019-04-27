@@ -43,12 +43,15 @@ export default class Upload extends React.Component {
         return <div className='upload-form'>
             <Form onSubmit={this.submitForm} id="uploadForm">
                 <FormGroup row>
-                    <Label for="file" className='light-purple link'>
-                        {this.state.file ? `selected: ${this.state.file.name}` : 'select file'}
-                    </Label>
-                    <Col sm={4}>
-                        <Input className='upload-input' type="file" name="file" id="file" onChange={this.handleChange}/>
+
+                    <Col sm={8}>
+                        <Label for="file"
+                               className='light-purple link upload-input-label'
+                               >
+                            {this.state.file ? `selected: ${this.state.file.name}` : 'select file'}
+                        </Label>
                     </Col>
+                    <Input className='upload-input' type="file" name="file" id="file" onChange={this.handleChange}/>
                     <Button>{this.state.fetching && <Spinner size="sm" color="dark"/>} upload</Button>
                 </FormGroup>
             </Form>

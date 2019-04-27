@@ -6,13 +6,13 @@ namespace NotificationsAPI
 {
 	internal class ExpirationDaemon
 	{
-		private readonly TimeSpan delayTime = TimeSpan.FromMinutes(1);
-
 		private readonly SourceStorage sourceStorage;
+		private readonly TimeSpan period;
 
-		public ExpirationDaemon(SourceStorage sourceStorage)
+		public ExpirationDaemon(SourceStorage sourceStorage, TimeSpan period)
 		{
 			this.sourceStorage = sourceStorage;
+			this.period = period;
 			Run();
 		}
 
@@ -28,7 +28,7 @@ namespace NotificationsAPI
 					}
 				}
 
-				await Task.Delay(delayTime);
+				await Task.Delay(period);
 			}
 		}
 	}
