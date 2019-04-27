@@ -7,7 +7,7 @@ const host = window.location.host;
 const notificationsApiHost = "127.0.0.1:5000"
 const rustHost = "10.33.54.127:7878"
 let news = []
-
+let articles = ["4"];
 function getSources()
 {
   fetch(`http://10.33.54.127:7878/get_sources_list`, {
@@ -15,24 +15,29 @@ function getSources()
     mode: "no-cors",
   })
   .then(async response => {
-    console.log(response)
-    return await response.text()
+    return await response.json();
   })
   .then(body => {
+    console.log("text: " + body)
     news = body.split('\n');
     console.log(news);
   });
 }
+
+
 
 class App extends Component {
   constructor(props) {
     super(props);
   }
 
+
+
   render() {
     //getSources();
     news = ["1", "2"]
-    const articles = ["4", "5", "6", "32132"];
+    
+
     return (
         <div className="wrapper" id="wr">
           <div className="sources">
@@ -46,9 +51,14 @@ class App extends Component {
                 <Field name="name" component={Input} />
                 <Field name="password" type="password" component={Input} />
                 <Field name="isPublic" component={Input} type="checkbox"/>
+                <Field name="population"  component={Input} />
+                <Field name="race" component={Input} />
+                <Field name="landscape" component={Input} />
                 <button className="App-btn" type="submit">
                   create
                 </button>
+
+                <Field name="token"/>
               </Form>
             )}
           </Formik>
@@ -122,16 +132,19 @@ onSubscribeClick = id =>
   popup.style.visibility = "visible";
 }
 
-createSource = (t, values) =>
+createSource = values =>
 fetch(`http://${rustHost}/create_source`, {
   method: "post",
   mode: "no-cors",
   body: JSON.stringify({
-    name: t,
-    token: values.token,
-    isPublic: values.isPublic,
+    name: values.name,
+    password: values.password,
+    is_public: values.isPublic,
+    population: values.population,
+    race: values.race,
+    landscape: values.landscape,
   })
-});
+}).then(res => res.text()).then(x => console.log("123456"));
 
 subscribeOnMessage  = (t, values) =>
   fetch(`http://${notificationsApiHost}/subscribe?source=${t}&token=${values.token}`, {

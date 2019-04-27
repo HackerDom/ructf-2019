@@ -62,7 +62,7 @@ def check_service(host: str) -> Verdict:
         if decode_result is None:
             continue
 
-        if message in decode_result:
+        if message.upper() in decode_result.upper():
             return Verdict.OK()
 
     get_sources_list_result = rustClient.get_sources_list(host)
@@ -72,7 +72,8 @@ def check_service(host: str) -> Verdict:
     return Verdict.CORRUPT("flag not found", "flag not found")
 
 
-def put_flag_into_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
+@Checker.define_put(vuln_num=1)
+def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
     result = rustClient.create_source(flag_id, password, False, host)
     a = None
@@ -86,11 +87,11 @@ def put_flag_into_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
     if not check_result(push_result, a):
         return a
 
-    return '{}:{}'.format(flag_id, token)
     return Verdict.OK('{}:{}'.format(flag_id, token))
 
 
-async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verdict:
+@Checker.define_get(vuln_num=1)
+async def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
@@ -99,8 +100,10 @@ async def get_flag_from_the_service1(host: str, flag_id: str, flag: str) -> Verd
         try:
             async for event in event_source:
                 decode_result = get_flag_from_base64(event.data)
-                print(decode_result[1].upper() == flag)
-                if flag in decode_result:
+                if decode_result is None:
+                    continue
+
+                if flag in decode_result.upper():
                     return Verdict.OK()
         except Exception as e:
             return Verdict.DOWN("network error", "network error")
@@ -122,7 +125,6 @@ def get_flag_from_base64(base64text):
         image = getImageFromBase64(base64text)
         bytes = get_bytes_with_flag(image)
         flag = decode_flag_bytes(bytes)
-        print(len(flag[1]))
         return flag
     except Exception as e:
         return None
@@ -130,10 +132,6 @@ def get_flag_from_base64(base64text):
 
 def getImageFromBase64(base64Image) -> Image:
     try:
-        image = open("image.png", "wb")
-        image.write( base64.b64decode(base64Image))
-        image.close()
-
         bytes = base64.b64decode(base64Image)
 
         image = Image.open(io.BytesIO(bytes))
@@ -149,8 +147,6 @@ def get_bytes_with_flag(image : Image):
         r, g, b = a[0], a[1], a[2]
         res = res + [r, g, b]
 
-    print(res)
-    print(','.join(list(map(lambda x: str(hex(x)), res))))
     return res
 
 
@@ -186,9 +182,9 @@ def decode_flag_bytes(u8bytes):
         except:
             pass
 
-        return True, ''.join(res2[::-1])
+        return ''.join(res2[::-1])
     except Exception as e:
-        return False, e
+        return None
 
 
 def unpack_char(n):
@@ -210,11 +206,10 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-    print(generate_random_bytes(32))
-    flag = generate_random_string(31) + '='
-    print(flag)
-    name= str(uuid.uuid4())
-    a = put_flag_into_the_service1("10.33.54.127", name, flag)
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, flag))
+    Checker.run()
+#     flag = generate_random_string(31) + '='
+#     name= str(uuid.uuid4())
+#     a = put_flag_into_the_service1("10.33.54.127", name, flag)
+#
+#     loop = asyncio.get_event_loop()
+#     loop.run_until_complete(get_flag_from_the_service1("10.33.54.127", a, flag))
