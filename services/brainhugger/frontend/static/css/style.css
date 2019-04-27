@@ -216,6 +216,10 @@ hr {
     color: #00FF00;
 }
 
+.bh-text-err {
+    color: red;
+}
+
 #bh-stdin {
     background-color: black;
     border: none;
@@ -226,7 +230,12 @@ hr {
 
 #bh-source {
     border: none;
-    outline: none
+    outline: none;
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+    font-family: Consolas, monaco, monospace;
 }
 
 #bh-stdout {
@@ -240,8 +249,19 @@ hr {
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
     white-space: nowrap;
+    font-size: 43px;
 }
 
 #bh-stdout::-webkit-scrollbar {
     height: 0;
+}
+
+#bh-source::-moz-selection {
+    color: #00FF00;
+    background: black;
+}
+
+#bh-source::selection {
+    color: #00FF00;
+    background: black;
 }

@@ -1,0 +1,67 @@
+html{
+    height: 100%;
+    width: 100%;
+    font-family: 'Audiowide', cursive;
+}
+body{
+    background-color: black;
+    height: 100%;
+    width: 100%;
+}
+
+.send-btn {
+    background-color: #fdfd00;
+    border-color: #fdfd00;
+    color: black;
+    display: block;
+}
+.send-btn:hover {
+    background-color: #FFAF3D;
+    border-color: #FFAF3D;
+    color: black;
+    display: block;
+}
+
+.alt-color {
+    color: #7964fc;
+}
+
+#main-form {
+    color: #2700cd;
+    font-family: 'Audiowide', cursive;
+    position: relative;
+    display: block;
+    width: 600px;
+    background-color: black;
+    border: 2px solid #a200f9;
+    top: 15%;
+    text-align: center;
+    justify-content: center;
+    border-radius: 25px;
+    box-shadow: 0 0 30px #a200f9;
+    padding-bottom: 10px;
+}
+
+.logo {
+    height: 30px;
+    margin-bottom: -5px;
+}
+
+.logo-wrapper {
+    color: #999;
+    font-family: 'Audiowide', cursive;
+    position: relative;
+    display: block;
+    width: 600px;
+    top: 10%;
+    text-align: center;
+    justify-content: center;
+}
+.logo-wrapper > svg > path {
+    fill: #999;
+}
+
+.logo-text {
+    display: inline-block;
+    margin: 5px;
+}
