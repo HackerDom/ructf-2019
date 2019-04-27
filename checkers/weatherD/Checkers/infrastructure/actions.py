@@ -1,7 +1,4 @@
 import sys
-if sys.version_info[:2] < (3, 6):
-    raise RuntimeError("Python version should be 3.6+")
-
 import inspect
 from typing import Tuple, Type
 from .verdict import Verdict
@@ -98,8 +95,10 @@ class Checker:
         except Exception as e:
             result = Verdict.CHECKER_ERROR('', f"Checker caught an error: {e},\n {format_exc()}")
         finally:
-            print(result._public_message, file=sys.stdout)
-            print(result._private_message, file=sys.stderr)
+            if result._public_message:
+                print(result._public_message, file=sys.stdout)
+            if result._private_message:
+                print(result._private_message, file=sys.stderr)
             sys.exit(result._code)
 
     @staticmethod
@@ -120,9 +119,10 @@ class Checker:
         if hostname is None:
             raise ValueError("Can't find 'hostname' arg! (Expected 2 or more args)")
 
-        callable_check = Checker.__actions_handlers[CHECK]
-        if command == CHECK and callable(callable_check):
-            return callable_check(hostname)
+        check_func = Checker.__actions_handlers[CHECK]
+        if command == CHECK:
+            # noinspection PyCallingNonCallable
+            return check_func(hostname)
 
         if flag_id is None:
             raise ValueError("Can't find 'flag_id' arg! (Expected 3 or more args)")

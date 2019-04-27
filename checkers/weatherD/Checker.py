@@ -19,7 +19,7 @@ RUSTPORT = 7878
 NotificationApiPort = 5000
 
 rustClient = RustClient(RUSTPORT, 3)
-notificationApiClient = NotificationApiClient(NotificationApiPort, 3)
+notificationApiClient = NotificationApiClient("127.0.0.1", NotificationApiPort, 3)
 
 IMAGE_WIDTH = 1000
 IMAGE_HEIGHT = 1000
@@ -54,7 +54,7 @@ async def check_service(host: str) -> Verdict:
     if not check_result(push_result, a):
         return a
     fl = True
-    subscribe_req = notificationApiClient.create_subscribe_on_source_request(src_name, token, host)
+    subscribe_req = notificationApiClient.create_subscribe_on_source_request(src_name, token)
     async with sse_client.EventSource(subscribe_req) as event_source:
         try:
             async for event in event_source:
@@ -103,7 +103,7 @@ async def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdi
     parts = flag_id.split(':')
     token = parts[1]
     flag_id = parts[0]
-    subscribe_req = notificationApiClient.create_subscribe_on_source_request(flag_id, token, host)
+    subscribe_req = notificationApiClient.create_subscribe_on_source_request(flag_id, token)
     async with sse_client.EventSource(subscribe_req) as event_source:
         try:
             async for event in event_source:
@@ -218,6 +218,5 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-   # Checker.run()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(check_service("10.33.54.127"))
+   Checker.run()
+
