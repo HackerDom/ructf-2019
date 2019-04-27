@@ -11,12 +11,11 @@
 - name: copy motd
   copy: src=motd dest=/etc/motd
 
-# example of installing packages
-#- name: install packages
-#  apt: 
-#    #update_cache: yes
-#    name:
-#      - cowsay
+- name: install packages
+  apt: 
+    update_cache: yes
+    name:
+      - nginx
 
 - name: create autostart dir
   file: 
@@ -52,6 +51,8 @@
   args:
     chdir: /home/user/sandbox/sandbox
     creates: /home/user/sandbox/sandbox/sandbox
+  notify:
+    - kill sandbox
 
 - name: build proxy executable
   command: make
