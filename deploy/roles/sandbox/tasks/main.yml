@@ -43,9 +43,9 @@
       - "--exclude=build_so.sh"
   notify: enable and restart services
 
-
 - name: fix permissions
   file: name=/home/user/sandbox owner=user group=user recurse=yes state=directory
+  file: name=/home/user/sandbox/static owner=nginx group=nginx recurse=yes state=directory
 
 - name: build sandbox executable
   command: make -j8
@@ -81,4 +81,7 @@
     restart: yes
     restart_policy: on-failure
 
+- name: copy nginx config
+  copy: src=default dest=/etc/nginx/sites-available/default
+  notify: enable and restart services
 

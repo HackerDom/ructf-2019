@@ -1,0 +1,25 @@
+upstream proxy {
+        server localhost:16780;
+        server localhost:16781;
+}
+
+server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /home/user/sandbox/static;
+
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name _;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+        location /create {
+                proxy_pass http://proxy/add_unit;
+        }
+        location /track {
+                proxy_pass http://proxy/get;
+        }
+}
