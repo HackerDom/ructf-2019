@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace SharpGeoAPI.Utils
+namespace geoapi.Utils
 {
     public class Settings : ISettings
     {
-        public int ParallelismDegree { get; set; } = 8;
+        public int ParallelismDegree { get; set; } = 100;
         public int Port { get; set; } = 9007;
         public string MongoDBConnectionString { get; set; } = "mongodb://localhost:27017";
         public string AgentsCollectionName { get; set; } = "AgentsCollection";
