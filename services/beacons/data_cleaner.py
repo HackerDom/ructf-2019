@@ -46,12 +46,12 @@ def clean(expire_after, photos_collection, beacon_collection, users_collection):
 
 
 def print_help():
-    print("python3 data_cleaner expire_after_interval_seconds(default=900)")
+    print("python3 data_cleaner expire_after_interval_seconds(default=7200)")
 
 
 if __name__ == "__main__":
     args_len = len(sys.argv)
-    expire_after_interval_seconds = 900
+    expire_after_interval_seconds = 7200
     if args_len > 1:
         arg = sys.argv[1]
         if arg == "--help" or arg == "-h":
