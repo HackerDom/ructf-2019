@@ -13,7 +13,7 @@ namespace NotificationsApi.Handlers
 	    private readonly MongoDbClient mongoClient;
 	    private readonly SourceStorage sourceStorage;
 	    private readonly Authorizer authorizer;
-	    private readonly TimeSpan TTL = TimeSpan.FromMinutes(0.5);
+	    private readonly TimeSpan TTL = TimeSpan.FromMinutes(60);
 
 
 		public SendMessageHandler(MessageSender messageSender, MongoDbClient mongoClient, SourceStorage sourceStorage, Authorizer authorizer)
@@ -25,21 +25,23 @@ namespace NotificationsApi.Handlers
 	    }
 		public async Task HandleAsync(NotificationApiRequest request)
 		{
-			if(!authorizer.CanPush(request.SourceName, request.Password))
+			if(!authorizer.CanPush(request.source, request.password))
 			{
 				request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 				return;
 			}
 
-			if(sourceStorage.TryGetInfo(request.SourceName, out var info))
+			request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Accepted;
+			Task.Run(() =>
 			{
-				var message = new Message(request.Message, DateTime.UtcNow + TTL);
-				await mongoClient.InsertMessage(request.SourceName, message);
-				info.AddMessage(message);
-				messageSender.Send(request.Message, info);
-			}
-
-			request.HttpContext.Response.StatusCode = (int) HttpStatusCode.Accepted;
+				if(sourceStorage.TryGetInfo(request.source, out var info))
+				{
+					var message = new Message(request.Base64Message, DateTime.UtcNow + TTL);
+					//await mongoClient.InsertMessage(request.SourceName, message);
+					info.AddMessage(message);
+					messageSender.Send(request.Base64Message, info);
+				}
+			});
 		}
     }
 }

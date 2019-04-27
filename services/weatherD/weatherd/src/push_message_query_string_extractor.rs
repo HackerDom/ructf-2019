@@ -6,6 +6,6 @@ use gotham::router::response::extender;
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 pub struct PushMessageQueryStringExtractor {
     pub name: String,
-    pub message: String,
     pub password: String,
+    pub message: String,
 }

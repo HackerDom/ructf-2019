@@ -4,10 +4,10 @@ namespace NotificationsApi.Documens
 {
 	public class Message
 	{
-		public readonly byte[] Content;
+		public readonly string Content;
 		public DateTime ExpireAt;
 
-		public Message(byte[] content, DateTime expireAt)
+		public Message(string content, DateTime expireAt)
 		{
 			Content = content;
 			ExpireAt = expireAt;

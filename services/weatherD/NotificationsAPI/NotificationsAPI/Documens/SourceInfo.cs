@@ -18,12 +18,20 @@ namespace NotificationsApi.Documens
 			}
 		}
 
+		public void RemoveSubscriber(HttpContext context)
+		{
+			lock(subscribers)
+			{
+				subscribers.Remove(context);
+			}
+		}
+
 		public void AddMessage(Message message)
 		{
 			Messages.Enqueue(message);
 		}
 
-		public List<byte[]> GetMessagesHistory()
+		public List<string> GetMessagesHistory()
 		{
 			return Messages.Select(x => x.Content).ToList();
 		}

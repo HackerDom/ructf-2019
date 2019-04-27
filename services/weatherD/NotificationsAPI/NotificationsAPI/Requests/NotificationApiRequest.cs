@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace NotificationsApi.Requests
 {
+    [JsonObject]
 	internal class NotificationApiRequest
 	{
 		private const string SourceParamName = "source";
@@ -12,21 +14,28 @@ namespace NotificationsApi.Requests
 		private const string TimeParamName = "time";
 		private const string PasswordParamName = "password";
 		private const string IsPublicParamName = "isPublic";
-
-		public byte[] Message { get; private set; }
-		public string SourceName { get; private set; }
-		public string Password { get; private set; }
-		public string Token { get; private set; }
-		public long Time { get; private set; }
-		public bool IsPublic { get; private set; }
+	    public string Base64Message;
+	    public string source;
+	    public string password;
+	    public string Token;
+	    public long timestamp;
+	    public bool IsPublic;
+		[JsonIgnore]
 		public HttpContext HttpContext { get; private set; }
+
+		public static NotificationApiRequest CreateFromBody(string body, HttpContext context)
+		{
+			var result = JsonConvert.DeserializeObject<NotificationApiRequest>(body);
+			result.HttpContext = context;
+			return result;
+		}
 
 		public static NotificationApiRequest CreateFromQueryCollection(IQueryCollection options, HttpContext context)
 		{
 			string source = null;
 			string token = null;
 			string password = null;
-			byte[] message = null;
+			string message = null;
 			var time = 0L;
 			var isPublic = false;
 
@@ -47,21 +56,17 @@ namespace NotificationsApi.Requests
 
 			if(options.ContainsKey(MessageParamName))
 			{
-				string hex = options[MessageParamName];
-				message = Enumerable.Range(0, hex.Length)
-					.Where(x => x % 2 == 0)
-					.Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-					.ToArray();
+				message = options[MessageParamName];
 			}
 
 			return new NotificationApiRequest
 			{
-				Message = message,
+				Base64Message = message,
 				Token = token,
-				SourceName = source,
+				source = source,
 				HttpContext = context,
-				Time = time,
-				Password = password,
+				timestamp = time,
+				password = password,
 				IsPublic = isPublic
 			};
 		}

@@ -15,10 +15,13 @@ namespace NotificationsApi.Storage
 
         public async Task<(Authorizer, SourceStorage)> Restore()
         {
+			
 	        var authorizer = new Authorizer();
-			var sourcesInfo = await client.GetAllUsers();
+			
 	        var sourceStorage = new SourceStorage();
+	        return (authorizer, sourceStorage);
 
+	        var sourcesInfo = await client.GetAllUsers();
 			foreach(var data in sourcesInfo)
 	        {
 				if(data.IsPublic)

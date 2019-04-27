@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Audiowide');
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Audiowide', cursive;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: black;
+}
+

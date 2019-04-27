@@ -7,15 +7,15 @@ namespace NotificationsApi.Storage
 {
 	internal class MessageSender
 	{
-		private readonly SSEClient sseClient;
+		private readonly SseClient sseClient;
 		private readonly object lockObj = new object();
 
 		public MessageSender()
 		{
-			sseClient = new SSEClient();
+			sseClient = new SseClient();
 		}
 
-		public void Send(byte[] message, SourceInfo info)
+		public void Send(string message, SourceInfo info)
 		{
 			var subscribers = info.GetSubscribers();
 			if(subscribers.Count == 0)

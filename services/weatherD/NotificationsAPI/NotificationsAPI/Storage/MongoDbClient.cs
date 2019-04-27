@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using System;
+using MongoDB.Driver;
 using NotificationsApi.Documens;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -22,7 +23,8 @@ namespace NotificationsApi.Storage
         public async Task InsertUser(string source, string token, string password, bool isPublic)
         {
             var collection = authorizesUsersDatabase.GetCollection<SourceShortedData>(SourceDataDbName);
-            var newData = new SourceShortedData(source, token, password, isPublic);
+	        
+			var newData = new SourceShortedData(source, token, password, isPublic);
             await collection.InsertOneAsync(newData);
         }
 
@@ -35,7 +37,8 @@ namespace NotificationsApi.Storage
 	    public async Task InsertMessage(string source, Message message)
 	    {
 		    var collection = authorizesUsersDatabase.GetCollection<StoredMessage>(MessagesDataDbName);
-		    var newData = new StoredMessage(source, message.Content, message.ExpireAt);
+		    collection.Indexes.CreateOne(Builders<StoredMessage>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = new TimeSpan(0, 0, 10) });
+			var newData = new StoredMessage(source, message.Content, message.ExpireAt);
 		    await collection.InsertOneAsync(newData);
 	    }
 

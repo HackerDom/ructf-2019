@@ -1,7 +1,6 @@
 use std::string;
 use uuid::Uuid;
 
-//extern crate chrono;
 
 use chrono::prelude::*;
 use std::collections::HashMap;
@@ -17,11 +16,14 @@ pub struct WeatherSource {
     pub name : String,
     pub password : String,
     pub token : String,
-//    discovery_date : DateTime<Utc>,
-//    planet_name : String,
-//    population : u64,
-//    population_race : Race,
-//    internal_id : Uuid,
+    pub encryption : bool,
+    pub encryption_key : String,
+    pub iv : String,
+
+    pub population : String,
+    pub place_status  :String,
+    pub race :String,
+    pub danger : String
 }
 
 
@@ -57,6 +59,10 @@ impl WeatherState {
 
     pub fn get_source(&mut self, name : &str) -> &WeatherSource{
         return self.sources.get(name).unwrap();
+    }
+
+    pub fn contains_source(&mut self, name : &str) -> bool {
+        return self.sources.contains_key(name);
     }
 }
 
