@@ -1,4 +1,5 @@
-﻿using geoapi.Models;
+﻿using System;
+using geoapi.Models;
 using geoapi.Utils;
 using MongoDB.Driver;
 
@@ -14,6 +15,7 @@ namespace geoapi.Storages
             var database = client.GetDatabase(settings.MongoDBName);
             agents = database.GetCollection<AgentInfo>(settings.AgentsCollectionName);
             agents.Indexes.CreateOneAsync(Builders<AgentInfo>.IndexKeys.Ascending(_ => _.AgentToken)).GetAwaiter().GetResult();
+            agents.Indexes.CreateOne(Builders<AgentInfo>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = settings.TTL });
         }
 
         public AgentInfo GetAgent(string agentId)

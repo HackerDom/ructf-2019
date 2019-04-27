@@ -19,7 +19,7 @@ namespace geoapi.Storages
             terrainObjects = database.GetCollection<TerrainObject>(settings.TObjectsCollectionName);
 
             terrainObjects.Indexes.CreateOneAsync(Builders<TerrainObject>.IndexKeys.Ascending(_ => _.IndexKey)).GetAwaiter().GetResult();
-            terrainObjects.Indexes.CreateOne(Builders<TerrainObject>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = new TimeSpan(1, 30, 0) });
+            terrainObjects.Indexes.CreateOne(Builders<TerrainObject>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = settings.TTL });
         }
 
         public TerrainObject GetTerrainObject(string objectId)

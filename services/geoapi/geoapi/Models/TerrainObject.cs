@@ -15,6 +15,7 @@ namespace geoapi.Models
         public string Info { get; set; }
         public  CellTypes[,] Cells { get; set; }
 
+        [JsonIgnore]
         [BsonElement("expireAt")]
         public DateTime ExpireAt { get; }
 
