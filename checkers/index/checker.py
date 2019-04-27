@@ -8,7 +8,7 @@ from utils.randomizer import Randomizer
 from words import get_text
 from zip_utils import create_zip, create_flag_zip
 
-Checker.INFO = "3:1"
+Checker.INFO = "vulns: 3:1"
 
 
 @Checker.define_check
