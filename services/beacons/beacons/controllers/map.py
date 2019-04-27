@@ -54,9 +54,9 @@ def get_borders(center_coord_x, center_coord_y):
             center_coord_y - half_map_height, center_coord_x - half_map_weight)
 
 
-async def get_beacons_in_area(top, right, bottom, left, request):
-    beacons = await Beacon.find(request, {"coord_x": {"$lt": right, "$gt": left},
-                                          "coord_y": {"$lt": top, "$gt": bottom}})
+async def get_beacons_in_area(top, right, bottom, left):
+    beacons = await Beacon.find(filter={"coord_x": {"$lt": right, "$gt": left},
+                                        "coord_y": {"$lt": top, "$gt": bottom}})
 
     return beacons.objects
 
@@ -67,6 +67,6 @@ async def get_beacons(request):
     center_coord_x = parse_int(request.args["center_coord_x"][0])
     center_coord_y = parse_int(request.args["center_coord_y"][0])
 
-    beacons = await get_beacons_in_area(*get_borders(center_coord_x, center_coord_y), request)
+    beacons = await get_beacons_in_area(*get_borders(center_coord_x, center_coord_y))
 
     return json({"beacons": [{"id": str(beacon.id), "coord_x": beacon.coord_x, "coord_y": beacon.coord_y} for beacon in beacons]})

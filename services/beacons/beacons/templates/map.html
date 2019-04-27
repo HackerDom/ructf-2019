@@ -6,24 +6,36 @@
     <title></title>
 </head>
 <body onload="init({{center_x}}, {{center_y}})">
-    <nav></nav>
     <main class="container main">
         <div class="row">
             <div class="sidebar">
+                <nav class="navigation">
+                    <div class="nav" id="go-to-profile">Profile</div>
+                    <div class="nav" id="go-to-latest">Latest activity</div>
+                </nav>
                 <div id="error" class="row error"></div>
                 <div id="profile" class="card">
-                    <div class="">{{user.name}}</div>
-                    <div class="">Your last beacons</div>
-                    <div id="profile-beacons" class=""></div>
+                    <h3 class="">{{user.name}}</h3>
+                    <a href="/Logout" class="link-button">Change user</a>
+                    <div class="desc">Here are your beacons:</div>
+                    <div id="profile-beacons" class="profile-beacons"></div>
+                    <div id="invite-button" class="link-button">I have invite code</div>
+                    <form id="write-invite-form" class="hidden" name="beaconInvite">
+                        <label for="write-invite-input">Write invite code:</label>
+                        <input class="text-input" name="invite" id="write-invite-input" maxlength="40" required pattern="^[\da-fA-F-]{36}$" type="text">
+                        <input class="button-button" type="submit" value="Send">
+                    </form>
                 </div>
                 <div id="beacon" class="hidden card">
                     <h3 id="beacon-name" class=""></h3>
                     <div class="">
-                        <p id="beacon-comment" class=""></p>
+                        <p class="text" id="beacon-comment" class=""></p>
+                        <p id="beacon-additional" class="hidden"></p>
                         <div id="beacon-photos"></div>
-                        <form id="beacon-add-photo-form" name="beaconPhotos">
-                            <input name="photo" id="beacon-add-photo-input" required accept="image/jpeg,image/tiff,image/jpg" type="file" value="Choose file">
-                            <input type="submit" value="Add photo">
+                        <form id="beacon-add-photo-form" class="beacon-add-photo-form" name="beaconPhotos">
+                            <label class="link-button" for="beacon-add-photo-input">Choose photo</label>
+                            <input class="button-file" name="photo" id="beacon-add-photo-input" required accept="image/jpeg,image/tiff,image/jpg" type="file" value="Choose file">
+                            <input class="button-button button-file-submit" type="submit" value="Submit">
                         </form>
                     </div>
                 </div>
@@ -31,18 +43,19 @@
                     <h3 class="">Create new beacon</h3>
                     <div class="">
                         <form id="beacon-add-form" name="beacon">
-                            <label for="beacon-add-name">Write beacon name</label>
-                            <input id="beacon-add-name" name="name" type="text" placeholder="For instance, beacon">
-                            <label for="beacon-add-comment">Write beacon comment</label>
-                            <input id="beacon-add-comment" name="comment" type="text" placeholder="For instance, my beacon">
+                            <label for="beacon-add-name">Beacon name</label>
+                            <input class="text-input" id="beacon-add-name" name="name" maxlength="25" required pattern="[\w\d_ ]+" type="text">
+                            <label for="beacon-add-comment">Comment</label>
+                            <textarea class="text-input textarea" id="beacon-add-comment" name="comment" rows=8 maxlength="255" required></textarea>
                             <label for="beacon-add-is-private">Make your beacon private</label>
                             <input id="beacon-add-is-private" name="isPrivate" type="checkbox">
-                            <input type="submit" value="Add beacon">
+                            <input class="button-button margin" type="submit" value="Add beacon">
                         </form>
                     </div>
                 </div>
                 <div id="latest" class="hidden card">
-                    тут мы видим последние несколько фоточек
+                    <h3>Photos which other users publish</h3>
+                    <div id="latest-photos"></div>
                 </div>
             </div>
             <div class="map container" id="map">
@@ -61,7 +74,7 @@
         </div>
     </main>
 </body>
-<script src="/static/js/map_generator.js"></script>
-<script src="/static/js/simplex-noise.js"></script>
+<script src="/static/js/all.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.4.0/simplex-noise.min.js"></script>
 </html>
