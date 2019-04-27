@@ -1,0 +1,14 @@
+[Unit]
+    Description=Datacleaner for Beacons service
+
+[Service]
+    ExecStart=/usr/bin/python3.6 /home/beacons/data_cleaner.py
+    WorkingDirectory=/home/beacons/
+    User=beacons
+    Group=beacons
+    Restart=on-failure
+    RestartSec=2s
+    # CPUQuota=400%
+
+[Install]
+    WantedBy=multi-user.target
