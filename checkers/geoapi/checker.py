@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/cs/miniconda3/bin/python3
 from __future__ import print_function
 from sys import argv, stderr
 import random
