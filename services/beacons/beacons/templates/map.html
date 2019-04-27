@@ -15,22 +15,28 @@
                 </nav>
                 <div id="error" class="row error"></div>
                 <div id="profile" class="card">
-                    <h3 class="">{{user.name}}</h3>
-                    <a href="/Logout" class="link-button">Change user</a>
-                    <div class="desc">Here are your beacons:</div>
-                    <div id="profile-beacons" class="profile-beacons"></div>
-                    <div id="invite-button" class="link-button">I have invite code</div>
-                    <form id="write-invite-form" class="hidden" name="beaconInvite">
-                        <label for="write-invite-input">Write invite code:</label>
-                        <input class="text-input" name="invite" id="write-invite-input" maxlength="40" required pattern="^[\da-fA-F-]{36}$" type="text">
-                        <input class="button-button" type="submit" value="Send">
-                    </form>
+                    <div class="header">
+                        <h3 class="">{{user.name}}</h3>
+                        <a href="/Logout" class="link-button">Change user</a>
+                        <div class="desc">Here are your beacons:</div>
+                    </div>
+                    <div class="card-container">
+                        <div id="profile-beacons" class="profile-beacons"></div>
+                        <div id="invite-button" class="link-button">I have invite code</div>
+                        <form id="write-invite-form" class="hidden" name="beaconInvite">
+                            <label for="write-invite-input">Write invite code:</label>
+                            <input class="text-input" name="invite" id="write-invite-input" maxlength="40" required pattern="^[\da-fA-F-]{36}$" type="text">
+                            <input class="button-button" type="submit" value="Send">
+                        </form>
+                    </div>
                 </div>
                 <div id="beacon" class="hidden card">
-                    <h3 id="beacon-name" class=""></h3>
-                    <div class="">
+                    <div class="header">
+                        <h3 id="beacon-name" class=""></h3>
                         <p class="text" id="beacon-comment" class=""></p>
                         <p id="beacon-additional" class="hidden"></p>
+                    </div>
+                    <div class="card-container">
                         <div id="beacon-photos"></div>
                         <form id="beacon-add-photo-form" class="beacon-add-photo-form" name="beaconPhotos">
                             <label class="link-button" for="beacon-add-photo-input">Choose photo</label>
@@ -41,21 +47,23 @@
                 </div>
                 <div id="add-beacon" class="hidden card">
                     <h3 class="">Create new beacon</h3>
-                    <div class="">
-                        <form id="beacon-add-form" name="beacon">
-                            <label for="beacon-add-name">Beacon name</label>
-                            <input class="text-input" id="beacon-add-name" name="name" maxlength="25" required pattern="[\w\d_ ]+" type="text">
-                            <label for="beacon-add-comment">Comment</label>
-                            <textarea class="text-input textarea" id="beacon-add-comment" name="comment" rows=8 maxlength="255" required></textarea>
-                            <label for="beacon-add-is-private">Make your beacon private</label>
-                            <input id="beacon-add-is-private" name="isPrivate" type="checkbox">
-                            <input class="button-button margin" type="submit" value="Add beacon">
-                        </form>
-                    </div>
+                    <form id="beacon-add-form" name="beacon">
+                        <label for="beacon-add-name">Beacon name</label>
+                        <input class="text-input" id="beacon-add-name" name="name" maxlength="25" required pattern="[\w\d_ ]+" type="text">
+                        <label for="beacon-add-comment">Comment</label>
+                        <textarea class="text-input textarea" id="beacon-add-comment" name="comment" rows=8 maxlength="255" required></textarea>
+                        <input class="checkbox-input" id="beacon-add-is-private" name="isPrivate" type="checkbox">
+                        <label class="checkbox-label" for="beacon-add-is-private">Make private</label>
+                        <input class="button-button margin" type="submit" value="Add beacon">
+                    </form>
                 </div>
                 <div id="latest" class="hidden card">
-                    <h3>Photos which other users publish</h3>
-                    <div id="latest-photos"></div>
+                    <div class="header">
+                        <h3>Photos which other users publish</h3>
+                    </div>
+                    <div class="card-container">
+                        <div id="latest-photos"></div>
+                    </div>
                 </div>
             </div>
             <div class="map container" id="map">
