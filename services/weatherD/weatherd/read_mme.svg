@@ -32,9 +32,9 @@
 
 </g>
 
- <text x="0" y="0" >name : {{name}}</text>
- <text x="0" y="50" >population : {{population}}</text>
+ <text x="0" y="50" >name : {{name}}</text>
+ <text x="0" y="250" >population : {{population}}</text>
  <text x="0" y="100" >place_status : {{place_status}}</text>
- <text x="0" y="100" >race : {{race}}</text>
- <text x="0" y="100" >danger : {{danger}}</text>
+ <text x="0" y="150" >race : {{race}}</text>
+ <text x="0" y="200" >danger : {{danger}}</text>
 </svg>
