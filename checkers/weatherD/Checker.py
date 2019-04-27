@@ -37,7 +37,7 @@ def check_result(result):
 
 
 @Checker.define_check
-async def check_service(host: str) -> Verdict:
+def check_service(host: str) -> Verdict:
     return asyncio.run(check(host))
 
 

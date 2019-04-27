@@ -44,7 +44,7 @@ class RustClient:
     def do_request(self, req, retries=3):
         for i in range(retries):
             try:
-                return urlopen(req, timeout=1000)
+                return urlopen(req, timeout=5)
             except Exception as e:
                 continue
 
