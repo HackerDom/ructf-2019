@@ -19,7 +19,7 @@ RUSTPORT = 7878
 NotificationApiPort = 5000
 
 rustClient = RustClient(RUSTPORT, 3)
-notificationApiClient = NotificationApiClient("10.33.54.127", NotificationApiPort, 3)
+notificationApiClient = NotificationApiClient("10.10.10.99", NotificationApiPort, 3)
 
 IMAGE_WIDTH = 1000
 IMAGE_HEIGHT = 1000

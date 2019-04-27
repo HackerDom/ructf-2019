@@ -1,1 +1,1 @@
-pub const NOTIFICATION_API_ADDR : &str = "http://127.0.0.1:5000/";
+pub const NOTIFICATION_API_ADDR : &str = "http://10.10.10.99:5000";

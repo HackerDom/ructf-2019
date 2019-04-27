@@ -19,7 +19,6 @@ namespace NotificationsApi.Storage
 	        var authorizer = new Authorizer();
 			
 	        var sourceStorage = new SourceStorage();
-	        return (authorizer, sourceStorage);
 
 	        var sourcesInfo = await client.GetAllUsers();
 			foreach(var data in sourcesInfo)

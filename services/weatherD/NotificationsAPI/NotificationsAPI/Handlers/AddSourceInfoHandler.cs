@@ -27,7 +27,7 @@ namespace NotificationsApi.Handlers
         {
 	        var token = request.IsPublic ? null : TokensGenerator.Generate(request);
 
-	    //    await mongoDbClient.InsertUser(request.SourceName, token, request.Password, request.IsPublic);
+	        await mongoDbClient.InsertUser(request.source, token, request.password, request.IsPublic);
 
 	        if(request.IsPublic)
 		        authorizer.RegisterPublic(request.source, request.password);

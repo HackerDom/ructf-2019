@@ -30,10 +30,7 @@ namespace NotificationsAPI
 			var mongoDbClient = new MongoDbClient(settings.MongoConnectionString, TimeSpan.FromSeconds(2));
 			ThreadPool.SetMaxThreads(32767, 32767);
 			ThreadPool.SetMinThreads(2048, 2048); 
-		//mongoDbClient.InsertMessage("ab", new Message("a", DateTime.UtcNow + TimeSpan.FromSeconds(2))).GetAwaiter().GetResult();
-		//	var a = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
-		//	Thread.Sleep(TimeSpan.FromSeconds(30));
-		//	var b = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
+	
 			var (authorizer, sourceStorage) = new StateRestorer(mongoDbClient).Restore().GetAwaiter().GetResult();
 
 			var addUserInfoHandler = new AddSourceInfoHandler(mongoDbClient, authorizer, sourceStorage, log);
@@ -48,11 +45,7 @@ namespace NotificationsAPI
 			handlerMapper.Add("/addUserInfo", HttpMethod.Post, addUserInfoHandler);
 			handlerMapper.Add("/subscribe", HttpMethod.Get, new SubscribeOnSourceHandler(subscriber));
 			handlerMapper.Add("/sendMessage", HttpMethod.Post, sendMessageHandler);
-			//sourceStorage.Add("123");
-			//authorizer.RegisterPublic("123", "123");
-			//sourceStorage.TryGetInfo("123", out var info);
-			//info.AddMessage(new Message("bla bla", DateTime.MaxValue));
-			//messagSender.Send("bla bla", info);
+
 
 			var routingHandler = new RoutingHandler(handlerMapper, log);
 

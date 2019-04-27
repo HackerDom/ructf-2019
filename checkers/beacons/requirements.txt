@@ -1,0 +1,6 @@
+mimesis==3.0.1
+requests==2.18.4
+psycopg2==2.7.4
+flask==1.0.2
+flask_restful==0.3.7
+selenium==3.141.0
