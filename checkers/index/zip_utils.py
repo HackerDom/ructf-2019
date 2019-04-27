@@ -22,6 +22,7 @@ def create_flag_zip(flag) -> Tuple[str, bytes]:
     is_flag_in = False
     filename = f'{Randomizer.word(20)}.zip'
     with ZipFile(b, 'w') as z:
+        z.filename = filename
         n = random.randint(2, 4)
         for i in range(n):
             for ii in range(random.randint(1, 3)):

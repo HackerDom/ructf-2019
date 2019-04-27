@@ -1,5 +1,4 @@
 from sanic import Sanic
-from sanic_auth import Auth
 from sanic_jinja2 import SanicJinja2
 from sanic_motor import BaseModel
 from sessions import Sessions

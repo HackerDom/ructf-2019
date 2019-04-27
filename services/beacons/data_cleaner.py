@@ -21,14 +21,11 @@ def clean_photos(date_to_expire, photos_collection, beacon_collection):
     print(str(c) + " photos were removed")
 
 
-def clean_beacons(date_to_expire, photos_collection, beacon_collection, users_collection):
+def clean_beacons(date_to_expire, beacon_collection, users_collection):
     print("clear beacons")
     expired_beacons_cursor = beacon_collection.find({"createDate": {"$lt": date_to_expire}})
     c = 0
     for beacon in expired_beacons_cursor:
-        # for photo in beacon["photos"]:
-        #     print(photo)
-        #     clean_photo(ObjectId(photo), photos_collection, beacon_collection)
 
         beacon_id = beacon["_id"]
 
@@ -44,7 +41,7 @@ def clean(expire_after, photos_collection, beacon_collection, users_collection):
     while True:
         date_to_expire = datetime.utcnow() - timedelta(0, expire_after_interval_seconds)
         clean_photos(date_to_expire, photos_collection, beacon_collection)
-        clean_beacons(date_to_expire, photos_collection, beacon_collection, users_collection)
+        clean_beacons(date_to_expire, beacon_collection, users_collection)
         time.sleep(expire_after)
 
 

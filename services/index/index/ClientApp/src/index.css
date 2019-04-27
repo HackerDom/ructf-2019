@@ -91,5 +91,10 @@ input {
 }
 
 .upload-input-label {
-
+    border: solid 1px #a263aa;
+    display: block;
+    padding: 5px;
+    border-radius: 5px;
+    margin: 0;
+    
 }

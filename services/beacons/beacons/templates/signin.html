@@ -7,10 +7,13 @@
 </head>
 <body>
     <div class="sign-container">
-        <div class="sign-desc">
-            Hello! You are in a simulation. This map should help you. <br>
-            Make beacons, attach photos of the area, share beacons with friends and try to find the way to reality!<br>
-            Firstly, you should sign in.
+        <div class="icon-desc">
+            <img class="icon" src="/static/images/beacon.png">
+            <div class="sign-desc">
+                Hello! You are in a simulation. This map should help you. <br>
+                Make beacons, attach photos of the area, share beacons with friends and try to find the way to reality!<br>
+                Firstly, you should sign in.
+            </div>
         </div>
         <div class="sign-error">{{ message }}</div>
         <form action="Signin" method="post">
