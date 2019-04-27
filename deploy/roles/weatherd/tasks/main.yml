@@ -39,15 +39,26 @@
 #  notify: enable and restart services
 
 # example of copying dirs with many files
-#- name: copy service files
-#  synchronize: 
-#    src: "{{ playbook_dir }}/../services/weatherd/"
-#    dest: /home/weatherd/
-#    rsync_opts:
-#      - "--chmod=D0770"
-#      - "--chmod=F0660"
-#      - "--chown=weatherd:weatherd"
-#  notify: enable and restart services
+- name: copy service files imma
+  synchronize: 
+    src: "{{ playbook_dir }}/../services/weatherd/imma_rust/"
+    dest: /home/weatherd/imma_rust/
+    rsync_opts:
+      - "--chmod=D0770"
+      - "--chmod=F0660"
+      - "--chown=weatherd:weatherd"
+  notify: enable and restart services
+
+# example of copying dirs with many files
+- name: copy service files ddd
+  synchronize: 
+    src: "{{ playbook_dir }}/../services/weatherd/weatherd/"
+    dest: /home/weatherd/imma_rust/
+    rsync_opts:
+      - "--chmod=D0770"
+      - "--chmod=F0660"
+      - "--chown=weatherd:weatherd"
+  notify: enable and restart services
 #
 
 - name: fix permissions

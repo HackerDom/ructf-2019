@@ -2,8 +2,8 @@
     Description=WeatherD service
 
 [Service]
-    ExecStart=/home/weatherd/weatherd.py
-    WorkingDirectory=/home/weatherd/
+    ExecStart=/usr/bin/cargo run
+    WorkingDirectory=/home/weatherd/weatherd
     User=weatherd
     Group=weatherd
     Restart=on-failure
