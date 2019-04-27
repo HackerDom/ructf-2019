@@ -19,17 +19,7 @@ let passwordField = $("#password-fld");
 let idField = $("#id-fld");
 let hugButton = $("#hug-btn");
 let bhSource = $("#bh-source");
-
-let rightButton = $("#rht-b");
-let leftBraceButton = $("#lbr-b");
-let rightBraceButton = $("#rbr-b");
-let incButton = $("#inc-b");
-let decButton = $("#dec-b");
-let printButton = $("#prt-b");
-let scanButton = $("#scn-b");
-let leftButton = $("#lft-b");
-
-let buttons = [rightButton, leftBraceButton, rightBraceButton, incButton, decButton, printButton, scanButton, leftButton];
+let bhStdout = $("#bh-stdout");
 
 
 function genRandString(length) {
@@ -53,9 +43,8 @@ function clearCookies() {
 }
 
 function runTask() {
-    console.log($("#bh-source").val());
     let data = JSON.stringify({
-        "source": $("#bh-source").val(),
+        "source": bhSource.val(),
         "stdinb64": btoa($("#bh-stdin").val()),
         "token": token,
     });
@@ -65,10 +54,9 @@ function runTask() {
         url: "/run_task",
         data: data,
         success: function (data, status, obj) {
-            // $("#error-out-fld").text("");
-            // $("#stdout-out-fld").text("");
-            // $("#stdout-div").css("display", "none");
-            // $("#error-div").css("display", "none");
+            // show bar
+            unsetError();
+            bhStdout.text("");
             interval = 100;
             timerId = setInterval(checkTask, interval, JSON.parse(data).taskId);
         },
@@ -77,9 +65,7 @@ function runTask() {
                 clearCookies();
                 location.reload();
             }
-            // $("#noTrespassingOuterBarG").css("display", "none");
-            // $("#error-out-fld").text("Could not connect to server.");
-            // $("#error-div").css("display", "block");
+            // hide bar
         },
         dataType: "text",
     });
@@ -92,18 +78,13 @@ function checkTask(taskId) {
         success: function (data, status, obj) {
             let task = JSON.parse(data);
             if (task.Status === 0) {
-                // console.log("result", atob(task.Stdoutb64));
-                console.log(atob(task.Stdoutb64));
-                $("#bh-stdout").text(atob(task.Stdoutb64));
-                // $("#stdout-div").css("display", "block");
-                // $("#stdout-out-fld").text(atob(task.Stdoutb64));
-                // $("#noTrespassingOuterBarG").css("display", "none");
+                bhStdout.text(atob(task.Stdoutb64));
+                // hide bar
                 clearInterval(timerId);
             } else if (task.Status === 2) {
-                console.log("error", task.Error);
-                // $("#error-out-fld").text("Executing error: " + task.Error);
-                // $("#error-div").css("display", "block");
-                // $("#noTrespassingOuterBarG").css("display", "none");
+                setError();
+                bhStdout.text(task.Error);
+                // hide bar
                 clearInterval(timerId);
             }
         },
@@ -112,6 +93,16 @@ function checkTask(taskId) {
     clearInterval(timerId);
     interval = interval * 2;
     timerId = setInterval(checkTask, interval, taskId);
+}
+
+function setError() {
+    bhStdout.removeClass("st30");
+    bhStdout.addClass("bh-text-err");
+}
+
+function unsetError() {
+    bhStdout.removeClass("bh-text-err");
+    bhStdout.addClass("st30");
 }
 
 function getUid() {
@@ -128,7 +119,7 @@ function setInterface(mode) {
     if (mode === Mode.work) {
         hideObj(loginFrom);
         showObj(workPage);
-        $("#prompt-header").text("Hello, user with id=" + getUid() + "! Execute your BrainHug code here!");
+        bhSource.text("User id=" + getUid() + "! Hug your mind with it!\n++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.");
     } else {
         hideObj(workPage);
         showObj(loginFrom);
@@ -229,17 +220,26 @@ function addSymbol(c) {
 
 let id2ops = {
     "inc": "+",
+    "phl": "+",
+    "pvl": "+",
     "dec": "-",
+    "mns": "-",
     "rht": ">",
+    "grt": ">",
     "lbr": "[",
+    "lfb": "[",
     "scn": ",",
+    "col": ",",
     "prt": ".",
+    "dot": ".",
     "rbr": "]",
+    "rhb": "]",
     "lft": "<",
+    "lst": "<",
 };
 
-buttons.forEach(function (button) {
-    button.click(function (event) {
+Object.keys(id2ops).forEach(function (buttonIdPregix) {
+    $("#" + buttonIdPregix + "-b").click(function (event) {
         let idPref = event.target.id.substr(0, 3);
         bhSource.text(bhSource.val() + id2ops[idPref]);
     })
