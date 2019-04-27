@@ -2,37 +2,33 @@
 
 import requests
 import generator
-import db_manager
 import beacons_api
 from infrastructure.actions import Checker
 from infrastructure.verdict import Verdict
-from urllib.error import URLError
 
 COORDINATOR = ('0.0.0.0', 5555)
 Checker.INFO = 'vulns: 1'
 STATES = {101: Verdict.OK, 102: Verdict.CORRUPT, 103: Verdict.MUMBLE, 104: Verdict.DOWN, 110: Verdict.CHECKER_ERROR}
 
 
-# проверку на 104 добавить, если совсем лежит
-
-# тут можно впилить обычный пинг на проверку дауна
 @Checker.define_check
 def on_check(team_ip: str) -> Verdict:
     private_result = False
     public_result = False
     sharing_result = False
-    device_private_result = False
-    device_public_result = False
 
     # check adding pictures, sharing links and devices
     image_name, device = generator.get_image()
-    for i in range(6):
-        user, password = generator.generate_userpass(None)[0]
-        cookie = beacons_api.register_user(team_ip, user, password)
-        if cookie:
-            break
-        if i == 5:
-            return Verdict.MUMBLE("Can't register new user", "Can't register new user")
+    try:
+        for i in range(6):
+            user, password = generator.generate_userpass(None)[0]
+            cookie = beacons_api.register_user(team_ip, user, password)
+            if cookie:
+                break
+            if i == 5:
+                return Verdict.MUMBLE("Can't register new user", "Can't register new user")
+    except requests.exceptions.ConnectionError:
+        return Verdict.DOWN('down', 'ConnectionError')
 
     # могжет не подойти название, коммент или координаты оказаться использованными
     for i in range(5):
@@ -55,16 +51,14 @@ def on_check(team_ip: str) -> Verdict:
     if not image_id_private or not image_id_public:
         return Verdict.MUMBLE("Can't upload image", "Can't upload image")
 
-    # check availability of private image
-    # same_user_cookie = beacons_api.sign_in(team_ip, user, password)
-    # if not same_user_cookie:
-    #     return Verdict.MUMBLE("Can't sign in", "Can't sign in")
     images = beacons_api.get_image_ids(team_ip, cookie, beacon_id_private)
     if image_id_private in [img['id'] for img in images]:
         print(1)
         private_result = True
 
-    # LOGOUT
+    logout = beacons_api.logout(team_ip, cookie)
+    if logout != 200:
+        return Verdict.MUMBLE('no logout', 'no logout')
 
     # check availability of public image
     for i in range(4):
@@ -85,7 +79,9 @@ def on_check(team_ip: str) -> Verdict:
         print(3)
         sharing_result = True
 
-    # LOGOut
+    logout = beacons_api.logout(team_ip, another_user_cookie)
+    if logout != 200:
+        return Verdict.MUMBLE('no logout', 'no logout')
 
     if private_result and public_result and sharing_result:
         return Verdict.OK()
@@ -97,14 +93,16 @@ def on_check(team_ip: str) -> Verdict:
 @Checker.define_put(vuln_num=1)
 def on_put(team_ip: str, flag_id: str, flag: str) -> Verdict:
     global STATES
-    req = requests.put(f'http://{COORDINATOR[0]}:{COORDINATOR[1]}',
-                       data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': 1},
-                       timeout=10)
     try:
+        req = requests.put(f'http://{COORDINATOR[0]}:{COORDINATOR[1]}',
+                           data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': 1},
+                           timeout=10)
         result = req.text.split('//')
         # print(result)
         code = int(result.pop(0))
         return STATES[code](*result)
+    except requests.exceptions.ConnectionError:
+        return Verdict.DOWN('down', 'ConnectionError')
     except:
         return Verdict.CHECKER_ERROR('', 'returned bad format')
 
@@ -112,7 +110,10 @@ def on_put(team_ip: str, flag_id: str, flag: str) -> Verdict:
 @Checker.define_get(vuln_num=1)
 def on_get(team_ip: str, flag_id: str, flag: str) -> Verdict:
     user, password = generator.generate_userpass(flag_id)[0]
-    cookie = beacons_api.sign_in(team_ip, user, password)
+    try:
+        cookie = beacons_api.sign_in(team_ip, user, password)
+    except requests.exceptions.ConnectionError:
+        return Verdict.DOWN('down', 'ConnectionError')
     if not cookie:
         return Verdict.MUMBLE('', "no session cookie, can't sign in")
     beacons = beacons_api.get_all_user_beacons(team_ip, cookie)

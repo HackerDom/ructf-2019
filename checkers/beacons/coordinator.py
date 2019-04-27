@@ -21,7 +21,7 @@ SAFETY_FLAG = 0
 
 def put(team_ip, flag_id, flag, vuln):
     global SAFETY_FLAG
-
+    db_manager.check_down_worker(team_ip, vuln)
     worker = get_free_worker()
 
     if worker is None:
@@ -54,10 +54,6 @@ def put(team_ip, flag_id, flag, vuln):
         return f'110 // Error // Error: {e}', 404
 
     return get_team_state(team_ip, vuln)
-
-
-def is_processing_by_worker(team_ip, vuln):
-    return db_manager.is_processing_by_worker(team_ip, vuln)
 
 
 def get_team_state(team_ip, vuln):
