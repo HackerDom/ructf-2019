@@ -1,0 +1,14 @@
+[Unit]
+    Description=GeoAPI service
+
+[Service]
+    ExecStart=/home/geoapi/geoapi
+    WorkingDirectory=/home/geoapi/
+    User=geoapi
+    Group=geoapi
+    Restart=on-failure
+    RestartSec=2s
+    # CPUQuota=400%
+
+[Install]
+    WantedBy=multi-user.target

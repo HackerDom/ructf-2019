@@ -11,7 +11,7 @@
   user: name=index shell=/bin/false
 
 - name: create mongo user
-  user: name=mongodb shell=/bin/false
+  user: name=mongodb shell=/bin/false create_home=false
 
 - name: copy motd
   copy: src=motd dest=/etc/motd
