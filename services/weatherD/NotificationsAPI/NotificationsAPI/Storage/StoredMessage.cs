@@ -8,7 +8,7 @@ namespace NotificationsApi.Storage
 	{
 		public string Content;
 		[BsonElement("expireAt")]
-		public DateTime expireAt;
+		public DateTime ExpireAt;
 
 		public string SourceName;
 		[BsonRepresentation(BsonType.ObjectId)]
@@ -18,7 +18,7 @@ namespace NotificationsApi.Storage
 		{
 			Id = ObjectId.GenerateNewId();
 			Content = content;
-			this.expireAt = expireAt;
+			this.ExpireAt = expireAt;
 			SourceName = sourceName;
 		}
 	}

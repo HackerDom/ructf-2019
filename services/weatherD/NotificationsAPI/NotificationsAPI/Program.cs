@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NotificationsApi;
+using NotificationsApi.Documens;
 //using NotificationsApi;
 using NotificationsApi.Handlers;
 using NotificationsApi.Storage;
@@ -25,13 +27,13 @@ namespace NotificationsAPI
 			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 			var log = log4net.LogManager.GetLogger(typeof(Program));
 			var settings = GetSettings();
-			var mongoDbClient = new MongoDbClient(settings.MongoConnectionString);
+			var mongoDbClient = new MongoDbClient(settings.MongoConnectionString, TimeSpan.FromSeconds(2));
 			ThreadPool.SetMaxThreads(32767, 32767);
 			ThreadPool.SetMinThreads(2048, 2048); 
-			//mongoDbClient.InsertMessage("ab", new Message(new byte[0], DateTime.UtcNow + TimeSpan.FromSeconds(10))).GetAwaiter().GetResult();
-			//var a = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
-			//Thread.Sleep(TimeSpan.FromSeconds(15));
-			//var b = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
+		//mongoDbClient.InsertMessage("ab", new Message("a", DateTime.UtcNow + TimeSpan.FromSeconds(2))).GetAwaiter().GetResult();
+		//	var a = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
+		//	Thread.Sleep(TimeSpan.FromSeconds(30));
+		//	var b = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
 			var (authorizer, sourceStorage) = new StateRestorer(mongoDbClient).Restore().GetAwaiter().GetResult();
 
 			var addUserInfoHandler = new AddSourceInfoHandler(mongoDbClient, authorizer, sourceStorage, log);
