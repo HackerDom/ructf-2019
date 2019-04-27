@@ -19,7 +19,7 @@ RUSTPORT = 7878
 NotificationApiPort = 5000
 
 rustClient = RustClient(RUSTPORT, 3)
-notificationApiClient = NotificationApiClient("127.0.0.1", NotificationApiPort, 3)
+notificationApiClient = NotificationApiClient("10.33.54.127", NotificationApiPort, 3)
 
 IMAGE_WIDTH = 1000
 IMAGE_HEIGHT = 1000
@@ -184,7 +184,6 @@ def decode_flag_bytes(u8bytes):
                 n = 0
         res = []
         for x in nums:
-            print("num :", x)
             r = x
             for i in range(17):
                 num = to_u32(r % 37)
@@ -223,5 +222,6 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-   Checker.run()
+   ip = "10.33.54.127"
+   check_service(ip)
 
