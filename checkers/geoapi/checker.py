@@ -95,9 +95,6 @@ COMMANDS = {'check': check, 'put': put, 'get': get, 'info': info}
 #TODO: get_object recive shit b'YK8glpMAEcDKQbYjXXc13PdvOlvtC8SP'
 #print(get_agent("localhost", "YK8glpMAEcDKQbYj"))
 
-check("localhost")
-#put("localhost", "asdasdasd", "asdasdasdasdasdasd")
-
 if __name__ == '__main__':
     try:
         COMMANDS.get(argv[1], not_found)(*argv[2:])
