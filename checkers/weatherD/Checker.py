@@ -1,6 +1,6 @@
 #!/home/cs/miniconda3/bin/python3
-from Checkers.infrastructure.actions import Checker
-from Checkers.infrastructure.verdict import Verdict
+from infrastructure.actions import Checker
+from infrastructure.verdict import Verdict
 from aiohttp_sse_client import client as sse_client
 import asyncio
 
@@ -141,10 +141,6 @@ def get_flag_from_base64(base64text):
 
 def getImageFromBase64(base64Image) -> Image:
     try:
-        image = open("image.png", "wb")
-        image.write(base64.b64decode(base64Image))
-        image.close()
-
         bytes = base64.b64decode(base64Image)
 
         image = Image.open(io.BytesIO(bytes))
