@@ -1,7 +1,6 @@
 use std::string;
 use uuid::Uuid;
 
-
 use chrono::prelude::*;
 use std::collections::HashMap;
 
@@ -10,15 +9,10 @@ pub enum Race {
     Supermutant,
 }
 
-
-
 pub struct WeatherSource {
     pub name : String,
     pub password : String,
     pub token : String,
-    pub encryption : bool,
-    pub encryption_key : String,
-    pub iv : String,
 
     pub population : String,
     pub place_status  :String,
@@ -28,24 +22,11 @@ pub struct WeatherSource {
 
 
 
-//impl WeatherSource {
-//    pub fn new(name : String, planet_name : String, population : u64, ) -> WeatherSource {
-//        return WeatherSource {
-//            name: name,
-////            planet_name : planet_name,
-////            population : population,
-////            discovery_date : Utc::now(),
-////            internal_id : Uuid::
-//        };
-//    }
-//}
-
 impl WeatherSource {
     fn get_name(self) -> String{
         return self.name;
     }
 }
-
 
 
 impl WeatherState {
@@ -74,8 +55,6 @@ pub struct WeatherState {
 impl WeatherState {
     pub fn new() -> WeatherState {
        return WeatherState {
-//            started_at: SystemTime::now(),
-////            visits: Arc::new(Mutex::new(0)),
             sources: HashMap::new()
         }
     }

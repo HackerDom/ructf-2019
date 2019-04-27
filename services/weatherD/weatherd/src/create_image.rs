@@ -1,16 +1,7 @@
 extern crate regex;
-extern crate resvg;
 
 use regex::bytes::Regex;
-use self::resvg::usvg;
 use std::path::Path;
-use self::resvg::prelude::Options;
-
-pub fn create_pixels (str : &str){
-    let regex = Regex::new("/^[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}$/").unwrap();
-
-    let parts: Vec<&str> = str.split('-').collect();
-}
 
 pub fn encode(s : &str) -> Vec<u8>{
     let mut vec: Vec<u128> = Vec::new();
@@ -18,7 +9,12 @@ pub fn encode(s : &str) -> Vec<u8>{
     let mut i = 0;
     let mut number : u128 = 0;
 
-    for x in s.to_string().to_lowercase().chars().into_iter() {
+    let padding = "00000000000000000000000000000000";
+    let mut ss = s.to_string() + padding;
+
+    ss.truncate(32);
+
+    for x in ss.to_lowercase().chars().into_iter() {
         i += 1;
         let n = convert_char(x) as u128;
 
@@ -81,9 +77,7 @@ pub fn decode(vec : Vec<u8> ) -> String {
     let mut result2: Vec<char> = Vec::new();
 
     for x in 0..32 {
-//        if x != 14 && x != 15 {
-            result2.push(result[x]);
-//        }
+        result2.push(result[x]);
     }
 
     let result3: String = result2.into_iter().rev().collect();
@@ -107,7 +101,7 @@ fn convert_char(c : char) -> u32 {
         return 36;
     }
 
-    panic!("unexpected number");
+    return 36;
 }
 
 
