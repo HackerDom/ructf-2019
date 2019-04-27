@@ -20,40 +20,38 @@ SAFETY_FLAG = 0
 
 
 def put(team_ip, flag_id, flag, vuln):
-    """ init worker if currently no one is responsible for given team+vuln and send state from database """
     global SAFETY_FLAG
 
-    already_running = is_processing_by_worker(team_ip, vuln)
+    worker = get_free_worker()
 
-    if not already_running:
-        worker = get_free_worker()
-        if worker is None:
-            print('\n*** FATAL: NO FREE WORKERS ***\n')
-            return '110 // Checker error // No free workers', 404
+    if worker is None:
+        print('\n*** FATAL: NO FREE WORKERS ***\n')
+        return get_team_state(team_ip, vuln)
+        # return '110 // Checker error // No free workers', 404
 
-        try:
-            req = requests.put(f'http://{worker[0]}:{worker[1]}',
-                               data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': vuln},
-                               timeout=10)
+    try:
+        req = requests.put(f'http://{worker[0]}:{worker[1]}',
+                           data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': vuln},
+                           timeout=10)
 
-            if req.status_code != 200:
-                raise ConnectionError
-            print('Worker initialized')
-            time.sleep(3)  # for worker to fill db
-            SAFETY_FLAG = 0
+        if req.status_code != 200:
+            raise ConnectionError
+        print('Worker initialized')
+        time.sleep(3)  # for worker to fill db
+        SAFETY_FLAG = 0
 
-        except ConnectionError or HTTPError:
-            print('\n*** ERROR: BAD RESPONSE FROM WORKER ***\n')
-            SAFETY_FLAG += 1
-            if SAFETY_FLAG >= 8:
-                return '110 // Checker error // Too many bad responses from workers'
-            bad_worker = db_manager.get_worker_id_by_host(worker[0], worker[1])[0][0]
-            db_manager.set_down_state(bad_worker)
-            return reinit_worker(team_ip, flag_id, flag, vuln)
+    except ConnectionError or HTTPError:
+        print('\n*** ERROR: BAD RESPONSE FROM WORKER ***\n')
+        SAFETY_FLAG += 1
+        if SAFETY_FLAG >= 8:
+            return '110 // Checker error // Too many bad responses from workers'
+        bad_worker = db_manager.get_worker_id_by_host(worker[0], worker[1])[0][0]
+        db_manager.set_down_state(bad_worker)
+        return reinit_worker(team_ip, flag_id, flag, vuln)
 
-        except Exception as e:
-            print(f"\n*** FATAL: {e}***\n")
-            return f'110 // Error // Error: {e}', 404
+    except Exception as e:
+        print(f"\n*** FATAL: {e}***\n")
+        return f'110 // Error // Error: {e}', 404
 
     return get_team_state(team_ip, vuln)
 

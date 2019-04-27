@@ -97,7 +97,7 @@ def handle_request():
     w = Worker(**args)
     user, password = generator.generate_userpass(args['flag_id'])[0]
     result = w.put(user, password)
-    w.begin_loop(60)
+    w.begin_loop(50)
     db_manager.add_job(HOST, PORT, **args)
     return result, 200
 
