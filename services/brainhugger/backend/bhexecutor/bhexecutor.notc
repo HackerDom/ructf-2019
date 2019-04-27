@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
     char output[MAX_OUTPUT_LEN];
     int input_len = 0;
     char c;
-    while ((c = getc(stdin)) != EOF && input_len < MAX_INPUT_LEN) {
+    while ((char)(c = getc(stdin)) != (char)EOF && input_len < MAX_INPUT_LEN) {
         input[input_len++] = c;
     }
     unsigned int written_bytes;
