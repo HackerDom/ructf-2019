@@ -1,7 +1,5 @@
 import psycopg2
 import datetime
-import random
-from psycopg2.extensions import AsIs
 
 CREDS = {'host': 'localhost', 'port': 5432, 'user': 'postgres', 'password': 'postgres', 'dbname': 'checker'}
 
@@ -41,20 +39,17 @@ def get_worker_state(host, port):
 # Если в таблице есть старая джоба, не удаленная почему-то,
 # это значит что ее воркер нерабочий (id в таблице уникальны).
 # Скажем всем что он даун и что команде нужен новый воркер.
-def is_processing_by_worker(team_ip, vuln):
-    max_working_time = 60
+def check_down_worker(team_ip, vuln):
+    max_working_time = 50
     result = _execute("select worker_id, init_time from jobs where team_ip=%s and vuln=%s;", (team_ip, vuln))
     if result:
         worker_id, init_time = result[0][0], result[0][1]
         if init_time < (datetime.datetime.now() - datetime.timedelta(seconds=max_working_time)).time():
             set_down_state(worker_id)
-            return False
-        return True
-    return False
 
 
 def get_team_state(team_ip, vuln):
-    return _execute("select state from teams_state where team_ip=%s and vuln=%s;", ( team_ip, vuln))
+    return _execute("select state from teams_state where team_ip=%s and vuln=%s;", (team_ip, vuln))
 
 
 # makes state of worker directly to down (use ONLY THIS function for that purpose)
@@ -106,8 +101,6 @@ def _print_exception(e):
     print(e)
     print('****************\n')
 
-
 # if __name__ == '__main__':
 #     # testing
 #     x, y = get_coords('checker')
-

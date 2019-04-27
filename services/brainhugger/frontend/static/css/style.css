@@ -249,7 +249,8 @@ hr {
     -ms-overflow-style: none;
     overflow: -moz-scrollbars-none;
     white-space: nowrap;
-    font-size: 43px;
+    font-size: 30px;
+    font-family: 'Bungee Inline', cursive;
 }
 
 #bh-stdout::-webkit-scrollbar {
@@ -264,4 +265,8 @@ hr {
 #bh-source::selection {
     color: #00FF00;
     background: black;
+}
+
+#by_1_ {
+    ;
 }

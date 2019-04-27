@@ -38,10 +38,10 @@ namespace NotificationsApi.Storage
 		       if(!sourceStorage.TryGetInfo(messages.Key, out var sourceInfo))
 				   continue;
 
-				foreach(var message in messages.OrderBy(x => x.expireAt))
+				foreach(var message in messages.OrderBy(x => x.ExpireAt))
 		        {
-					if(message.expireAt > DateTime.UtcNow)
-						sourceInfo.AddMessage(new Message(message.Content, message.expireAt));
+					if(message.ExpireAt > DateTime.UtcNow)
+						sourceInfo.AddMessage(new Message(message.Content, message.ExpireAt));
 		        }
 	        }
 
