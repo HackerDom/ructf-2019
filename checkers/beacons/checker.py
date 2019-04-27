@@ -1,3 +1,5 @@
+#!/home/cs/miniconda3/bin/python3
+
 import requests
 import generator
 import db_manager
@@ -7,7 +9,7 @@ from infrastructure.verdict import Verdict
 from urllib.error import URLError
 
 COORDINATOR = ('0.0.0.0', 5555)
-Checker.INFO = '1:1'
+Checker.INFO = 'vulns: 1'
 STATES = {101: Verdict.OK, 102: Verdict.CORRUPT, 103: Verdict.MUMBLE, 104: Verdict.DOWN, 110: Verdict.CHECKER_ERROR}
 
 

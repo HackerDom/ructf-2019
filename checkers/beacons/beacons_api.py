@@ -71,9 +71,9 @@ def get_shared_beacon(host, session, invite):
     return json.loads(is_private)['is_private']
 
 
-@handle_exception
-def logout(host, session):
-    done = requests.
+# @handle_exception
+# def logout(host, session):
+#     done = requests.
 
 @handle_exception
 def get_beacon_invite(host, session, beacon_id):
