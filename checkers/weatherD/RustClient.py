@@ -1,5 +1,6 @@
 from urllib.request import urlopen, Request
 import json
+from requestsHepler import get_user_agent_header
 
 class RustClient:
     def __init__(self, port, timeout):
@@ -51,8 +52,6 @@ class RustClient:
         return None
 
 
-
-
     def create_create_source_request(self, source_name: str, passwrd: str, is_public: bool, ip: str):
         post_fields = {'name': source_name,
                        'password': passwrd,
@@ -63,19 +62,19 @@ class RustClient:
                        }
 
         post_json = json.dumps(post_fields)
-        return Request("http://{0}:{1}/create_source".format(ip, self.port), post_json.encode())
+        return Request("http://{0}:{1}/create_source".format(ip, self.port), post_json.encode(), headers=get_user_agent_header())
 
     def create_push_to_source_request(self, source_name, password, message, ip):
         post_fields = {'name': source_name, 'password': password, 'message': message}
 
         post_json = json.dumps(post_fields)
-        return Request("http://{0}:{1}/push_message".format(ip, self.port), post_json.encode())
+        return Request("http://{0}:{1}/push_message".format(ip, self.port), post_json.encode(), headers=get_user_agent_header())
 
     def decode_body(self, response):
         try:
-            return (True, response.read().decode().strip())
+            return True, response.read().decode().strip()
         except Exception as e:
-            return (False, e)
+            return False, e
 
 
 class RustResult:

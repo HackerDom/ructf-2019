@@ -27,6 +27,8 @@ IMAGE_HEIGHT = 1000
 PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (974, 636), (982, 570), (1042, 497), (1055, 420)]
 
 
+
+
 def check_result(result):
     if result is None:
         return Verdict.DOWN("network error", "network error")
