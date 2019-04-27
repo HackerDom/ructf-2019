@@ -102,9 +102,6 @@ def not_found(*args):
     print("Unsupported command %s" % argv[1], file=stderr)
     return CHECKER_ERROR
 
-
-put("localhost", "", "flag")
-
 COMMANDS = {'check': check, 'put': put, 'get': get, 'info': info}
 
 if __name__ == '__main__':
