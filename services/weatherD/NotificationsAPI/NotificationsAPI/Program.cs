@@ -1,16 +1,14 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Text;
-using System.Threading;
 using log4net;
 using log4net.Config;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using NotificationsApi;
 using NotificationsApi.Documens;
 using NotificationsApi.Handlers;
@@ -26,8 +24,9 @@ namespace NotificationsAPI
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
 			var log = log4net.LogManager.GetLogger(typeof(Program));
-
-			var mongoDbClient = new MongoDbClient();
+			var a = JsonConvert.SerializeObject(new Settings());
+			var settings = GetSettings();
+			var mongoDbClient = new MongoDbClient(settings.MongoConnectionString);
 
 			//mongoDbClient.InsertMessage("ab", new Message(new byte[0], DateTime.UtcNow + TimeSpan.FromSeconds(10))).GetAwaiter().GetResult();
 			//var a = mongoDbClient.GetAllMessages().GetAwaiter().GetResult();
@@ -39,10 +38,10 @@ namespace NotificationsAPI
 			var sseClient = new SseClient();
 			var subscriber = new Subscriber(authorizer, sourceStorage, sseClient);
 			var messagSender = new MessageSender();
-			var sendMessageHandler = new SendMessageHandler(messagSender, mongoDbClient, sourceStorage, authorizer);
+			var sendMessageHandler = new SendMessageHandler(messagSender, mongoDbClient, sourceStorage, authorizer, settings.dataTtl);
 			var handlerMapper = new HandlerMapper();
 
-			var expDaemon = new ExpirationDaemon(sourceStorage);
+			var expDaemon = new ExpirationDaemon(sourceStorage, settings.dataTtl);
 
 			handlerMapper.Add("/addUserInfo", HttpMethod.Post, addUserInfoHandler);
 			handlerMapper.Add("/subscribe", HttpMethod.Get, new SubscribeOnSourceHandler(subscriber));
@@ -72,6 +71,15 @@ namespace NotificationsAPI
 				.Build();
 
 			host.Run();
+		}
+
+		private static Settings GetSettings()
+		{
+			var filepath = "../../../../settings";
+			if(!File.Exists(filepath))
+				return new Settings();
+			var readText = File.ReadAllText(filepath);
+			return JsonConvert.DeserializeObject<Settings>(readText);
 		}
 	}
 }

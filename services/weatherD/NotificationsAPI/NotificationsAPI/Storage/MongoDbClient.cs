@@ -3,20 +3,23 @@ using MongoDB.Driver;
 using NotificationsApi.Documens;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Configuration;
 
 namespace NotificationsApi.Storage
 {
     internal class MongoDbClient
     {
-        private const string SourceDataDbName = "test";
+	    private readonly string connectionString;
+	    private const string SourceDataDbName = "test";
 	    private const string MessagesDataDbName = "messages";
-		private const string ConnectionString = "mongodb://localhost:27017";
+		//private string ConnectionString = "mongodb://localhost:27017";
 
 		private readonly IMongoDatabase authorizesUsersDatabase;
 
-		public MongoDbClient()
+		public MongoDbClient(string connectionString)
         {
-			var client = new MongoClient(ConnectionString);
+	        this.connectionString = connectionString;
+	        var client = new MongoClient(connectionString);
 			authorizesUsersDatabase = client.GetDatabase(SourceDataDbName);
 		}
 

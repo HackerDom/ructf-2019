@@ -4,13 +4,13 @@ import "./App.css";
 import { Formik, Form, Field } from "formik";
 
 const host = window.location.host;
-const notificationsApiHost = "127.0.0.1:5000"
-const rustHost = "10.33.54.127:7878"
+const notificationsApiHost = "10.34.104.18:5000"
+const rustHost = "10.34.104.18:7878"
 let news = []
 let articles = ["4"];
 function getSources()
 {
-  fetch(`http://10.33.54.127:7878/get_sources_list`, {
+  fetch(`http://10.34.104.18:7878/get_sources_list`, {
     method: "GET",
     mode: "no-cors",
   })
