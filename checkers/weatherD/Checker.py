@@ -13,20 +13,18 @@ import base64
 import io
 import string
 import random
-Checker.INFO = "1"
+Checker.INFO = "vulns: 1"
 
 RUSTPORT = 7878
 NotificationApiPort = 5000
 
 rustClient = RustClient(RUSTPORT, 3)
-notificationApiClient = NotificationApiClient("127.0.0.1", NotificationApiPort, 3)
+notificationApiClient = NotificationApiClient("10.33.54.127", NotificationApiPort, 3)
 
 IMAGE_WIDTH = 1000
 IMAGE_HEIGHT = 1000
 
 PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (974, 636), (982, 570), (1042, 497), (1055, 420)]
-
-
 
 
 def check_result(result):
@@ -60,6 +58,7 @@ async def check(host: str) -> Verdict:
 
     fl = True
     subscribe_req = notificationApiClient.create_subscribe_on_source_request(src_name, token)
+  #  print(subscribe_req)
     async with sse_client.EventSource(subscribe_req) as event_source:
         try:
             async for event in event_source:
@@ -69,6 +68,7 @@ async def check(host: str) -> Verdict:
 
                 if message in decode_result.upper():
                     fl = False
+                   # print(decode_result)
                     break
         except Exception as e:
             return Verdict.DOWN("network error", "network error")
@@ -81,7 +81,7 @@ async def check(host: str) -> Verdict:
     if check_res is not None:
         return check_res
 
-    print(1)
+   # print(1)
     return Verdict.OK()
 
 
@@ -100,6 +100,7 @@ def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     if check_res is not None:
         return check_res
 
+   # print('{}:{}'.format(flag_id, token))
     return Verdict.OK('{}:{}'.format(flag_id, token))
 
 
@@ -121,6 +122,7 @@ async def get_flag(host: str, flag_id: str, flag: str) -> Verdict:
                     continue
 
                 if flag in decode_result.upper():
+                    print("ok")
                     return Verdict.OK()
         except Exception as e:
             return Verdict.DOWN("network error", "network error")
@@ -184,7 +186,6 @@ def decode_flag_bytes(u8bytes):
                 n = 0
         res = []
         for x in nums:
-            print("num :", x)
             r = x
             for i in range(17):
                 num = to_u32(r % 37)
@@ -223,5 +224,12 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
-   Checker.run()
+    Checker.run()
+#    ip = "10.33.54.127"
+#    check_service(ip)
+#    flag = generate_random_string(31)+'='
+#    id = generate_random_string(10)
+# #   print(flag)
+#  #  put_flag_into_the_service(ip, id, flag )
+#    get_flag_from_the_service(ip, '67CDTZCOJ5:5cc4c6ba-0000-0000-3637-4344545a434f', 'Q02A0JONH9805DGAWK5ZHDH1WPGGGED=')
 

@@ -31,7 +31,6 @@ namespace NotificationsAPI
 				using(StreamReader reader = new StreamReader(b.Request.Body, Encoding.UTF8, true, 1024, true))
 				{
 					body = reader.ReadToEnd();
-                    Console.WriteLine($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {body}");
 				}
 
 				var method = string.Equals(b.Request.Method, "GET", StringComparison.OrdinalIgnoreCase) ? HttpMethod.Get : HttpMethod.Post;

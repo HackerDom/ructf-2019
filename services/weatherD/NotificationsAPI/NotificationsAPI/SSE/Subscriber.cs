@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using NotificationsApi.Storage;
@@ -24,6 +25,8 @@ namespace NotificationsAPI.SSE
 			{
 				if(sourceStorage.TryGetInfo(src, out var res))
 				{
+					httpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+
 					res.AddSubscriber(httpContext);
 					await SendMessagesHistory(res.GetMessagesHistory(), httpContext);
 					return true;

@@ -25,10 +25,10 @@ namespace NotificationsApi.Handlers
 				return;
 			}
 
-            var cts = new TaskCompletionSource<byte>();
+			var cts = new TaskCompletionSource<byte>();
 			request.HttpContext.RequestAborted.Register(() => cts.TrySetResult(1));
 			await cts.Task;
-		    request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+		    
 			subscriber.Unsubscribe(request.source, request.HttpContext);
         }
 	}

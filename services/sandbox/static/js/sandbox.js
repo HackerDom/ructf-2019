@@ -41,7 +41,8 @@ $("#track-btn").click(
             type: "GET",
             url: `/track?uuid=${uuid}`,
             success: function (data, status, obj) {
-                alert("Unit stats: " + data)
+                var stats = JSON.parse(data);
+                alert(`Unit stats:\n \u2022 id: ${stats.uuid}\n\n \u2022 X: ${stats.posX}\n \u2022 Y: ${stats.posY}\n \u2022 Z: ${stats.posZ}\n\n \u2022 power: ${stats.power}`);
             },
             error: function (data, status, obj) {
                 alert("Error: " + data.status)

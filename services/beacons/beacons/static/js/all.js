@@ -294,14 +294,18 @@ function addPhotoRender(photo) {
     imgDiv.classList.add("img-photo");
 
     let imgLabel = document.createElement("div");
+    imgLabel.classList.add("img-label-container");
     imgLabel.classList.add("img-label");
 
     let nameLabel = document.createElement("div");
-    nameLabel.innerHTML = photo["name"];
+    nameLabel.innerHTML = "name: " + photo["name"];
     imgLabel.appendChild(nameLabel);
 
     let deviceLabel = document.createElement("div");
     imgLabel.appendChild(deviceLabel);
+
+    let dateLabel = document.createElement("div");
+    imgLabel.appendChild(dateLabel);
 
     let img = document.createElement("img");
     img.classList.add("img-little");
@@ -312,7 +316,7 @@ function addPhotoRender(photo) {
     imgB.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
 
     img.onload = function() {
-        setDeviceModel(img, deviceLabel);
+        setDeviceModel(img, deviceLabel, dateLabel);
     }
     imgDiv.appendChild(img);
     imgDiv.appendChild(imgLabel);
@@ -353,15 +357,15 @@ function viewBeacon(beacon) {
 
     if (beaconInfo.invite) {
         beaconAdditional.innerHTML =
-        "This beacon is private. If you want other people view this beacon, you can share them this code: </br><span class=\"bold\">" +
+        "This beacon is private.<br/> If you want share it to other people, send them this code: </br><span class=\"bold\">" +
             beaconInfo.invite + "</span>."
         beaconAdditional.classList.remove("hidden");
     }
 
     if (beaconInfo.is_private) {
         beaconAddPhotosFormElement.classList.add("hidden");
-        beaconPhotosElement.innerHTML = "You could not have access to this beacon. If you want, you can ask " +
-            beaconInfo.creator + " share this beacon."
+        beaconPhotosElement.innerHTML = "You could not access to this beacon. If you want, you can ask " +
+            beaconInfo.creator + " to share it."
     } else {
         beaconAddPhotosFormElement.classList.remove("hidden");
         beaconInfo.photos.forEach(function(photo) {
@@ -439,8 +443,15 @@ function viewLatest(mapStateObject, ctx) {
         });
 
         let img = document.createElement("img");
+        img.classList.add("img-little");
         img.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
+
+        let imgB = document.createElement("img");
+        imgB.classList.add("img-big");
+        imgB.setAttribute("src", "/Photo/GetPhoto/" + photo["id"]);
+
         imgDiv.appendChild(img);
+        imgDiv.appendChild(imgB);
         imgDiv.appendChild(buttonGoToBeacon);
 
         latestPhotosElement.appendChild(imgDiv);
@@ -450,12 +461,16 @@ function viewLatest(mapStateObject, ctx) {
     }
 }
 
-function setDeviceModel(imgElement, deviceModelElement) {
+function setDeviceModel(imgElement, deviceModelElement, sizeElement) {
     EXIF.getData(imgElement, function() {
         var make = EXIF.getTag(this, "Make");
         var model = EXIF.getTag(this, "Model");
+        var date = EXIF.getTag(this, "DateTime");
         if (make && model) {
             deviceModelElement.innerHTML = `device: ${make} ${model}`;
+        }
+        if (date) {
+            sizeElement.innerHTML = `date: ${date}`;
         }
     });
 }

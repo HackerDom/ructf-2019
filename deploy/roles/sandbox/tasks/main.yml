@@ -42,9 +42,20 @@
       - "--exclude=build_so.sh"
   notify: enable and restart services
 
-- name: fix permissions
+- name: fix permissions /home/user/sandbox
   file: name=/home/user/sandbox owner=user group=user recurse=yes state=directory
-  file: name=/home/user/sandbox/static owner=nginx group=nginx recurse=yes state=directory
+
+- name: fix permissions /home/user/sandbox/static
+  file: name=/home/user/sandbox/static owner=www-data group=www-data recurse=yes state=directory
+
+- name: fix permissions /home
+  file: name=/home mode=+x
+
+- name: fix permissions /home/user
+  file: name=/home/user mode=+x
+
+- name: fix permissions /home/user/sandbox
+  file: name=/home/user/sandbox mode=+x
 
 - name: build sandbox executable
   command: make -j8
@@ -59,6 +70,14 @@
   args:
     chdir: /home/user/sandbox/proxy
     creates: /home/user/sandbox/proxy/proxy
+
+- name: fix permissions docker_prune.sh
+  file: name=/home/user/sandbox/docker_prune.sh mode=+x
+
+- name: remove all docker containers and images
+  command: ./docker_prune.sh
+  args:
+    chdir: /home/user/sandbox
 
 - name: build proxy docker image
   command: docker build --tag=proxy /home/user/sandbox/proxy

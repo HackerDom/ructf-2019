@@ -9,16 +9,13 @@ namespace NotificationsApi.Storage
 {
     internal class MongoDbClient
     {
-	    private readonly string connectionString;
 	    private const string SourceDataDbName = "test";
 	    private const string MessagesDataDbName = "messages";
-		//private string ConnectionString = "mongodb://localhost:27017";
 
 		private readonly IMongoDatabase authorizesUsersDatabase;
 
 		public MongoDbClient(string connectionString)
         {
-	        this.connectionString = connectionString;
 	        var client = new MongoClient(connectionString);
 			authorizesUsersDatabase = client.GetDatabase(SourceDataDbName);
 		}
