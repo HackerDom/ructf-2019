@@ -1,4 +1,4 @@
-from Checkers.infrastructure.verdict_codes import *
+from infrastructure.verdict_codes import *
 
 
 # noinspection PyPep8Naming
