@@ -70,6 +70,14 @@
     chdir: /home/user/sandbox/proxy
     creates: /home/user/sandbox/proxy/proxy
 
+- name: fix permissions docker_prune.sh
+  file: name=/home/user/sandbox/docker_prune.sh mode=+x
+
+- name: remove all docker containers and images
+  command: ./docker_prune.sh
+  args:
+    chdir: /home/user/sandbox
+
 - name: build proxy docker image
   command: docker build --tag=proxy /home/user/sandbox/proxy
 
