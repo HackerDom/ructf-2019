@@ -1,4 +1,6 @@
-﻿namespace SharpGeoAPI.Utils
+﻿using System;
+
+namespace SharpGeoAPI.Utils
 {
     public interface ISettings
     {
@@ -12,5 +14,6 @@
         int AgentIdSize { get; set; }
         int ObjectIdSize { get; set; }
         int SearchLimit { get; set; }
+        TimeSpan TTL { get; set; }
     }
 }

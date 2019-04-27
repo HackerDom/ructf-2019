@@ -7,6 +7,6 @@ namespace SharpGeoAPI.Storages
     {
         TerrainObject GetTerrainObject(string objectId);
         void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject);
-        IEnumerable<TerrainObject> GetTerrainObjects(string ownerIndex);
+        IEnumerable<TerrainObject> GetTerrainObjects(string ownerIndex, int skip, int take);
     }
 }

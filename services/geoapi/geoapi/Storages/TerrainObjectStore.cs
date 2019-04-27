@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MongoDB.Driver;
 using SharpGeoAPI.Models;
 using SharpGeoAPI.Utils;
@@ -18,6 +19,7 @@ namespace SharpGeoAPI.Storages
             terrainObjects = database.GetCollection<TerrainObject>(settings.TObjectsCollectionName);
 
             terrainObjects.Indexes.CreateOneAsync(Builders<TerrainObject>.IndexKeys.Ascending(_ => _.IndexKey)).GetAwaiter().GetResult();
+            terrainObjects.Indexes.CreateOne(Builders<TerrainObject>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = new TimeSpan(1, 30, 0) });
         }
 
         public TerrainObject GetTerrainObject(string objectId)
@@ -25,9 +27,12 @@ namespace SharpGeoAPI.Storages
             return terrainObjects.Find(tobjcet => tobjcet.IndexKey == objectId).FirstOrDefault();
         }
 
-        public IEnumerable<TerrainObject> GetTerrainObjects(string agentName)
+        public IEnumerable<TerrainObject> GetTerrainObjects(string agentName, int skip, int take)
         {
-            return terrainObjects.Find(tObject => tObject.IndexKey.StartsWith(agentName)).Limit(settings.SearchLimit).ToList();
+            return terrainObjects.Find(tObject => tObject.IndexKey.StartsWith(agentName))
+                    .Skip(skip)
+                    .Limit(Math.Max(take - skip, settings.SearchLimit))
+                    .ToList();
         }
 
         public void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject)

@@ -1,4 +1,6 @@
-﻿namespace SharpGeoAPI.Utils
+﻿using System;
+
+namespace SharpGeoAPI.Utils
 {
     public class Settings : ISettings
     {
@@ -10,6 +12,7 @@
         public int AgentIdSize { get; set; } = 12;
         public int ObjectIdSize { get; set; } = 12;
         public int SearchLimit { get; set; } = 100;
+        public TimeSpan TTL { get; set; } = new TimeSpan(1, 30, 0);
         public string MongoDBName { get; set; } = "AgentsDB";
     }
 }

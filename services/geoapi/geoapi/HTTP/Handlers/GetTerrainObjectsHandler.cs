@@ -10,7 +10,8 @@ namespace SharpGeoAPI.HTTP.Handlers
         private readonly IStorage storage;
         private readonly ITerrainObjectStore terrainObjectStore;
 
-        public GetTerrainObjectsHandler(IStorage storage, ITerrainObjectStore terrainObjectStore) : base("GET", "objects")
+        public GetTerrainObjectsHandler(IStorage storage, ITerrainObjectStore terrainObjectStore) : base("GET",
+            "objects")
         {
             this.storage = storage;
             this.terrainObjectStore = terrainObjectStore;
@@ -19,18 +20,31 @@ namespace SharpGeoAPI.HTTP.Handlers
         protected override async Task HandleRequestAsync(HttpListenerContext context)
         {
             var agentKey = context.Request.QueryString[AgentKeyParameter];
-
+            
             var agent = storage.GetAgent(agentKey);
-
             if (agent == null)
             {
                 await context.Response.Send(404, "Object not found");
                 return;
             }
 
-            var terrainObjects = terrainObjectStore.GetTerrainObjects(agentKey);
+            if (int.TryParse(context.Request.QueryString[SkipParameter], out var skip) || skip < 0)
+            {
+                await context.Response.Send(400, $"{SkipParameter} must be integer and greater than 0");
+                return;
+            }
+
+            if (int.TryParse(context.Request.QueryString[TakeParameter], out var take) || take < 0)
+            {
+                await context.Response.Send(400, $"{TakeParameter} must be integer and greater than 0");
+                return;
+            }
+
+            var terrainObjects = terrainObjectStore.GetTerrainObjects(agentKey, skip, take);
 
             await context.Response.Send(200, terrainObjects.ToJson());
         }
+
+
     }
 }

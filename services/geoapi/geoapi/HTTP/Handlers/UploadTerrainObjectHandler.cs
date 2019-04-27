@@ -36,27 +36,18 @@ namespace SharpGeoAPI.HTTP.Handlers
                 return;
             }
 
-            var tObject = new TerrainObject(request.AgentId, GetAgentToken())
+            var tObject = new TerrainObject(request.AgentId, GenerateId())
             {
                 Info = request.Info,
                 Cells = request.Cells,
             };
 
-            terrainObjectStore.UploadTerrainObject(agentInfo.AgentToken, GetAgentToken(), tObject);
+            terrainObjectStore.UploadTerrainObject(agentInfo.AgentToken, GenerateId(), tObject);
 
             await context.Response.Send(200, tObject.IndexKey);
         }
 
-        private string GetAgentToken()
-        {
-            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
-            {
-                byte[] tokenData = new byte[settings.ObjectIdSize];
-                rng.GetBytes(tokenData);
 
-                return Convert.ToBase64String(tokenData);
-            }
-        }
 
         private class UploadObjectRequest
         {
