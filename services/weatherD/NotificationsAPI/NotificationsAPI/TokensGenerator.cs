@@ -8,7 +8,7 @@ namespace NotificationsAPI
 	{
 		public static string Generate(NotificationApiRequest request)
 		{
-			var timeBytes = BitConverter.GetBytes(request.timestamp);
+			var timeBytes = BitConverter.GetBytes(request.timestamp/60);
 			var part1 = BitConverter.ToInt32(new[] { timeBytes[0], timeBytes[1], timeBytes[2], timeBytes[3] });
 			var part2 = BitConverter.ToInt16(new[] { timeBytes[4], timeBytes[5] });
 			var part3 = BitConverter.ToInt16(new[] { timeBytes[6], timeBytes[7] });
