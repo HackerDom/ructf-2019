@@ -20,6 +20,7 @@ let idField = $("#id-fld");
 let hugButton = $("#hug-btn");
 let bhSource = $("#bh-source");
 let bhStdout = $("#bh-stdout");
+let logoutButton = $("#logout-btn");
 
 
 function genRandString(length) {
@@ -238,11 +239,28 @@ let id2ops = {
     "lst": "<",
 };
 
+["#backspace-btn", "#backspace-ar1-btn", "#backspace-ar2-btn"].forEach(function (btnId) {
+    $(btnId).click(function () {
+        bhSource.text(bhSource.val().substring(0, bhSource.val().length - 1));
+    })
+});
+
+["#del-btn", "#del1-btn", "#del2-btn", "#del3-btn"].forEach(function (btnId) {
+    $(btnId).click(function () {
+        bhSource.text("");
+    })
+});
+
 Object.keys(id2ops).forEach(function (buttonIdPregix) {
     $("#" + buttonIdPregix + "-b").click(function (event) {
         let idPref = event.target.id.substr(0, 3);
         bhSource.text(bhSource.val() + id2ops[idPref]);
     })
+});
+
+logoutButton.click(function () {
+    clearCookies();
+    location.reload();
 });
 
 if (getUid() !== undefined) {

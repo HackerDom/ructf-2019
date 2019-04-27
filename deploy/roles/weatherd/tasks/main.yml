@@ -15,15 +15,23 @@
   copy: src=motd dest=/etc/motd
 
 # example of installing packages
-#- name: install packages
-#  apt: 
-#    #update_cache: yes
-#    name:
-#      - cowsay
+- name: install packages
+  apt: 
+    update_cache: yes
+    name:
+      - libmagickcore-dev
+      - libpangox-1.0-dev
+      - libclang-dev
+      - clang
+      - ttf-mscorefonts-installer
+      - cargo
 
 - name: copy service
   copy: src="weatherd.py" dest=/home/weatherd/
   notify: enable and restart services
+
+#- name: copy rustup
+#  copy: src=rustup.sh dest=/root/rustup.sh mode=755
 
 # example of reusing the files from services folder
 #- name: copy service
