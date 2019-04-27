@@ -35,7 +35,7 @@ namespace SharpGeoAPI.Storages
                     .ToList();
         }
 
-        public void UploadTerrainObject(string agentName, string objectId, TerrainObject terrainObject)
+        public void UploadTerrainObject(TerrainObject terrainObject)
         {
             terrainObjects.InsertOne(terrainObject);
         }

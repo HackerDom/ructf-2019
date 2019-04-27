@@ -27,7 +27,7 @@ namespace SharpGeoAPI.HTTP.Handlers
 
             var agent = new AgentInfo
             {
-                AgentToken = GetAgentToken(),
+                AgentToken = GenerateId(settings.AgentIdSize),
                 AgentName = request.AgentName,
             };
 
@@ -42,15 +42,5 @@ namespace SharpGeoAPI.HTTP.Handlers
             public string AgentName { get; set; }
         }
 
-        private string GetAgentToken()
-        {
-            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
-            {
-                byte[] tokenData = new byte[settings.AgentIdSize];
-                rng.GetBytes(tokenData);
-
-                return Convert.ToBase64String(tokenData);
-            }
-        }
     }
 }

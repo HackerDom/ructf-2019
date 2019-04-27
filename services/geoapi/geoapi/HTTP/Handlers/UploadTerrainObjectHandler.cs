@@ -36,13 +36,13 @@ namespace SharpGeoAPI.HTTP.Handlers
                 return;
             }
 
-            var tObject = new TerrainObject(request.AgentId, GenerateId())
+            var tObject = new TerrainObject(request.AgentId, GenerateId(settings.ObjectIdSize))
             {
                 Info = request.Info,
                 Cells = request.Cells,
             };
 
-            terrainObjectStore.UploadTerrainObject(agentInfo.AgentToken, GenerateId(), tObject);
+            terrainObjectStore.UploadTerrainObject(tObject);
 
             await context.Response.Send(200, tObject.IndexKey);
         }

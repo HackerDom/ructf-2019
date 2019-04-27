@@ -33,7 +33,7 @@ namespace SharpGeoAPI.HTTP.Handlers
                 byte[] tokenData = new byte[size];
                 rng.GetBytes(tokenData);
 
-                return  Convert.ToBase64String(tokenData);
+                return Convert.ToBase64String(tokenData).TrimEnd('-').Replace('+', '-').Replace('/', '_');
             }
         }
 
