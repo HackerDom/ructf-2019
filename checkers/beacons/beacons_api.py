@@ -1,5 +1,6 @@
 import requests
 import json
+import generator
 import traceback
 import time
 from functools import wraps
@@ -23,7 +24,8 @@ def handle_exception(function):
 @handle_exception
 def upload_image(host, session, beacon_id, filename, folder='pictures/'):
     with open(f'{folder}{filename}', 'rb') as photo:
-        image = {'photo': (filename, photo.read(), 'image/jpeg')}
+        photo_name = generator.generate_picture_name()
+        image = {'photo': (photo_name, photo.read(), 'image/jpeg')}
         data = requests.post(f'http://{host}:{SERVICE_PORT}/Beacon/AddPhoto/{beacon_id}',
                              files=image,
                              timeout=10,

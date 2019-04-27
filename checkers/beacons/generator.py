@@ -1,6 +1,7 @@
 import random
 import mimesis
 import json
+import re
 
 
 def generate_userpass(seed):
@@ -22,6 +23,14 @@ def generate_comment():
     return text.quote()
 
 
+def generate_picture_name():
+    result = ' ' * 26
+    while len(result) > 25:
+        place = mimesis.Address().country().replace(' ', '_')
+        result = re.sub(r'[^A-z0-9]', '', place)
+    return result
+
+
 # папка указывается уже при загрузке картинки (beacons_api)
 def get_image():
     with open('pictures/dict.json', 'rb') as images:
@@ -31,5 +40,10 @@ def get_image():
 
 
 if __name__ == '__main__':
-    print()
-
+    print(generate_picture_name())
+    print(generate_picture_name())
+    print(generate_picture_name())
+    print(generate_picture_name())
+    print(generate_picture_name())
+    print(generate_picture_name())
+    print(generate_picture_name())
