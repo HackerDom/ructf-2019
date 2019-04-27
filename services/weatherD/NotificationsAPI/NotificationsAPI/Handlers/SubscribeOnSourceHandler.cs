@@ -24,11 +24,11 @@ namespace NotificationsApi.Handlers
 				request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
 				return;
 			}
-
-            var cts = new TaskCompletionSource<byte>();
+			request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+			var cts = new TaskCompletionSource<byte>();
 			request.HttpContext.RequestAborted.Register(() => cts.TrySetResult(1));
 			await cts.Task;
-		    request.HttpContext.Response.StatusCode = (int)HttpStatusCode.OK;
+		    
 			subscriber.Unsubscribe(request.source, request.HttpContext);
         }
 	}
