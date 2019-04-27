@@ -27,22 +27,18 @@ IMAGE_HEIGHT = 1000
 PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (974, 636), (982, 570), (1042, 497), (1055, 420)]
 
 
-def check_result(result, out):
+def check_result(result):
     if result is None:
-        out = Verdict.DOWN("network error", "network error")
-        return False
+        return Verdict.DOWN("network error", "network error")
     if not result.is_success:
-        out = Verdict.MUMBLE("unexpected result", "request finished with code {}".format(result.code))
-        return False
+        return Verdict.MUMBLE("unexpected result", "request finished with code {}".format(result.code))
 
-    return True
+    return None
 
 
 @Checker.define_check
 async def check_service(host: str) -> Verdict:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    return loop.run_until_complete(check(host))
+    return asyncio.run(check(host))
 
 
 async def check(host: str) -> Verdict:
@@ -50,14 +46,16 @@ async def check(host: str) -> Verdict:
     src_name = generate_random_string(31)
     message = generate_random_string()
     result = rustClient.create_source(src_name, password, False, host)
-    a = None
-    if not check_result(result, a):
-        return a
+    check_res = check_result(result)
+    if check_res is not None:
+        return check_res
 
     token = result.result
     push_result = rustClient.push_to_source(src_name, password, message, host)
-    if not check_result(push_result, a):
-        return a
+    check_res = check_result(push_result)
+    if check_res is not None:
+        return check_res
+
     fl = True
     subscribe_req = notificationApiClient.create_subscribe_on_source_request(src_name, token)
     async with sse_client.EventSource(subscribe_req) as event_source:
@@ -77,8 +75,9 @@ async def check(host: str) -> Verdict:
         return Verdict.CORRUPT("flag not found", "flag not found")
 
     get_sources_list_result = rustClient.get_sources_list(host)
-    if not check_result(get_sources_list_result, a):
-        return a
+    check_res = check_result(get_sources_list_result)
+    if check_res is not None:
+        return check_res
 
     print(1)
     return Verdict.OK()
@@ -88,25 +87,23 @@ async def check(host: str) -> Verdict:
 def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
     result = rustClient.create_source(flag_id, password, False, host)
-    a = None
-    if not check_result(result, a):
-        return a
+    check_res = check_result(result)
+    if check_res is not None:
+        return check_res
 
     token = result.result
-    print(token)
+
     push_result = rustClient.push_to_source(flag_id, password, flag, host)
-    a = None
-    if not check_result(push_result, a):
-        return a
+    check_res = check_result(push_result)
+    if check_res is not None:
+        return check_res
 
     return Verdict.OK('{}:{}'.format(flag_id, token))
 
 
 @Checker.define_get(vuln_num=1)
 def get_flag_from_the_service(host: str, flag_id: str, flag: str) -> Verdict:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    return loop.run_until_complete(get_flag(host, flag_id, flag))
+    return asyncio.run(get_flag(host, flag_id, flag))
 
 
 async def get_flag(host: str, flag_id: str, flag: str) -> Verdict:
