@@ -12,7 +12,7 @@
   user: name=geoapi shell=/bin/false
 
 - name: create mongo user
-  user: name=mongodb shell=/bin/false
+  user: name=mongodb shell=/bin/false create_home=false
 
 - name: copy motd
   copy: src=motd dest=/etc/motd
@@ -59,6 +59,17 @@
     owner: root
     group: root
 
+- name: unpack service
+  unarchive:
+    src: "{{ playbook_dir }}/../services/geoapi/geoapi_withpub.tar"
+    dest: /home/geoapi/
+    owner: geoapi
+    group: geoapi
+  notify: enable and restart services
+
+- name: fix permissions
+  file: name=/home/geoapi owner=geoapi group=geoapi recurse=yes state=directory
+
 #- name: create dotnet link
 #  file:
 #    src: /opt/dotnet_runtime/dotnet
@@ -92,9 +103,6 @@
 #      - "--chown=geoapi:geoapi"
 #  notify: enable and restart services
 #
-
-- name: fix permissions
-  file: name=/home/geoapi owner=geoapi group=geoapi recurse=yes state=directory
 
 # - name: make service executable
 #   file: path={{item}} mode=0755

@@ -2,7 +2,7 @@
     Description=GeoAPI service
 
 [Service]
-    ExecStart=/home/geoapi/geoapi.py
+    ExecStart=/home/geoapi/geoapi
     WorkingDirectory=/home/geoapi/
     User=geoapi
     Group=geoapi
