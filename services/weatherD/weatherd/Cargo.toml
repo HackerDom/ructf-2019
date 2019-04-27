@@ -29,14 +29,15 @@ url = "1.7.2"
 regex = "1"
 xml-rs = "0.8.0"
 ascii = "0.6.0"
-usvg = "0.6.1"
-
 
 magick_rust = { path = "../imma_rust/magick-rust" }
 
 openssl = "0.10.20"
 hex = "0.3.2"
 rustc-serialize = "0.3"
+
+
+base64 = "0.10.1"
 
 [dependencies.resvg]
 version = "0.6.1"
