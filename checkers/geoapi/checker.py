@@ -4,9 +4,11 @@ from sys import argv, stderr
 import random
 import string
 from client import *
+from random import randint
 
 SERVICE_NAME = "geoapi"
 OK, CORRUPT, MUMBLE, DOWN, CHECKER_ERROR = 101, 102, 103, 104, 110
+
 
 def close(code, public="", private=""):
     if public:
@@ -22,7 +24,7 @@ def check(*args):
 
     name = "name"
 
-    #TODO: validate data
+    # TODO: validate data
     agent_sended = register_agent(addr)
     agent = get_agent(addr, agent_sended["AgentToken"])
 
@@ -34,31 +36,32 @@ def check(*args):
 
     close(OK)
 
+
 def try_upload_tobject(addr, agentToken):
-    tobjDescripion = generate_tobject_description()
+    tobjDescripion = generate_tobject_description(32)
     tobject = generate_tobject_request(agentToken, tobjDescripion)
 
     tobject_key = upload_object(addr, tobject)
     recived_tobject = get_object(addr, tobject_key, agentToken)
 
-    if(json.dumps(tobject["Cells"]) != json.dumps(recived_tobject["Cells"])):
+    if (json.dumps(tobject["Cells"]) != json.dumps(recived_tobject["Cells"])):
         close(CORRUPT)
 
-    if(tobject_key != recived_tobject["IndexKey"]):
+    if (tobject_key != recived_tobject["IndexKey"]):
         close(CORRUPT)
+
 
 def put(*args):
     addr = args[0]
     flag_id = args[1]
     flag = args[2]
 
-    #TODO: put flag here
     agent = register_agent(addr)
 
     request = generate_tobject_request(agent["AgentToken"], flag)
     tobject_key = upload_object(addr, request)
 
-    close(OK, tobject_key)
+    close(OK, "%s/%s" % (agent["AgentToken"], tobject_key))
 
 
 def get(*args):
@@ -66,9 +69,11 @@ def get(*args):
     flag_id = args[1]
     flag = args[2]
 
-    recived_tobject = get_object(addr, flag_id)
+    keys = flag_id.split("/")
 
-    if(recived_tobject["Info"] != flag):
+    recived_tobject = get_object(addr, keys[1], keys[0])
+
+    if (recived_tobject["Info"] != flag):
         close(CORRUPT)
 
     close(OK)
@@ -77,11 +82,20 @@ def get(*args):
 def info(*args):
     close(OK, "vulns: 1")
 
-def generate_tobject_description():
-    return "flag!"
+
+def generate_tobject_description(stringLength):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
+
 
 def generate_tobject_request(agentKey, flag):
-    return {"AgentId": agentKey, "Info": flag, "Cells": [[1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1]]}
+    cells = []
+    for x in range(0, 64):
+        cells.append([])
+        for y in range(0, 64):
+            cells[x].append(randint(0, 3))
+
+    return {"AgentId": agentKey, "Info": flag, "Cells": cells}
 
 
 def not_found(*args):
@@ -89,11 +103,9 @@ def not_found(*args):
     return CHECKER_ERROR
 
 
-COMMANDS = {'check': check, 'put': put, 'get': get, 'info': info}
+put("localhost", "", "flag")
 
-"""YK8glpMAEcDKQbYj"""
-#TODO: get_object recive shit b'YK8glpMAEcDKQbYjXXc13PdvOlvtC8SP'
-#print(get_agent("localhost", "YK8glpMAEcDKQbYj"))
+COMMANDS = {'check': check, 'put': put, 'get': get, 'info': info}
 
 if __name__ == '__main__':
     try:
