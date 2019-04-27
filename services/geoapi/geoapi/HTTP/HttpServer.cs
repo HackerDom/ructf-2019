@@ -43,7 +43,6 @@ namespace SharpGeoAPI.HTTP
 
         public void Dispose()
         {
-            serverThread.Abort();
             listener.Stop();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SharpGeoAPI.HTTP;
 using SharpGeoAPI.Utils;
 
@@ -16,8 +17,7 @@ namespace SharpGeoAPI
 
             using (var server = new HttpServer(settings))
             {
-                Console.WriteLine("Service started");
-                Console.ReadLine();
+                Thread.Sleep(-1);
             }
         }
 

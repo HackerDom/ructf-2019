@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoAPI", "GeoAPI\GeoAPI.csproj", "{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeoAPI", "geoapi\geoapi.csproj", "{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
