@@ -53,7 +53,7 @@ def on_check(team_ip: str) -> Verdict:
 
     images = beacons_api.get_image_ids(team_ip, cookie, beacon_id_private)
     if image_id_private in [img['id'] for img in images]:
-        print(1)
+        # print(1)
         private_result = True
 
     logout = beacons_api.logout(team_ip, cookie)
@@ -70,13 +70,13 @@ def on_check(team_ip: str) -> Verdict:
             return Verdict.MUMBLE("Can't register user", "Can't register user")
     images = beacons_api.get_image_ids(team_ip, another_user_cookie, beacon_id_public)
     if image_id_public in [img['id'] for img in images]:
-        print(2)
+        # print(2)
         public_result = True
 
     # check the possibility to get shared beacons
     is_private = beacons_api.get_shared_beacon(team_ip, another_user_cookie, invite_code)
     if not is_private:
-        print(3)
+        # print(3)
         sharing_result = True
 
     logout = beacons_api.logout(team_ip, another_user_cookie)
@@ -94,7 +94,7 @@ def on_check(team_ip: str) -> Verdict:
 def on_put(team_ip: str, flag_id: str, flag: str) -> Verdict:
     global STATES
 
-    print('\nputting')
+    # print('\nputting')
     for i in range(6):
         try:
             user, password = generator.generate_userpass(flag_id)[0]
@@ -144,8 +144,8 @@ def on_get(team_ip: str, flag_id: str, flag: str) -> Verdict:
     for id in beacons:
         comments.append(beacons_api.get_beacon_comment(team_ip, cookie, id))
     if flag in comments:
-        print(comments)
-        print(flag)
+        # print(comments)
+        # print(flag)
         return Verdict.OK()
     return Verdict.CORRUPT('', 'hz')
 
