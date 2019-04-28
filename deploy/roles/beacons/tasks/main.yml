@@ -33,7 +33,7 @@
 
 - name: create mongo logs dir
   file:
-    path: /var/log/mongodb
+    path: /var/mongo
     state: directory
     owner: mongodb
     group: mongodb
