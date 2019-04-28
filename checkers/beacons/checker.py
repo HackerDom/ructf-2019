@@ -6,7 +6,7 @@ import beacons_api
 from infrastructure.actions import Checker
 from infrastructure.verdict import Verdict
 
-COORDINATOR = ('0.0.0.0', 5555)
+COORDINATOR = ('10.10.10.97', 5555)
 Checker.INFO = 'vulns: 1'
 STATES = {101: Verdict.OK, 102: Verdict.CORRUPT, 103: Verdict.MUMBLE, 104: Verdict.DOWN, 110: Verdict.CHECKER_ERROR}
 
