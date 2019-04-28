@@ -39,8 +39,6 @@ use futures::future::Either;
 use regex::Regex;
 use crate::create_source_dto::CreateSourceDto;
 
-//#[macro_use] use crate::w_macro;
-
 macro_rules! log_error {
     ($exp:expr) => {{println!("{}",$exp);$exp}}
 }
@@ -62,7 +60,7 @@ impl CreateSourceHandler {
 
 impl Handler for CreateSourceHandler {
     fn handle(self, mut state: State) -> Box<HandlerFuture> {
-
+        println!("create started");
         let rr = Body::take_from(&mut state)
             .concat2()
             .then(move |full_body| match full_body {
@@ -103,17 +101,17 @@ impl Handler for CreateSourceHandler {
                         timestamp : time.timestamp()
                     };
 
+                    println!("shh");
+
+
                     let name = xml::escape::escape_str_attribute(&create_source_dto.name);
                     let population  = xml::escape::escape_str_attribute(&create_source_dto.population);
 
                     let source = WeatherSource
                         {
-                            encryption: create_source_dto.encryption,
-                            password: create_source_dto.password,
+                            password: create_source_dto.password.to_string(),
                             name: name.to_string(),
                             token: body_content.to_string(),
-                            encryption_key: create_source_dto.encryption_key,
-                            iv: create_source_dto.iv,
                             place_status: population.to_string(),
                             danger : danger_class.to_string(),
                             race : create_source_dto.race.to_string(),
@@ -121,14 +119,16 @@ impl Handler for CreateSourceHandler {
                         };
 
                     {
-                        let mut state = (self.weather_state.lock().unwrap());
+                        let mut state = (self.weather_state.lock().unwrap_or_else(|e| e.into_inner()));
 
-                        if state.contains_source(&create_source_dto.name) {// todo : chenc idempotency
-//                            panic!("SH H I T");
+                        if state.contains_source(&create_source_dto.name) {
+                            let source = state.get_source(&create_source_dto.name);
+                            if &create_source_dto.password != &source.password {
+                                panic!("password mismatch");
+                            }
                         } else {
                             state.add_source(&create_source_dto.name, source);
                         }
-
                     }
 
                     println!("uri {}", uri);
@@ -141,6 +141,7 @@ impl Handler for CreateSourceHandler {
 
                     let result = client
                         .request(req)
+                        .map_err(|e| log_error!("error in request"))
                         .then( |res|
                             {
                                 match res
@@ -177,7 +178,7 @@ impl Handler for CreateSourceHandler {
                 }
                 Err(e) => {
                     log_error!(e);
-                    panic!("S H I T")
+                    panic!("S")
                 }
             });
 
