@@ -35,10 +35,10 @@ cs_ctf_name: RuCTF 2019
 cs_flags_secret: YbOdr61LGV
 cs_round_length: 60
 cs_flag_life_time: 15
-cs_time_start: 2019-04-24 14:00:00
-cs_time_stop: 2019-04-28 10:45:00
-cs_time_break_start: 2019-04-24 15:00:00
-cs_time_break_end: 2019-04-24 15:30:00
+cs_time_start: 2019-04-28 11:00:00
+cs_time_stop: 2019-04-28 20:00:00
+cs_time_break_start: 2019-04-28 13:00:00
+cs_time_break_end: 2019-04-28 14:00:00
 
 cs_static_path: '/home/cs/ctf-scoreboard-client/scoreboard/build'
 
