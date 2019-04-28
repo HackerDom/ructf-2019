@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -7,7 +7,7 @@ namespace index.Helpers
 {
     public static class SessionManager
     {
-        private static readonly Dictionary<string, byte[]> Store = new Dictionary<string, byte[]>();
+        private static readonly ConcurrentDictionary<string, byte[]> Store = new ConcurrentDictionary<string, byte[]>();
         private static readonly RNGCryptoServiceProvider Rng;
 
         static SessionManager()
@@ -23,10 +23,9 @@ namespace index.Helpers
             var loginWithSalt = ConcatArrays(loginBytes, salt);
             using (var sha512 = SHA512.Create())
             {
-                var sid = Convert.ToBase64String(sha512.ComputeHash(loginWithSalt));
-                Store[login] = salt;
+                Store.AddOrUpdate(login, salt, (s, bytes) => salt);
 
-                return sid;
+                return Convert.ToBase64String(sha512.ComputeHash(loginWithSalt));
             }
         }
 
@@ -46,12 +45,6 @@ namespace index.Helpers
 
                 return sid == computedSid;
             }
-        }
-
-        public static void Remove(string login, string sid)
-        {
-            if (ValidateSession(login, sid))
-                Store.Remove(login);
         }
 
         private static T[] ConcatArrays<T>(T[] f, T[] s)
