@@ -62,8 +62,8 @@
   args:
     chdir: /home/user/sandbox/sandbox
     creates: /home/user/sandbox/sandbox/sandbox
-  notify:
-    - kill sandbox
+#  notify:
+#    - kill sandbox
 
 - name: build proxy executable
   command: make

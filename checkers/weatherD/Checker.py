@@ -3,7 +3,7 @@ from infrastructure.actions import Checker
 from infrastructure.verdict import Verdict
 from aiohttp_sse_client import client as sse_client
 import asyncio
-
+from mimesis.providers import Person, Cryptographic, Structure, Internet, Address
 from RustClient import RustClient
 from NotificationApiClient import NotificationApiClient
 from binascii import hexlify
@@ -26,6 +26,13 @@ IMAGE_HEIGHT = 1000
 
 PIXELS_WITH_FLAG = [(1088, 223), (992,283), (1020, 172), (1066, 353), (974, 636), (982, 570), (1042, 497), (1055, 420)]
 
+PERSON = Person('en')
+CRYPTO = Cryptographic()
+STRUCTURE = Structure('en')
+Internet = Internet('en')
+ADDRESS = Address('en')
+def generate_random_name():
+    return random.choice([ADDRESS.region(), PERSON.full_name(), CRYPTO.mnemonic_phrase(), ADDRESS.country()])
 
 def check_result(result):
     if result is None:
@@ -43,7 +50,7 @@ def check_service(host: str) -> Verdict:
 
 async def check(host: str) -> Verdict:
     password = generate_random_string()
-    src_name = generate_random_string(31)
+    src_name = generate_random_name()
     message = generate_random_string()
     result = rustClient.create_source(src_name, password, False, host)
     check_res = check_result(result)
@@ -88,6 +95,7 @@ async def check(host: str) -> Verdict:
 @Checker.define_put(vuln_num=1)
 def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
+    flag_id = flag_id[:8] + ' ' +generate_random_name()
     result = rustClient.create_source(flag_id, password, False, host)
     check_res = check_result(result)
     if check_res is not None:
@@ -224,6 +232,7 @@ def to_u32(i):
 
 
 if __name__ == '__main__':
+    #print(generate_random_name())
     Checker.run()
 #    ip = "10.33.54.127"
 #    check_service(ip)
