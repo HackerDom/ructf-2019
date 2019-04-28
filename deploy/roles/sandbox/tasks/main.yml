@@ -57,6 +57,11 @@
 - name: fix permissions /home/user/sandbox
   file: name=/home/user/sandbox mode=+x
 
+- name: make clean sandbox
+  command: make clean
+  args:
+    chdir: /home/user/sandbox/sandbox
+
 - name: build sandbox executable
   command: make -j8
   args:
@@ -64,6 +69,11 @@
     creates: /home/user/sandbox/sandbox/sandbox
 #  notify:
 #    - kill sandbox
+
+- name: make clean proxy 
+  command: make clean
+  args:
+    chdir: /home/user/sandbox/proxy
 
 - name: build proxy executable
   command: make
