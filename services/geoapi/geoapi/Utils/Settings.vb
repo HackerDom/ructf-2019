@@ -4,7 +4,7 @@ Namespace Utils
 Public Class Settings
     Implements ISettings
 
-    Public Property ParallelismDegree As Integer = 100 Implements ISettings.ParallelismDegree
+    Public Property ParallelismDegree As Integer = 500 Implements ISettings.ParallelismDegree
     Public Property Port As Integer  = 9007 Implements ISettings.Port
     Public Property MongoDBConnectionString As String = "mongodb://localhost:27017" Implements ISettings.MongoDBConnectionString
     Public Property AgentsCollectionName As String = "AgentsCollection" Implements ISettings.AgentsCollectionName
