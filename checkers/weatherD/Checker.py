@@ -231,9 +231,9 @@ def to_u32(i):
 
 if __name__ == '__main__':
     #print(generate_random_name())
-   # Checker.run()
-    ip = "10.33.54.127"
-    check_service(ip)
+    Checker.run()
+  #  ip = "10.33.54.127"
+   # check_service(ip)
 #    flag = generate_random_string(31)+'='
 #    id = generate_random_string(10)
 # #   print(flag)
