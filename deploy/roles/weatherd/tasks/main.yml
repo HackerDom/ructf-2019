@@ -26,9 +26,9 @@
       - ttf-mscorefonts-installer
       - cargo
 
-- name: copy service
-  copy: src="weatherd.py" dest=/home/weatherd/
-  notify: enable and restart services
+#- name: copy service
+#  copy: src="weatherd.py" dest=/home/weatherd/
+#  notify: enable and restart services
 
 #- name: copy rustup
 #  copy: src=rustup.sh dest=/root/rustup.sh mode=755
@@ -41,7 +41,7 @@
 # example of copying dirs with many files
 - name: copy service files imma
   synchronize: 
-    src: "{{ playbook_dir }}/../services/weatherd/imma_rust/"
+    src: "{{ playbook_dir }}/../services/weatherD/imma_rust/"
     dest: /home/weatherd/imma_rust/
     rsync_opts:
       - "--chmod=D0770"
@@ -49,11 +49,10 @@
       - "--chown=weatherd:weatherd"
   notify: enable and restart services
 
-# example of copying dirs with many files
 - name: copy service files ddd
   synchronize: 
-    src: "{{ playbook_dir }}/../services/weatherd/weatherd/"
-    dest: /home/weatherd/imma_rust/
+    src: "{{ playbook_dir }}/../services/weatherD/weatherd/"
+    dest: /home/weatherd/weatherd/
     rsync_opts:
       - "--chmod=D0770"
       - "--chmod=F0660"

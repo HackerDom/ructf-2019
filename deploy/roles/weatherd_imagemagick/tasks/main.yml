@@ -1,12 +1,23 @@
+- file:
+    path: /root/ImageMagick6/
+    state: directory
+    mode: 0755
+
 - name: kokfdfive
   unarchive:
-    src: "{{ playbook_dir }}/../services/weatherd/ImageMagick6.zip"
-    dest: "/root/ImageMagick6"
+    src: "{{ playbook_dir }}/../services/weatherD/ImageMagick6.zip"
+    dest: "/root/ImageMagick6/"
 
 - name: dfdfdf
   command: make install
   args:
     chdir: "/root/ImageMagick6"
 
+- name: dfdfdf2
+  command: ldconfig
+  args:
+    chdir: "/root/"
+
+    
 - name: delete after ourselves
   command: rm -rf /root/ImageMagick6

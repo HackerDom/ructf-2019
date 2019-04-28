@@ -10,14 +10,15 @@
 - name: create user
   user: name=index shell=/bin/false
 
-- name: create mongo user
-  user: name=mongodb shell=/bin/false create_home=false
 
 - name: copy motd
   copy: src=motd dest=/etc/motd
 
 - name: copy environment
   copy: src=environment dest=/etc/environment
+
+- name: create mongo user
+  user: name=mongodb shell=/bin/false create_home=false
 
 - name: unpack mongo bins
   unarchive:
