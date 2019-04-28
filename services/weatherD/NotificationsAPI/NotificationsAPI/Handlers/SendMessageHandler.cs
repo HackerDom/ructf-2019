@@ -37,14 +37,16 @@ namespace NotificationsApi.Handlers
 			}
 
 			request.HttpContext.Response.StatusCode = (int)HttpStatusCode.Accepted;
-			Task.Run(() =>
+			Task.Run( async () =>
 			{
 				if(sourceStorage.TryGetInfo(request.source, out var info))
 				{
 					var message = new Message(request.Base64Message, DateTime.UtcNow + ttl);
-					//await mongoClient.InsertMessage(request.SourceName, message);
-					info.AddMessage(message);
-					messageSender.Send(request.Base64Message, info);
+					if(info.AddMessage(message))
+					{
+						await mongoClient.InsertMessage(request.source, message);
+						messageSender.Send(request.Base64Message, info);
+					}
 				}
 			});
 		}

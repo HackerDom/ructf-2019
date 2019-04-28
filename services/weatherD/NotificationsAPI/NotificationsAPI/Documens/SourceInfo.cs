@@ -26,9 +26,13 @@ namespace NotificationsApi.Documens
 			}
 		}
 
-		public void AddMessage(Message message)
+		public bool AddMessage(Message message)
 		{
+			if(Messages.Count > 4)
+				return false;
+
 			Messages.Enqueue(message);
+			return true;
 		}
 
 		public List<string> GetMessagesHistory()
