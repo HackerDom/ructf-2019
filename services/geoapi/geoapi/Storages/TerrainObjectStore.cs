@@ -18,13 +18,15 @@ namespace geoapi.Storages
             var database = client.GetDatabase(settings.MongoDBName);
             terrainObjects = database.GetCollection<TerrainObject>(settings.TObjectsCollectionName);
 
+            terrainObjects.Indexes.DropAll();
+
             terrainObjects.Indexes.CreateOneAsync(Builders<TerrainObject>.IndexKeys.Ascending(_ => _.IndexKey)).GetAwaiter().GetResult();
             terrainObjects.Indexes.CreateOne(Builders<TerrainObject>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = settings.TTL });
         }
 
-        public TerrainObject GetTerrainObject(string objectId)
+        public TerrainObject GetTerrainObject(string key)
         {
-            return terrainObjects.Find(tobjcet => tobjcet.IndexKey == objectId).FirstOrDefault();
+            return terrainObjects.Find(tobjcet => tobjcet.IndexKey == key).FirstOrDefault();
         }
 
         public IEnumerable<TerrainObject> GetTerrainObjects(string agentToken, int skip, int take)

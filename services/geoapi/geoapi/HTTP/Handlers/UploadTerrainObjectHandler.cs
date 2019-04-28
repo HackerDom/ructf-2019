@@ -38,7 +38,7 @@ namespace geoapi.HTTP.Handlers
                 return;
             }
 
-            var tObject = new TerrainObject(request.AgentId, GenerateId(settings.ObjectIdSize), DateTime.UtcNow)
+            var tObject = new TerrainObject(request.AgentId, GenerateId(settings.ObjectIdSize), DateTime.UtcNow + settings.TTL)
             {
                 Info = request.Info,
                 Cells = request.Cells,

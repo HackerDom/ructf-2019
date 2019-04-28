@@ -1,9 +1,7 @@
 import time
 import threading
-import requests
 import beacons_api
 import sys  # for args from console
-import random  # for testing
 import generator
 import db_manager
 import phantom_logic

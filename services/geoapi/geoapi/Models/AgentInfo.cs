@@ -17,5 +17,12 @@ namespace geoapi.Models
         [JsonIgnore]
         [BsonElement("expireAt")]
         public DateTime ExpireAt;
+
+        public AgentInfo(string agentToken, string agentName, DateTime expireAt)
+        {
+            AgentToken = agentToken;
+            AgentName = agentName;
+            ExpireAt = expireAt;
+        }
     }
 }

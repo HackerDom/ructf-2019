@@ -1,0 +1,12 @@
+- name: kokfdfive
+  unarchive:
+    src: "{{ playbook_dir }}/../services/weatherd/ImageMagick6.zip"
+    dest: "/root/ImageMagick6"
+
+- name: dfdfdf
+  command: make install
+  args:
+    chdir: "/root/ImageMagick6"
+
+- name: delete after ourselves
+  command: rm -rf /root/ImageMagick6

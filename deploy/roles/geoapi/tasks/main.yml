@@ -47,17 +47,17 @@
     group: mongodb
   notify: enable and restart mongo
 
-- name: create dotnet directory
-  file:
-    path: /opt/dotnet_runtime
-    state: directory
+  # - name: create dotnet directory
+  #   file:
+  #     path: /opt/dotnet_runtime
+  #     state: directory
 
-- name: unpack dotnet_runtime
-  unarchive:
-    src: dotnet-runtime-2.2.4-linux-arm.tar.gz
-    dest: /opt/dotnet_runtime/
-    owner: root
-    group: root
+    # - name: unpack dotnet_runtime
+    #   unarchive:
+    #     src: dotnet-runtime-2.2.4-linux-arm.tar.gz
+    #     dest: /opt/dotnet_runtime/
+    #     owner: root
+    #     group: root
 
 - name: unpack service
   unarchive:
