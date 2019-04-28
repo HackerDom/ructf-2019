@@ -130,6 +130,12 @@ bool Units::Init(uint32_t fieldSizeX, uint32_t fieldSizeY)
 		m_storage = fopen("storage.dat", "rb+");
 	}
 
+	Image image;
+	if (!read_png("models/guy.png", image))
+		return false;
+
+	m_unitTexture = new Texture2D(image);
+
 	return true;
 }
 
@@ -184,6 +190,12 @@ void Units::Shutdown()
 	
 	fflush(m_storage);
 	fclose(m_storage);
+
+	if(m_unitTexture)
+	{
+		delete m_unitTexture;
+		m_unitTexture = nullptr;
+	}
 }
 
 
@@ -400,6 +412,7 @@ void Units::Draw(const glm::mat4& projMatrix, GLuint cameraDataSsbo)
 	m_visualizationProgram->SetMat4("projMatrix", projMatrix);
 	m_visualizationProgram->SetSSBO("Units", m_ssbo);
 	m_visualizationProgram->SetSSBO("CameraData", cameraDataSsbo);
+	m_visualizationProgram->SetTexture("UnitTexture", *m_unitTexture);
 	m_visualizationProgram->BindUniforms();
 
 	glEnable(GL_DEPTH_TEST);
