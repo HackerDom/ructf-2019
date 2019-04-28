@@ -69,8 +69,8 @@ teams: |
   {name => 'PeterPen',                         network => '10.60.24.0/24', host => '10.60.24', token => 'ac94a858-cbd5-4a3b-9b1a-61de45e8ca1c', logo => '/data/logos/peterpen.png'},
   {name => 'Novosibirsk SU X',                 network => '10.60.25.0/24', host => '10.60.25', token => 'b32a790c-58fc-4155-8d0b-44717b98e416', logo => '/data/logos/dummy.png'},
   {name => 'SwissMadeSecurity',                network => '10.60.26.0/24', host => '10.60.26', token => 'dbff3af0-f642-40ac-af45-901b36d42c27', logo => '/data/logos/swissmadesecurity.jpg'},
-  {name => 'Guest1',                network => '10.60.27.0/24', host => '10.60.27', token => 'dbff3af0-f642-40ac-af45-901b36d42c27', logo => '/data/logos/swissmadesecurity.jpg'},
-  {name => 'Guest2',                network => '10.60.28.0/24', host => '10.60.28', token => 'dbff3af0-f642-40ac-af45-901b36d42c27', logo => '/data/logos/swissmadesecurity.jpg'},
+  {name => 'Guest1',                network => '10.60.27.0/24', host => '10.60.27', token => 'dbff3af0-f642-40ac-af45-901b36d42c28', logo => '/data/logos/swissmadesecurity.jpg'},
+  {name => 'Guest2',                network => '10.60.28.0/24', host => '10.60.28', token => 'dbff3af0-f642-40ac-af45-901b36d42c29', logo => '/data/logos/swissmadesecurity.jpg'},
 
 services: |
   {id => 1, name => 'beacons',     path => 'checkers/beacons/checker.py',     timeout => 10},
