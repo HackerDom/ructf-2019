@@ -28,7 +28,7 @@ def generate_headers():
 
 
 def generate_mega_task():
-    length = 10
+    length = 3
     output = generate_string(length)
     source = translate(output.encode()) + ">"
     tiny_stdin = generate_string(length)
