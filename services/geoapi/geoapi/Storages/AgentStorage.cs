@@ -15,7 +15,7 @@ namespace geoapi.Storages
             var database = client.GetDatabase(settings.MongoDBName);
             agents = database.GetCollection<AgentInfo>(settings.AgentsCollectionName);
             agents.Indexes.CreateOneAsync(Builders<AgentInfo>.IndexKeys.Ascending(_ => _.AgentToken)).GetAwaiter().GetResult();
-            agents.Indexes.CreateOne(Builders<AgentInfo>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = settings.TTL });
+            agents.Indexes.CreateOne(Builders<AgentInfo>.IndexKeys.Ascending("expireAt"), new CreateIndexOptions { ExpireAfter = TimeSpan.FromSeconds(30) });
         }
 
         public AgentInfo GetAgent(string agentId)

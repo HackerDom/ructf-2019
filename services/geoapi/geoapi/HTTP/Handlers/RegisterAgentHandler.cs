@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using geoapi.Models;
 using geoapi.Storages;
@@ -23,11 +24,8 @@ namespace geoapi.HTTP.Handlers
 
             var request = content.FromJson<RegisterAgentRequests>();
 
-            var agent = new AgentInfo
-            {
-                AgentToken = GenerateId(settings.AgentIdSize),
-                AgentName = request.AgentName,
-            };
+            var agent = new AgentInfo(GenerateId(settings.AgentIdSize), request.AgentName,
+                DateTime.UtcNow + settings.TTL);
 
             agentStorage.AddAgent(agent);
 
