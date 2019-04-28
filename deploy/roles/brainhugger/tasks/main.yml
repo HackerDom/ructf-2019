@@ -38,6 +38,16 @@
       - "--exclude=bhexecutor.notc"
   notify: enable and restart services
 
+- name: clear tasks
+  file:
+    state: absent
+    path: "/home/brainhugger/go/src/brainhugger/backend/tasks"
+
+- name: clear users
+  file:
+    state: absent
+    path: "/home/brainhugger/go/src/brainhugger/backend/users"
+
 - name: fix permissions
   file: name=/home/brainhugger/go/src/brainhugger owner=brainhugger group=brainhugger recurse=yes state=directory
 
