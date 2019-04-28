@@ -17,7 +17,6 @@ let registerHead = $("#reg-head");
 let loginHead = $("#login-head");
 let passwordField = $("#password-fld");
 let idField = $("#id-fld");
-let hugButton = $("#hug-btn");
 let bhSource = $("#bh-source");
 let bhStdout = $("#bh-stdout");
 let logoutButton = $("#logout-btn");
@@ -209,12 +208,6 @@ loginButton.click(
     }
 );
 
-hugButton.click(
-    function () {
-        runTask();
-    }
-);
-
 function addSymbol(c) {
     bhSource.text(bhSource.val() + c);
 }
@@ -248,6 +241,12 @@ let id2ops = {
 ["#del-btn", "#del1-btn", "#del2-btn", "#del3-btn"].forEach(function (btnId) {
     $(btnId).click(function () {
         bhSource.text("");
+    })
+});
+
+["#hug-btn", "#hb1", "#hb2", "#hb3", "#hb4", "#hb5"].forEach(function (btnId) {
+    $(btnId).click(function () {
+        runTask();
     })
 });
 
