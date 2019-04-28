@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "geoapi", "geoapi\geoapi.csproj", "{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "geoapi", "geoapi\geoapi.vbproj", "{B25CFA45-FBBF-4F33-8BB2-8E41683C73DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A441BB0-30B1-4AE4-92C2-1BEF1F3D0945}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B25CFA45-FBBF-4F33-8BB2-8E41683C73DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B25CFA45-FBBF-4F33-8BB2-8E41683C73DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B25CFA45-FBBF-4F33-8BB2-8E41683C73DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B25CFA45-FBBF-4F33-8BB2-8E41683C73DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
