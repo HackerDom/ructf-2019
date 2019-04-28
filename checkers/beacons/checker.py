@@ -93,18 +93,39 @@ def on_check(team_ip: str) -> Verdict:
 @Checker.define_put(vuln_num=1)
 def on_put(team_ip: str, flag_id: str, flag: str) -> Verdict:
     global STATES
-    try:
-        req = requests.put(f'http://{COORDINATOR[0]}:{COORDINATOR[1]}',
-                           data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': 1},
-                           timeout=10)
-        result = req.text.split('//')
-        # print(result)
-        code = int(result.pop(0))
-        return STATES[code](*result)
-    except requests.exceptions.ConnectionError:
-        return Verdict.DOWN('down', 'ConnectionError')
-    except:
-        return Verdict.CHECKER_ERROR('', 'returned bad format')
+
+    print('\nputting')
+    for i in range(6):
+        try:
+            user, password = generator.generate_userpass(flag_id)[0]
+            session = beacons_api.register_user(team_ip, user, password)
+        except requests.exceptions.ConnectionError:
+            return Verdict.DOWN('down', 'ConnectionError')
+        if session:
+            break
+        if i == 5:
+            return Verdict.MUMBLE("Can;t register user", '')
+    beacon_name = generator.generate_beacon_name()
+    for i in range(7):
+        x, y = generator.generate_coords()
+        beacon_id = beacons_api.add_beacon(team_ip, session, x, y, beacon_name, flag)
+        if beacon_id:
+            return Verdict.OK()
+    return Verdict.MUMBLE("Can't add new beacon", '')
+
+
+    # try:
+    #     req = requests.put(f'http://{COORDINATOR[0]}:{COORDINATOR[1]}',
+    #                        data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': 1},
+    #                        timeout=10)
+    #     result = req.text.split('//')
+    #     # print(result)
+    #     code = int(result.pop(0))
+    #     return STATES[code](*result)
+    # except requests.exceptions.ConnectionError:
+    #     return Verdict.DOWN('down', 'ConnectionError')
+    # except:
+    #     return Verdict.CHECKER_ERROR('', 'returned bad format')
 
 
 @Checker.define_get(vuln_num=1)
