@@ -48,7 +48,7 @@ impl Handler for GetListOfSourcesHandler {
         let sources : String;
 
         {
-            let mut v = self.weather_state.lock().unwrap();
+            let mut v = self.weather_state.lock().unwrap_or_else(|e| e.into_inner());
             sources = v.get_all_sources().iter().map(|(k ,v)| k.to_string()).collect::<Vec<String>>().connect("\n");
         }
 

@@ -7,55 +7,22 @@ mod push_message_handler;
 mod create_image;
 
 extern crate futures;
-//#[macro_use]
 extern crate gotham;
 #[macro_use]
 extern crate gotham_derive;
 extern crate hyper;
 extern crate mime;
-//#[macro_use]
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
 
-//extern crate tokio;
 extern crate tokio_core;
 
 extern crate xml;
 
-
-//use gotham::router::builder::*;
-
-//use futures::{stream, Future, Stream};
-//use std::time::{Duration, Instant};
-
-//use hyper::StatusCode;
-
-//use gotham::handler::{HandlerError, HandlerFuture, IntoHandlerError};
-//use gotham::helpers::http::response::create_response;
-//use gotham::helpers::http::response::*;
 use gotham::router::builder::DefineSingleRoute;
 use gotham::router::builder::{build_simple_router, DrawRoutes};
-//use gotham::router::Router;
-//use gotham::state::{FromState, State};
-
-//#[macro_use]
-//use gotham::router::*;
-//#[macro_use]
-//use gotham::router::response::extender::StaticResponseExtender;
-//use gotham::helpers::http::response::create_empty_response;
-//use gotham::state::StateData;
-
-//use gotham::helpers::http::response::*;
-
-//use tokio::timer::Delay;
-
-//use futures::*;
-//use gotham::helpers::http::*;
-//
-
-
 
 pub use self::weather_state::WeatherState;
 
@@ -68,8 +35,6 @@ mod push_message_query_string_extractor;
 mod get_list_of_sources_handler;
 mod constants;
 
-//use create_source_query_string_extractor::CreateSourceQueryStringExtractor;
-
 
 use std::sync::{Arc, Mutex};
 use serde::de::Unexpected::Str;
@@ -79,26 +44,12 @@ use ascii::AsciiString;
 use ascii::Ascii;
 use ascii::AsciiStr;
 use std::str::FromStr;
-//use hyper::client::HttpConnector;
-//use hyper::client::connect::dns::GaiResolver;
-//use self::
-//use hyper::Client;
 
-//extern crate regex;
-
-//use crate::create_image::create_pixels;
-//use crate::create_image2::kill_me;
-
-use crate::create_image::create_pixels;
 use std::num::Wrapping;
 use crate::create_source_query_string_extractor::CreateSourceQueryStringExtractor;
 use crate::push_message_query_string_extractor::PushMessageQueryStringExtractor;
 use std::path::Path;
-//use failure::Fail;
 use std::io::prelude::*;
-
-use usvg;
-use resvg;
 
 use std::env;
 
@@ -129,15 +80,11 @@ mod create_source_dto;
 
 fn main()
 {
-    println!("startd");
+    println!("started");
 
     START.call_once(|| {
         magick_wand_genesis();
     });
-
-    log_error!(format!("Cannot parse population for populated place "));
-
-
 
     let weather_state = Arc::new(Mutex::new(WeatherState::new()));
 
@@ -157,7 +104,7 @@ fn main()
         });
     };
 
-    let addr = "127.0.0.1:7878";
+    let addr = "0.0.0.0:7878";
     println!("Listening for requests at http://{}", addr);
     gotham::start(addr, router());
 }

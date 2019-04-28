@@ -7,14 +7,13 @@ DROP TABLE IF EXISTS jobs CASCADE;
 DROP TABLE IF EXISTS jobs_history CASCADE;
 DROP TABLE IF EXISTS teams_state CASCADE;
 DROP TABLE IF EXISTS teams_state_history CASCADE;
---DROP TABLE IF EXISTS beacon_coords CASCADE;    --do it manually and carefully
 
 CREATE TYPE worker_state as ENUM ('free', 'busy', 'down');
 
 
 CREATE TABLE IF NOT EXISTS workers
 (id SERIAL PRIMARY KEY,
-state state_enum NOT NULL DEFAULT 'free',
+state worker_state NOT NULL DEFAULT 'free',
 host VARCHAR(20) NOT NULL,
 port INT NOT NULL,
 UNIQUE (host, port));
@@ -61,7 +60,7 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_teams_state_trigger
 BEFORE UPDATE
 ON teams_state
-FOR EACH ROW EXECUTE PROCEDURE update_timestamp();
+FOR EACH ROW EXECUTE PROCEDURE update_teams_state();
 
 CREATE OR REPLACE FUNCTION make_worker_free()
 RETURNS TRIGGER AS $$

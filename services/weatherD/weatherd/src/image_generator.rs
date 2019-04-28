@@ -4,13 +4,12 @@ use magick_rust::{MagickWand, magick_wand_genesis};
 use std::io::prelude::*;
 use crate::push_message_handler::CreateSourceDto;
 
-
 pub fn generate(colors : &Vec<String>, dto : &CreateSourceDto) -> String {
     let mut file = File::open("read_mme.svg").unwrap();
 
     let mut content = String::new();
 
-    file.read_to_string(&mut content);
+    file.read_to_string(&mut content).unwrap();
 
     let s2 = content
         .replace("{{kekeke_0}}", &colors[0])
@@ -35,22 +34,27 @@ pub fn generate(colors : &Vec<String>, dto : &CreateSourceDto) -> String {
 pub fn generate_png(colors : &Vec<String>, dto : &CreateSourceDto ) -> Vec<u8>{
     let content = generate(&colors, dto);
 
-    let mut file = File::create(dto.source.to_string() + ".svg").unwrap();
+    let mut file = File::create(&(dto.source.to_string() + ".svg")).unwrap();
     file.write_all(content.as_bytes());
 
     let wand = MagickWand::new();
 
-    match wand.read_image(&dto.source.to_string() + ".svg") {
+    match wand.read_image(&(dto.source.to_string() + ".svg")) {
         Ok(r) => {},
         Err(e) => panic!(".")
     }
 
     match wand.write_image_blob("png") {
         Ok(r) => {
-            let mut file2 = File::create(&dto.source.to_string() + ".png").unwrap();
-            file2.write_all(&r);
-            return r;
+            let mut file2 = File::create(&(dto.source.to_string() + ".png")).unwrap();
+
+            match file2.write_all(&r) {
+                Ok(rr) => {
+                    return r;
+                },
+                Err(e) => panic!("")
+            }
         },
-        Err(e) => panic!("bullshit")
+        Err(e) => panic!("")
     }
 }

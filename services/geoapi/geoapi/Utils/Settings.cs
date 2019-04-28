@@ -13,7 +13,7 @@ namespace geoapi.Utils
         public int AgentIdSize { get; set; } = 12;
         public int ObjectIdSize { get; set; } = 12;
         public int SearchLimit { get; set; } = 100;
-        public TimeSpan TTL { get; set; } = new TimeSpan(0, 0, 30);
+        public TimeSpan TTL { get; set; } = new TimeSpan(1, 30, 0);
         public string MongoDBName { get; set; } = "AgentsDB";
     }
 }

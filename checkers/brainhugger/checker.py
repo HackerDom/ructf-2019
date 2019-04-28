@@ -150,9 +150,13 @@ def check_with_task(hostname, task_func):
     status = 1
     error = ""
     for try_index in range(CHECK_TRIES_COUNT):
-        stdout, status, error = get_task_info(hostport, cookies, task_id, token)
-        if status != 1:
-            break
+        try:
+            stdout, status, error = get_task_info(hostport, cookies, task_id, token)
+            if status != 1:
+                break
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code != 404:
+                raise
         time.sleep(RETRY_SLEEP)
     if status == 1:
         exit_with(MUMBLE, "can not get task info, too long answer")

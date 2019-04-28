@@ -38,6 +38,10 @@ use openssl::aes::{AesKey, aes_ige};
 use openssl::symm::Mode;
 use hex::{FromHex};
 
+macro_rules! log_error {
+    ($exp:expr) => {{println!("{}",$exp);$exp}}
+}
+
 #[derive(Clone)]
 pub struct PushMessageHandler {
     weather_state: Arc<Mutex<WeatherState>>
@@ -71,6 +75,7 @@ impl Handler for PushMessageHandler {
 
         let rr = Body::take_from(&mut state)
             .concat2()
+            .map_err(|e| log_error!("error in body decoding"))
             .then(move |full_body| match full_body {
                 Ok(valid_body) => {
                     let body_content = String::from_utf8(valid_body.to_vec()).unwrap();
@@ -80,29 +85,21 @@ impl Handler for PushMessageHandler {
 
                     let client = Client::new();
 
-                    let encryption_key: String;
-                    let encryption: bool;
-                    let iv: String;
-
                     let population : String;
                     let place_status  :String;
                     let race :String;
                     let danger : String;
                     let name : String;
                     {
-                        let mut state = (ws.lock().unwrap());
+                        let mut state = (ws.lock().unwrap_or_else(|e| e.into_inner()));
 
                         let source = state.get_source(&query_param.name.to_string());
-                        encryption_key = source.encryption_key.to_string();
-                        encryption = source.encryption;
-                        iv = source.iv.to_string();
 
                         population = source.population.to_string();
                         place_status = source.place_status.to_string();
                         race = source.race.to_string();
                         danger = source.danger.to_string();
                         name = source.name.to_string();
-//                        //todo : checck lock spoiling
                     }
 
 
@@ -116,21 +113,6 @@ impl Handler for PushMessageHandler {
                     let uri = format!("{}sendMessage?{}", crate::constants::NOTIFICATION_API_ADDR, query_string).parse::<Uri>().unwrap();
 
                     let mut colors_string = create_image::encode(&query_param.message);
-
-                    if encryption {
-
-                        let raw_key = encryption_key;
-                        let raw_iv = iv;
-
-                        let raw_key = "000102030405060708090A0B0C0D0E0F";
-                        let key = AesKey::new_encrypt(&Vec::from_hex(raw_key).unwrap()).unwrap();
-                        let mut iv = Vec::from_hex(raw_iv).unwrap();
-
-                        let mut ct_actual = vec![0; colors_string.len()];
-                        aes_ige(&colors_string, &mut ct_actual, &key, &mut iv, Mode::Encrypt);
-
-                        colors_string = ct_actual;
-                    }
 
                     let mut colors : Vec<String> = Vec::new();
 
@@ -157,7 +139,6 @@ impl Handler for PushMessageHandler {
 
                     let img = image_generator::generate_png(&colors, &dto);
 
-
                     let dto = CreateSourceDto{
                         password : query_param.password,
                         source : name.to_string(),
@@ -176,7 +157,7 @@ impl Handler for PushMessageHandler {
 
                     let result = client
                         .request(req)
-                        .map_err(|e| println!("everything is bad"))
+                        .map_err(|e| log_error!("error in request"))
                         .then(|res|
                             {
                                 match res
