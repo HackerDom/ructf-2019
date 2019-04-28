@@ -18,7 +18,7 @@ def on_check(team_ip: str) -> Verdict:
     sharing_result = False
 
     # check adding pictures, sharing links and devices
-    image_name, device = generator.get_image()
+    image_name = generator.get_image()
     try:
         for i in range(6):
             user, password = generator.generate_userpass(None)[0]
@@ -53,7 +53,7 @@ def on_check(team_ip: str) -> Verdict:
 
     images = beacons_api.get_image_ids(team_ip, cookie, beacon_id_private)
     if image_id_private in [img['id'] for img in images]:
-        print(1)
+        # print(1)
         private_result = True
 
     logout = beacons_api.logout(team_ip, cookie)
@@ -70,13 +70,13 @@ def on_check(team_ip: str) -> Verdict:
             return Verdict.MUMBLE("Can't register user", "Can't register user")
     images = beacons_api.get_image_ids(team_ip, another_user_cookie, beacon_id_public)
     if image_id_public in [img['id'] for img in images]:
-        print(2)
+        # print(2)
         public_result = True
 
     # check the possibility to get shared beacons
     is_private = beacons_api.get_shared_beacon(team_ip, another_user_cookie, invite_code)
     if not is_private:
-        print(3)
+        # print(3)
         sharing_result = True
 
     logout = beacons_api.logout(team_ip, another_user_cookie)
@@ -93,18 +93,39 @@ def on_check(team_ip: str) -> Verdict:
 @Checker.define_put(vuln_num=1)
 def on_put(team_ip: str, flag_id: str, flag: str) -> Verdict:
     global STATES
-    try:
-        req = requests.put(f'http://{COORDINATOR[0]}:{COORDINATOR[1]}',
-                           data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': 1},
-                           timeout=10)
-        result = req.text.split('//')
-        # print(result)
-        code = int(result.pop(0))
-        return STATES[code](*result)
-    except requests.exceptions.ConnectionError:
-        return Verdict.DOWN('down', 'ConnectionError')
-    except:
-        return Verdict.CHECKER_ERROR('', 'returned bad format')
+
+    # print('\nputting')
+    for i in range(6):
+        try:
+            user, password = generator.generate_userpass(flag_id)[0]
+            session = beacons_api.register_user(team_ip, user, password)
+        except requests.exceptions.ConnectionError:
+            return Verdict.DOWN('down', 'ConnectionError')
+        if session:
+            break
+        if i == 5:
+            return Verdict.MUMBLE("Can;t register user", '')
+    beacon_name = generator.generate_beacon_name()
+    for i in range(7):
+        x, y = generator.generate_coords()
+        beacon_id = beacons_api.add_beacon(team_ip, session, x, y, beacon_name, flag)
+        if beacon_id:
+            return Verdict.OK()
+    return Verdict.MUMBLE("Can't add new beacon", '')
+
+
+    # try:
+    #     req = requests.put(f'http://{COORDINATOR[0]}:{COORDINATOR[1]}',
+    #                        data={'team_ip': team_ip, 'flag_id': flag_id, 'flag': flag, 'vuln': 1},
+    #                        timeout=10)
+    #     result = req.text.split('//')
+    #     # print(result)
+    #     code = int(result.pop(0))
+    #     return STATES[code](*result)
+    # except requests.exceptions.ConnectionError:
+    #     return Verdict.DOWN('down', 'ConnectionError')
+    # except:
+    #     return Verdict.CHECKER_ERROR('', 'returned bad format')
 
 
 @Checker.define_get(vuln_num=1)
@@ -123,8 +144,8 @@ def on_get(team_ip: str, flag_id: str, flag: str) -> Verdict:
     for id in beacons:
         comments.append(beacons_api.get_beacon_comment(team_ip, cookie, id))
     if flag in comments:
-        print(comments)
-        print(flag)
+        # print(comments)
+        # print(flag)
         return Verdict.OK()
     return Verdict.CORRUPT('', 'hz')
 

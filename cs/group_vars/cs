@@ -35,42 +35,42 @@ cs_ctf_name: RuCTF 2019
 cs_flags_secret: YbOdr61LGV
 cs_round_length: 60
 cs_flag_life_time: 15
-cs_time_start: 2019-04-24 14:00:00
-cs_time_stop: 2019-04-29 22:00:00
-cs_time_break_start: 2019-04-24 15:00:00
-cs_time_break_end: 2019-04-24 15:30:00
+cs_time_start: 2019-04-28 11:00:00
+cs_time_stop: 2019-04-28 20:00:00
+cs_time_break_start: 2019-04-28 13:00:00
+cs_time_break_end: 2019-04-28 14:00:00
 
 cs_static_path: '/home/cs/ctf-scoreboard-client/scoreboard/build'
 
 teams: |
-  {name => 'SharLike',                         network => '10.60.1.0/24',  host => '10.60.1',  token => '5682601f-f424-4148-ab45-9b6bea3ec94d', logo => '/data/logos/sharlike.jpg'},
-  {name => 'Shadow Servants',                  network => '10.60.2.0/24',  host => '10.60.2',  token => '55abb4d7-1e0e-4581-bb0a-ef4cfa16f64e', logo => '/data/logos/shadow-servants.png'},
-  {name => 'girav',                            network => '10.60.3.0/24',  host => '10.60.3',  token => 'd3bd9b7d-03a9-4fd0-98c4-fb8156a0ad8b', logo => '/data/logos/girav.jpg'},
-  {name => 'c00kies@venice',                   network => '10.60.4.0/24',  host => '10.60.4',  token => '4c303043-7ea4-43c7-aabf-77771cf1e771', logo => '/data/logos/c00kiesvenice.png'},
-  {name => 'MSHP SSL: Kekulechko Net Diggers', network => '10.60.5.0/24',  host => '10.60.5',  token => 'd35b4d6f-f2eb-4579-9de8-5be8a4c5552f', logo => '/data/logos/dummy.png'},
-  {name => 'Bushwhackers',                     network => '10.60.6.0/24',  host => '10.60.6',  token => 'f1f590f2-feb1-4017-9ac0-ba103312b4fa', logo => '/data/logos/bushwhackers.jpg'},
-  {name => 'ENOFLAG',                          network => '10.60.7.0/24',  host => '10.60.7',  token => '59c3ca1b-a506-4331-bb62-b3d128620218', logo => '/data/logos/ENOFLAG.png'},
-  {name => 'Destructive Voice',                network => '10.60.8.0/24',  host => '10.60.8',  token => 'e458e581-3a5e-4fef-a58a-168de29719f7', logo => '/data/logos/Destructive_Voice.png'},
-  {name => 'Tower of Hanoi',                   network => '10.60.9.0/24',  host => '10.60.9',  token => '57fc5d4d-3146-4c10-b195-eb8dbc13e0c3', logo => '/data/logos/tower-of-hanoi.png'},
-  {name => 'saarsec',                          network => '10.60.10.0/24', host => '10.60.10', token => 'a19d062c-7b62-4179-a113-5f6f4adad018', logo => '/data/logos/saarsec.png'},
-  {name => 'Lights Out',                       network => '10.60.11.0/24', host => '10.60.11', token => 'e8c9c079-5e60-4a8b-b007-de952891215e', logo => '/data/logos/Lights_Out.png'},
-  {name => 'SiBears',                          network => '10.60.12.0/24', host => '10.60.12', token => '2ebdd519-b1ca-4b32-8cd4-ae440b341fc8', logo => '/data/logos/sibears.png'},
-  {name => 'SUSlo.PAS',                        network => '10.60.13.0/24', host => '10.60.13', token => '0582a64a-8342-4b4b-8413-e0e678c22e9d', logo => '/data/logos/dummy.png'},
-  {name => 'We_0wn_Y0u',                       network => '10.60.14.0/24', host => '10.60.14', token => '1a96ad32-0079-4f3d-a9e2-ec5da4fa0beb', logo => '/data/logos/We_0wn_Y0u.png'},
-  {name => 'LC↯BC',                            network => '10.60.15.0/24', host => '10.60.15', token => '2347183c-abdf-484d-99d7-e3d1da36875c', logo => '/data/logos/LCBC.png'},
-  {name => 'STT',                              network => '10.60.16.0/24', host => '10.60.16', token => 'ccec2566-e4e0-44c0-837c-17b3a7c65d01', logo => '/data/logos/dummy.png'},
-  {name => 'Corrupted Reflection',             network => '10.60.17.0/24', host => '10.60.17', token => 'da757ce6-34a1-4a5a-b1fb-5689012962af', logo => '/data/logos/corrupted-reflection.png'},
-  {name => 'Переподвысмотрит',                 network => '10.60.18.0/24', host => '10.60.18', token => '738b85ba-658c-41ec-ad56-3406a801ff7c', logo => '/data/logos/Переподвысмотрит.png'},
-  {name => 'Honeypot',                         network => '10.60.19.0/24', host => '10.60.19', token => 'd5d7dc20-f64e-4742-a5b3-5471e5363d2a', logo => '/data/logos/honeypot.png'},
-  {name => 'EpicTeam',                         network => '10.60.20.0/24', host => '10.60.20', token => '64051e51-39e5-446e-bd79-067cc49db930', logo => '/data/logos/epicteam.png'},
-  {name => 'Гостевая команда 1',               network => '10.60.21.0/24', host => '10.60.21', token => '726c9ba5-3e2e-4212-b197-46ba5d14db9d', logo => '/data/logos/dummy.png'},
-  {name => 'Гостевая команда 2',               network => '10.60.22.0/24', host => '10.60.22', token => 'd6eeaf3f-dcbc-4cb4-89e0-ca653a64df87', logo => '/data/logos/dummy.png'},
-  {name => 'Shellphish',                       network => '10.60.23.0/24', host => '10.60.23', token => 'db4e6667-dc6f-4f3e-9e96-43440a895984', logo => '/data/logos/shellphish.png'},
-  {name => 'PeterPen',                         network => '10.60.24.0/24', host => '10.60.24', token => 'ac94a858-cbd5-4a3b-9b1a-61de45e8ca1c', logo => '/data/logos/peterpen.png'},
-  {name => 'Novosibirsk SU X',                 network => '10.60.25.0/24', host => '10.60.25', token => 'b32a790c-58fc-4155-8d0b-44717b98e416', logo => '/data/logos/dummy.png'},
-  {name => 'SwissMadeSecurity',                network => '10.60.26.0/24', host => '10.60.26', token => 'dbff3af0-f642-40ac-af45-901b36d42c27', logo => '/data/logos/swissmadesecurity.jpg'},
-  {name => 'Guest1',                network => '10.60.27.0/24', host => '10.60.27', token => 'dbff3af0-f642-40ac-af45-901b36d42c28', logo => '/data/logos/swissmadesecurity.jpg'},
-  {name => 'Guest2',                network => '10.60.28.0/24', host => '10.60.28', token => 'dbff3af0-f642-40ac-af45-901b36d42c29', logo => '/data/logos/swissmadesecurity.jpg'},
+    {name => 'Bushwhackers', network => '10.60.1.0/24', host => '10.60.1', token => '4be8076d-c2b7-5269-f2dd-1bbf31ag1g13', logo => '/data/logos/01_bushwhackers.png'},
+    {name => 'FAUST', network => '10.60.2.0/24', host => '10.60.2', token => '1fc2867d-3540-a37c-5571-7gb68g62e4c7', logo => '/data/logos/02_faust.png'},
+    {name => '[SPbCTF] LC↯BC', network => '10.60.3.0/24', host => '10.60.3', token => '3fg15b52-9ced-2g1d-6dea-1661fa0a6146', logo => '/data/logos/03_spbctf-lcbc.png'},
+    {name => 'VoidHack', network => '10.60.4.0/24', host => '10.60.4', token => 'e0c1bb36-ga7g-cdd3-3a8f-ee70e1d33d10', logo => '/data/logos/04_vh.png'},
+    {name => 'Shadow Servants', network => '10.60.5.0/24', host => '10.60.5', token => '2212e5f1-a7e7-87ba-0fc7-9ba298020156', logo => '/data/logos/05_shadow-servants.png'},
+    {name => 'B3vil (ex. 0x1dea)', network => '10.60.6.0/24', host => '10.60.6', token => '4fc4fg59-a074-15da-g68g-9643a181fab5', logo => '/data/logos/06_b3vil.jpeg'},
+    {name => 'Lights Out', network => '10.60.7.0/24', host => '10.60.7', token => '91feaf34-1d32-7dec-3915-324fe638gcb0', logo => '/data/logos/07_lights_out.png'},
+    {name => 'bacaro_tour', network => '10.60.8.0/24', host => '10.60.8', token => '458007d6-1bf7-2agc-ae03-5a040748f48b', logo => '/data/logos/08_bacaro_tour.png'},
+    {name => 'saarsec', network => '10.60.9.0/24', host => '10.60.9', token => '8b42f231-43ge-bd11-e0e8-54cf154c8b97', logo => '/data/logos/09_saarcec.png'},
+    {name => 'ОМСКИЙ АНДЕГРАУНД И КУБОК ПЕТУХА', network => '10.60.10.0/24', host => '10.60.10', token => 'ea7fa669-0dg4-6dd1-4eb3-af44d7bac4cc', logo => '/data/logos/10_omskii.png'},
+    {name => 'Kamneezhka', network => '10.60.11.0/24', host => '10.60.11', token => '23gab933-2705-d1d1-994f-bb23gd30426c', logo => '/data/logos/11_kamne.png'},
+    {name => 'Corrupted Reflection', network => '10.60.12.0/24', host => '10.60.12', token => 'gag57dcd-5f56-177c-51df-bf746ec3b829', logo => '/data/logos/12_corrupted.png'},
+    {name => 'kks_wund3rw4ffl3_team', network => '10.60.13.0/24', host => '10.60.13', token => '310f468c-d7dd-ec61-d957-5e403dc76167', logo => '/data/logos/13_kks_wund3rw4ffl3_team.png'},
+    {name => '[SPbCTF] fargate', network => '10.60.14.0/24', host => '10.60.14', token => '5713661d-6ebe-6g07-07bb-7a35e185fbc4', logo => '/data/logos/14_fargate.jpeg'},
+    {name => 'ZenHack', network => '10.60.15.0/24', host => '10.60.15', token => 'af7g9d8d-7d5d-8e72-1575-91g86987609g', logo => '/data/logos/15_zenhack.png'},
+    {name => 'SwissMadeSecurity', network => '10.60.16.0/24', host => '10.60.16', token => '1a567cbf-9912-g1e2-g2d9-921g1f98f6d6', logo => '/data/logos/16_swiss_make_sec.png'},
+    {name => 'SiBears', network => '10.60.17.0/24', host => '10.60.17', token => '1712de27-g685-eg5e-2298-b1gd2517df0f', logo => '/data/logos/17_sibears.png'},
+    {name => 'Honeypot', network => '10.60.18.0/24', host => '10.60.18', token => '1269fb55-6696-0f18-9798-f73gg30a9e1d', logo => '/data/logos/18_honeypot.png'},
+    {name => 'SharLike', network => '10.60.19.0/24', host => '10.60.19', token => '803561c6-4ef8-682e-2432-8ce3b1a61235', logo => '/data/logos/19_sharlike.png'},
+    {name => 'Omaviat', network => '10.60.20.0/24', host => '10.60.20', token => '2524g3g3-5c93-9996-d574-9e376g471bg6', logo => '/data/logos/20_omaivat.jpeg'},
+    {name => 'Guest 1', network => '10.60.21.0/24', host => '10.60.21', token => 'b2c6c912-6855-9991-e781-465c5dbdbgb8', logo => '/data/logos/21_guest.png'},
+    {name => 'Guest 2', network => '10.60.22.0/24', host => '10.60.22', token => '9dceaf9g-6bbg-b33e-a9a0-g664c48cdc8a', logo => '/data/logos/22_guest.png'},
+    {name => 'Pixels', network => '10.60.23.0/24', host => '10.60.23', token => 'b453gd89-1118-c172-3gg6-2cedacg47d4f', logo => '/data/logos/23_pixels.png'},
+    {name => 'ENOFLAG', network => '10.60.24.0/24', host => '10.60.24', token => 'ddacddc8-b499-a27g-83e3-5cg52d7ce770', logo => '/data/logos/24_enoflag.png'},
+    {name => 'Gleitkommafreunde Bonn', network => '10.60.25.0/24', host => '10.60.25', token => 'b01e3gfe-b3e4-3a60-6d9c-e3cc4e1abfd8', logo => '/data/logos/25_gleit.jpeg'},
+    {name => '[SPbCTF] Kappa', network => '10.60.26.0/24', host => '10.60.26', token => 'ab08bg3f-7dac-0g81-e7d0-9c23e126b0c4', logo => '/data/logos/26_sbctf_kappa.jpeg'},
+    {name => 'Tower of Hanoi', network => '10.60.27.0/24', host => '10.60.27', token => '16e69ca7-779f-bad2-7120-1deg5e8930c0', logo => '/data/logos/27_tower-of-hanoi.png'},
+    {name => 'STT', network => '10.60.28.0/24', host => '10.60.28', token => '2b1agg15-4791-ef44-0a6d-be42c02f2362', logo => '/data/logos/28_stt.png'},
 
 services: |
   {id => 1, name => 'beacons',     path => 'checkers/beacons/checker.py',     timeout => 10},

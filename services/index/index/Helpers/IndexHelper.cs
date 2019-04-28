@@ -21,6 +21,7 @@ namespace index.Helpers
         private readonly IServiceBase<Node> nodesDb;
         private readonly IServiceBase<IndexEntity> indexDb;
         private readonly string cwd;
+        private static object _lock = new object();
 
         public IndexHelper(IServiceBase<Node> nodesDb, IServiceBase<IndexEntity> indexDb)
         {
@@ -45,27 +46,28 @@ namespace index.Helpers
         public void AddToIndex(string user, IFormFile zip)
         {
             using (var fileStream = zip.OpenReadStream())
-            {
-                var root = nodesDb.Get().First();
-                var files = Unzip(fileStream);
-                foreach (var (fileName, fullName) in files)
+                lock (_lock)
                 {
-                    if (string.IsNullOrEmpty(fileName))
-                        continue;
+                    var root = nodesDb.Get().First();
+                    var files = Unzip(fileStream);
+                    foreach (var (fileName, fullName) in files)
+                    {
+                        if (string.IsNullOrEmpty(fileName))
+                            continue;
 
-                    var filePath = Path.GetFullPath(
-                            Path.Join(
-                                Path.Join(IndexRoot, user),
-                                Path.GetFileNameWithoutExtension(zip.FileName),
-                                fullName))
-                        .Replace($"{cwd}{Path.DirectorySeparatorChar}", "");
-                    var current = root;
-                    AddNodes(current, filePath, fileName);
-                    AddIndex(filePath, fileName, user);
+                        var filePath = Path.GetFullPath(
+                                Path.Join(
+                                    Path.Join(IndexRoot, user),
+                                    Path.GetFileNameWithoutExtension(zip.FileName),
+                                    fullName))
+                            .Replace($"{cwd}{Path.DirectorySeparatorChar}", "");
+                        var current = root;
+                        AddNodes(current, filePath, fileName);
+                        AddIndex(filePath, fileName, user);
+                    }
+
+                    nodesDb.Update(root.Id, root);
                 }
-
-                nodesDb.Update(root.Id, root);
-            }
         }
 
         public List<List<string>> FindFile(string fileName, string user)

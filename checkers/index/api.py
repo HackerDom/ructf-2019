@@ -11,7 +11,7 @@ PORT = ':8888'
 class Api:
     def __init__(self, host, session: Session):
         self.session = session
-        retries = Retry(total=3, backoff_factor=0.5)
+        retries = Retry(total=5, backoff_factor=0.3)
         self.session.mount('http://', HTTPAdapter(max_retries=retries))
         self.host = f'{host}{PORT}'
         self._is_first = True
@@ -23,7 +23,7 @@ class Api:
         if self._is_first:
             self._is_first = False
         else:
-            wait(1500)
+            wait(750)
 
     def register_user(self, user) -> Response:
         self._jitter()
