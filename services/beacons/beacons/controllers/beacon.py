@@ -33,7 +33,7 @@ async def add_beacon(request):
 
     if not re.match(r"^[\w_ ]+$", name):
         return json({"error": "Username should contains only letters, numbers or _"})
-    if comment and not re.match(r"^[\w_!?., '\r\n]+$", comment):
+    if comment and not re.match(r"^[\w_!?., ='\r\n]+$", comment):
         return json({"error": "Incorrect symbol in comment"})
 
     coord_x = int(request.form.get("coord_x"))

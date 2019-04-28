@@ -72,8 +72,8 @@ static Units GUnits;
 static Camera GCamera;
 static GpuCamera GGpuCamera;
 static double GDeltaTime;
-static uint32_t GFieldSizeX = 4096 + kStreetWidth;
-static uint32_t GFieldSizeY = 4096 + kStreetWidth;
+static uint32_t GFieldSizeX = 2048 + kStreetWidth;
+static uint32_t GFieldSizeY = 2048 + kStreetWidth;
 #if DEBUG
 static bool GCameraForceMode = true;
 #else
