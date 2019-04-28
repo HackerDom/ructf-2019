@@ -18,7 +18,7 @@ def on_check(team_ip: str) -> Verdict:
     sharing_result = False
 
     # check adding pictures, sharing links and devices
-    image_name, device = generator.get_image()
+    image_name = generator.get_image()
     try:
         for i in range(6):
             user, password = generator.generate_userpass(None)[0]
