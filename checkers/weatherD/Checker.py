@@ -50,7 +50,7 @@ def check_service(host: str) -> Verdict:
 
 async def check(host: str) -> Verdict:
     password = generate_random_string()
-    src_name = generate_random_name()
+    src_name = generate_random_string()
     message = generate_random_string()
     result = rustClient.create_source(src_name, password, False, host)
     check_res = check_result(result)
@@ -88,14 +88,13 @@ async def check(host: str) -> Verdict:
     if check_res is not None:
         return check_res
 
-   # print(1)
+    print(1)
     return Verdict.OK()
 
 
 @Checker.define_put(vuln_num=1)
 def put_flag_into_the_service(host: str, flag_id: str, flag: str) -> Verdict:
     password = generate_random_string()
-    flag_id = flag_id[:8] + ' ' +generate_random_name()
     result = rustClient.create_source(flag_id, password, False, host)
     check_res = check_result(result)
     if check_res is not None:
@@ -130,7 +129,6 @@ async def get_flag(host: str, flag_id: str, flag: str) -> Verdict:
                     continue
 
                 if flag in decode_result.upper():
-                    print("ok")
                     return Verdict.OK()
         except Exception as e:
             return Verdict.DOWN("network error", "network error")
@@ -233,9 +231,9 @@ def to_u32(i):
 
 if __name__ == '__main__':
     #print(generate_random_name())
-    Checker.run()
-#    ip = "10.33.54.127"
-#    check_service(ip)
+   # Checker.run()
+    ip = "10.33.54.127"
+    check_service(ip)
 #    flag = generate_random_string(31)+'='
 #    id = generate_random_string(10)
 # #   print(flag)
