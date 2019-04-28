@@ -44,6 +44,7 @@ layout(std430, binding = 8) buffer Units
 uniform mat4 projMatrix;
 
 out vec2 pos2d;
+out vec3 posWS;
 
 void main()
 {
@@ -54,6 +55,7 @@ void main()
 	vec4 vertexPos = vec4(0.0f, 0.0f, 0.0, 1.0);
 	vertexPos.xyz = vec3(positions[gl_VertexID].x) * trViewMatrix[0].xyz + vec3(positions[gl_VertexID].y) * trViewMatrix[1].xyz;
 	vertexPos.xyz += vec3(unit.posX, unit.posY, unit.posZ);
+	posWS = vertexPos.xyz;
 
 	gl_Position = projMatrix * ViewMatrix * vertexPos;
 	pos2d = positions[gl_VertexID];

@@ -87,6 +87,8 @@ private:
 	std::vector<UUID> m_unitUuids;
 	std::map<UUID, uint32_t> m_uuidToIdx;
 
+	Texture2D* m_unitTexture = nullptr;
+
 	struct PendingUnit
 	{
 		UUID uuid;
