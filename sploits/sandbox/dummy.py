@@ -21,5 +21,5 @@ while True:
     print 'Accepted connection from {}:{}'.format(address[0], address[1])
     client_handler = threading.Thread(
         target=handle_client_connection,
-        args=(client_sock,) 
+        args=(client_sock,) )
     client_handler.start()
