@@ -1,3 +1,4 @@
+# WeaherD
 The service consists of two parts rust service with open source code and black box service.
 
 Each command have it's own insatance of rust service, and there is only one shared instance of NotificationAPI.
@@ -6,11 +7,11 @@ Users can create channels and subscribe to the channel with tokens provided by b
 
 Messages 
 
-Attack 1
+## Attack 1
 
 Users can send custom requests to NotificationAPI and analyze token generation algorythm.
 Tokens are generation takes name and timestamp from dto and generate UUID based on timestamp and first 8 bytes of source_name via algorythm:
-
+`
  public static string Generate(NotificationApiRequest request)
     {
       var timeBytes = BitConverter.GetBytes(request.timestamp/60);
@@ -22,16 +23,16 @@ Tokens are generation takes name and timestamp from dto and generate UUID based 
       for(var i = 0; i < Math.Min(srcBytes.Length, 8); i++)
         bytes[i] = srcBytes[i];
       var guid = new Guid(part1, part2, part3, bytes 
-
+`
 Every request with same timestamp with precision of a minute and same 8 bytes of string representation of have same tokens.
 
 Users can discover new channel created by check system by sending get all sources request every minute and monitoring new sources.
 
-Defense:
+### Defense:
 By default all timestamp is current time, but NotificationAPI accept any timestamps, if some random number is used instead of current time as timestamp for token generation token would be different.
 
 
-Attack 2
+## Attack 2
 
 There is unescaped fieild race in create source dto. Users could inject custom xml code for example
 
@@ -39,5 +40,5 @@ There is unescaped fieild race in create source dto. Users could inject custom x
 
 and steal another picture.
 
-Defense:
+### Defense:
 Escape all every strings inserted in svg
