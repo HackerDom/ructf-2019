@@ -16,7 +16,7 @@ layout(std430, binding = 0) buffer CameraData
     vec4 CameraDir;
     vec4 CameraUp;
     vec4 FrustumPlanes[6];
-	uint forceMode;
+    uint forceMode;
     uint padding[3];
 };
 

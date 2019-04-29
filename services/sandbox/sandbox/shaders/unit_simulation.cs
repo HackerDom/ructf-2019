@@ -2,15 +2,15 @@
 
 struct Unit
 {
-	uint mind[8];
-	uint id;
-	float posX;
+    uint mind[8];
+    uint id;
+    float posX;
     float posY;
-	float posZ;
-	uint padding;
-	float power;
-	uint prevDirIdx;
-	uint prevCrossIdx;
+    float posZ;
+    uint padding;
+    float power;
+    uint prevDirIdx;
+    uint prevCrossIdx;
 };
 
 layout(std430, binding = 8) buffer Units

@@ -28,39 +28,39 @@ extern "C" EAddUnitResult AddUnit(const char* mind, const char* uuid)
     inet_aton("127.0.0.1", &s.addr.sin_addr);
 
     s.sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (s.sock < 0)
-	{
-		perror("socket");
-		return kAddUnitInternalError;
-	}
+    if (s.sock < 0)
+    {
+        perror("socket");
+        return kAddUnitInternalError;
+    }
 
-	if (connect(s.sock, (struct sockaddr*)&s.addr, sizeof(s.addr)) < 0)
-	{
-		perror("connect");
+    if (connect(s.sock, (struct sockaddr*)&s.addr, sizeof(s.addr)) < 0)
+    {
+        perror("connect");
         close(s.sock);
-		return kAddUnitInternalError;
-	}
+        return kAddUnitInternalError;
+    }
 
     s.size = sizeof(CommandHeader);
-	s.h.cmd = kCommandAddUnit;
+    s.h.cmd = kCommandAddUnit;
     if(!uuid_parse(uuid, s.h.uuid))
     {
         close(s.sock);
-		return kAddUnitBadUUID;
+        return kAddUnitBadUUID;
     }
-	write(s.sock, &s.h, s.size);
+    write(s.sock, &s.h, s.size);
 
     s.size = sizeof(CommandAddUnit);
-	memcpy(s.cmd.mind, mind, 32);
-	write(s.sock, &s.cmd, s.size);
+    memcpy(s.cmd.mind, mind, 32);
+    write(s.sock, &s.cmd, s.size);
 
-	int bytes = recv(s.sock, &s.response, sizeof(s.response), 0);
-	if (bytes != sizeof(s.response))
-	{
-		perror("recv");
-		return kAddUnitInternalError;
-	}
-	close(s.sock);
+    int bytes = recv(s.sock, &s.response, sizeof(s.response), 0);
+    if (bytes != sizeof(s.response))
+    {
+        perror("recv");
+        return kAddUnitInternalError;
+    }
+    close(s.sock);
 
     return (EAddUnitResult)s.response.result;
 }
@@ -96,7 +96,7 @@ extern "C" bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
     {
         perror("connect");
         close(s.sock);
-		return false;
+        return false;
     }
 
     s.size = sizeof(CommandHeader);
@@ -112,7 +112,7 @@ extern "C" bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
     {
         perror("recv");
         close(s.sock);
-		return false;
+        return false;
     }
     close(s.sock);
 
@@ -122,9 +122,9 @@ extern "C" bool GetUnit(const char* uuid, UnitDesc& desc, bool& found)
 
     memcpy(desc.mind, s.response.mind, sizeof(s.response.mind));
     desc.posX = s.response.posX;
-	desc.posY = s.response.posY;
-	desc.posZ = s.response.posZ;
-	desc.power = s.response.power;
+    desc.posY = s.response.posY;
+    desc.posZ = s.response.posZ;
+    desc.power = s.response.power;
 
     return true;
 }
