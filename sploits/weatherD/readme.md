@@ -11,7 +11,7 @@ Messages
 
 Users can send custom requests to NotificationAPI and analyze token generation algorythm.
 Tokens are generation takes name and timestamp from dto and generate UUID based on timestamp and first 8 bytes of source_name via algorythm:
-`
+```
  public static string Generate(NotificationApiRequest request)
     {
       var timeBytes = BitConverter.GetBytes(request.timestamp/60);
@@ -23,7 +23,7 @@ Tokens are generation takes name and timestamp from dto and generate UUID based 
       for(var i = 0; i < Math.Min(srcBytes.Length, 8); i++)
         bytes[i] = srcBytes[i];
       var guid = new Guid(part1, part2, part3, bytes 
-`
+```
 Every request with same timestamp with precision of a minute and same 8 bytes of string representation of have same tokens.
 
 Users can discover new channel created by check system by sending get all sources request every minute and monitoring new sources.
