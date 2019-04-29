@@ -56,3 +56,5 @@ To perform our useful action, we need need to change **return address** to addre
 #### Performing a shellcode
 Now we need write a program in brainfuck, which prints shellcode to output and then changing return address to executable buffer.
 
+### Sploits
+Watch `op_attack.go` for working sploit for Padding Oracle attack and `bo_sttack.py`.

