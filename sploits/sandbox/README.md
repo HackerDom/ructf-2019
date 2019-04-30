@@ -61,4 +61,7 @@ You must scan the entire physical memory to find the flag storage and then read 
 1. Replace proxy #1 with proxy #2.
 2. Turn off Meltdown support in kernel boot options.  
 
+## Update
+Sandbox was hacked on second day after RuCTF by v0s. He used a ROP technique:
+https://gist.github.com/v0s/1933e025dc61c2dfe32a61f79b959c11
 
