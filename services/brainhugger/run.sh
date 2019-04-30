@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 echo "run backend"
 cd backend && ./backend&
