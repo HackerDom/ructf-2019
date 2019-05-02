@@ -2,7 +2,7 @@
 
 ### Description.
 
-You're given a map on which you can put some tags - beacons. To add new beacon you need to specify its name and write a comment. Also, you can make it private. When the beacon is created, you can attach pictures to it. If it is private, the name, comment and pictures are hidden for other users but you can give them invite code to see all of that.
+You're given a map on which you can put some tags - beacons. To add  a new beacon you need to specify its name and write a comment. Also, you can make it private. When the beacon is created, you can attach pictures to it. If it is private, the name, comment and pictures are hidden for other users but you can give them invite code to see all of that.
 
 ## Attacks
 
