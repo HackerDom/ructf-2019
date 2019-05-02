@@ -65,7 +65,7 @@ inserted_id = (await User.insert_one({"name": username, "password": password,
 
 And then, the function *get_invites*:
 
-**login.py**
+**login.py:**
 
 ```python
 ...
