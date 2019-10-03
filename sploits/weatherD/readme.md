@@ -1,7 +1,7 @@
 # WeaherD
-The service consists of two parts rust service with open source code and black box service.
+The service consists of two parts: rust service with open source code and black box service.
 
-Each command have it's own insatance of rust service, and there is only one shared instance of NotificationAPI.
+Each command have it's own instance of rust service, and there is only one shared instance of NotificationAPI.
 
 Users can create channels and subscribe to the channel with tokens provided by black box service. Token generation alogrythm is unknown.
 
@@ -34,11 +34,11 @@ By default all timestamp is current time, but NotificationAPI accept any timesta
 
 ## Attack 2
 
-There is unescaped fieild race in create source dto. Users could inject custom xml code for example
-
+There is unescaped field `race` in create source dto. Users could inject custom xml code, for example
+```
 'race' : '</text><image xlink:href=\"some_other_prerendered_png.png\" x=\"0\" y=\"0\" height=\"640px\" width=\"480px\"/><text>smth'
-
+```
 and steal another picture.
 
 ### Defense:
-Escape all every strings inserted in svg
+Escape all every string inserted in svg.
